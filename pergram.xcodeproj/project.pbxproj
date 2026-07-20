@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CBB8F06C300E08FA00DB9810 /* pergram-spec.md in Resources */ = {isa = PBXBuildFile; fileRef = CBB8F06B300E08FA00DB9810 /* pergram-spec.md */; };
+		CBB8F06E300E091100DB9810 /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = CBB8F06D300E090B00DB9810 /* CLAUDE.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CB663330300E024C00A67342 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +32,8 @@
 		CB663320300E024B00A67342 /* pergram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pergram.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB66332F300E024C00A67342 /* pergramTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pergramTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB663339300E024C00A67342 /* pergramUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pergramUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CBB8F06B300E08FA00DB9810 /* pergram-spec.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "pergram-spec.md"; sourceTree = "<group>"; };
+		CBB8F06D300E090B00DB9810 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +82,8 @@
 		CB663317300E024B00A67342 = {
 			isa = PBXGroup;
 			children = (
+				CBB8F06B300E08FA00DB9810 /* pergram-spec.md */,
+				CBB8F06D300E090B00DB9810 /* CLAUDE.md */,
 				CB663322300E024B00A67342 /* pergram */,
 				CB663332300E024C00A67342 /* pergramTests */,
 				CB66333C300E024C00A67342 /* pergramUITests */,
@@ -102,6 +111,7 @@
 				CB66331C300E024B00A67342 /* Sources */,
 				CB66331D300E024B00A67342 /* Frameworks */,
 				CB66331E300E024B00A67342 /* Resources */,
+				CBB8F0A0300E092000DB9810 /* swift-format lint */,
 			);
 			buildRules = (
 			);
@@ -212,6 +222,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CBB8F06C300E08FA00DB9810 /* pergram-spec.md in Resources */,
+				CBB8F06E300E091100DB9810 /* CLAUDE.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -230,6 +242,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		CBB8F0A0300E092000DB9810 /* swift-format lint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "swift-format lint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if ! xcrun --find swift-format >/dev/null 2>&1; then\n  echo \"warning: swift-format not found in toolchain; skipping lint\"\n  exit 0\nfi\nxcrun swift-format lint --recursive --configuration \"$SRCROOT/.swift-format\" \"$SRCROOT/pergram\" 2>&1 || true\nexit 0\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		CB66331C300E024B00A67342 /* Sources */ = {
@@ -400,6 +434,7 @@
 				DEVELOPMENT_TEAM = C5255FXZG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = PerGram;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -432,6 +467,7 @@
 				DEVELOPMENT_TEAM = C5255FXZG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = PerGram;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

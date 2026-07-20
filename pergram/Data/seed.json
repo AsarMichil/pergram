@@ -1,0 +1,89 @@
+{
+  "seedVersion": 1,
+  "items": [
+    {
+      "id": "chicken-thigh-boneless",
+      "name": "Chicken thigh (boneless)",
+      "aliases": ["thighs", "boneless thighs", "chicken thighs"],
+      "category": "meat",
+      "goodPricePer100g": 1.10
+    },
+    {
+      "id": "chicken-breast-boneless",
+      "name": "Chicken breast (boneless)",
+      "aliases": ["breast", "boneless breast", "chicken breasts"],
+      "category": "meat",
+      "goodPricePer100g": 1.65
+    },
+    {
+      "id": "ground-beef-lean",
+      "name": "Ground beef (lean)",
+      "aliases": ["lean ground beef", "hamburger", "mince"],
+      "category": "meat",
+      "goodPricePer100g": 1.30
+    },
+    {
+      "id": "salmon-fillet",
+      "name": "Salmon fillet",
+      "aliases": ["salmon", "atlantic salmon"],
+      "category": "seafood",
+      "goodPricePer100g": 2.75
+    },
+    {
+      "id": "butter",
+      "name": "Butter",
+      "aliases": ["salted butter", "unsalted butter"],
+      "category": "dairy",
+      "goodPricePer100g": 1.45
+    },
+    {
+      "id": "cheddar",
+      "name": "Cheddar cheese",
+      "aliases": ["cheddar", "old cheddar", "block cheese"],
+      "category": "dairy",
+      "goodPricePer100g": 2.20
+    },
+    {
+      "id": "rice-white",
+      "name": "White rice",
+      "aliases": ["rice", "long grain rice", "basmati"],
+      "category": "pantry",
+      "goodPricePer100g": 0.35
+    },
+    {
+      "id": "pasta-dry",
+      "name": "Pasta (dry)",
+      "aliases": ["pasta", "spaghetti", "penne", "macaroni"],
+      "category": "pantry",
+      "goodPricePer100g": 0.40
+    },
+    {
+      "id": "apples",
+      "name": "Apples",
+      "aliases": ["apple", "gala", "ambrosia", "mcintosh"],
+      "category": "produce",
+      "goodPricePer100g": 0.45
+    },
+    {
+      "id": "bananas",
+      "name": "Bananas",
+      "aliases": ["banana"],
+      "category": "produce",
+      "goodPricePer100g": 0.18
+    },
+    {
+      "id": "eggs-large",
+      "name": "Eggs (large)",
+      "aliases": ["eggs", "large eggs", "dozen eggs"],
+      "category": "dairy",
+      "goodPricePer100g": 0.55
+    },
+    {
+      "id": "potatoes",
+      "name": "Potatoes",
+      "aliases": ["potato", "russet", "yellow potatoes"],
+      "category": "produce",
+      "goodPricePer100g": 0.22
+    }
+  ]
+}
