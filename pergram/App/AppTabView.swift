@@ -1,29 +1,22 @@
 import SwiftData
 import SwiftUI
 
-struct RootView: View {
+struct AppTabView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \GroceryItem.name) private var items: [GroceryItem]
 
     var body: some View {
-        NavigationStack {
-            List(items) { item in
-                LabeledContent {
-                    Text(item.goodPricePer100g, format: .currency(code: "CAD"))
-                        .monospacedDigit()
-                } label: {
-                    Text(item.name)
-                }
+        TabView {
+            Tab("Check", systemImage: "checkmark.circle") {
+                CheckView()
             }
-            .navigationTitle("PerGram")
-            .overlay {
-                if items.isEmpty {
-                    ContentUnavailableView(
-                        "No items yet",
-                        systemImage: "cart",
-                        description: Text("Check a price and save it.")
-                    )
-                }
+            Tab("Scan", systemImage: "camera.viewfinder") {
+                ScanView()
+            }
+            Tab("Items", systemImage: "cart") {
+                ItemsView()
+            }
+            Tab("Help", systemImage: "questionmark.circle") {
+                HelpView()
             }
         }
         .task { importSeedIfNeeded() }
@@ -49,6 +42,19 @@ struct RootView: View {
 }
 
 #Preview {
-    RootView()
-        .modelContainer(for: GroceryItem.self, inMemory: true)
+    let container = try! ModelContainer(
+        for: GroceryItem.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    container.mainContext.insert(
+        GroceryItem(
+            id: "chicken-thigh-boneless",
+            name: "Chicken thigh (boneless)",
+            aliases: ["thighs"],
+            category: "meat",
+            goodPricePer100g: 1.10
+        )
+    )
+    return AppTabView()
+        .modelContainer(container)
 }

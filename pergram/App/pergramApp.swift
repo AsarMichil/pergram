@@ -15,7 +15,7 @@ struct PergramApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            AppTabView()
         }
         .modelContainer(modelContainer)
     }
