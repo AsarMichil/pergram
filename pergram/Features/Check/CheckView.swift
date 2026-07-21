@@ -8,28 +8,25 @@ struct CheckView: View {
     @State private var isShowingSaveSheet = false
 
     var body: some View {
-        GeometryReader { proxy in
-            VStack(spacing: 0) {
-                VerdictPanelView(
-                    pricePer100g: viewModel.pricePer100g,
-                    baselinePer100g: viewModel.selectedItem?.goodPricePer100g,
-                    settledVerdict: viewModel.settledVerdict,
-                    isSettled: viewModel.isSettled,
-                    hasEnoughInput: viewModel.hasEnoughInput,
-                    settleTick: viewModel.settleTick,
-                    onSaveAsGoodPrice: { isShowingSaveSheet = true }
-                )
-                .frame(height: proxy.size.height * 0.55)
+        VStack(spacing: 16) {
+            VerdictPanelView(
+                pricePer100g: viewModel.pricePer100g,
+                baselinePer100g: viewModel.selectedItem?.goodPricePer100g,
+                settledVerdict: viewModel.settledVerdict,
+                isSettled: viewModel.isSettled,
+                hasEnoughInput: viewModel.hasEnoughInput,
+                settleTick: viewModel.settleTick,
+                onSaveAsGoodPrice: { isShowingSaveSheet = true }
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                VStack(spacing: 16) {
-                    CheckFieldsView(viewModel: viewModel, isShowingItemPicker: $isShowingItemPicker)
-                    KeypadView(viewModel: viewModel)
-                }
-                .padding(.horizontal)
-                .padding(.top, 16)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack(spacing: 14) {
+                CheckFieldsView(viewModel: viewModel, isShowingItemPicker: $isShowingItemPicker)
+                KeypadView(viewModel: viewModel)
             }
+            .padding(.horizontal)
         }
+        .padding(.bottom, 52)
         .onAppear { viewModel.attach(modelContext: modelContext) }
         .sheet(isPresented: $isShowingItemPicker) {
             ItemPickerSheet(selectedItem: $viewModel.selectedItem)

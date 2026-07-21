@@ -12,6 +12,8 @@ final class CheckViewModel {
         case amount
     }
 
+    static let amountUnits: [MeasureUnit] = [.gram, .kilogram, .pound, .ounce]
+
     private static let amountUnitDefaultsKey = "checkAmountUnit"
     private static let settleDelayNanoseconds: UInt64 = 350_000_000
 
@@ -29,7 +31,8 @@ final class CheckViewModel {
     var selectedItem: GroceryItem? {
         didSet { scheduleSettle() }
     }
-    var focusedField: Field = .price
+    private(set) var focusedField: Field = .price
+    private(set) var isEditingFresh = true
 
     private(set) var isSettled = true
     private(set) var settledVerdict: Verdict?
@@ -43,11 +46,11 @@ final class CheckViewModel {
 
     init() {
         if let raw = UserDefaults.standard.string(forKey: Self.amountUnitDefaultsKey),
-            let unit = MeasureUnit(rawValue: raw)
+            let unit = MeasureUnit(rawValue: raw), Self.amountUnits.contains(unit)
         {
             amountUnit = unit
         } else {
-            amountUnit = .per100Grams
+            amountUnit = .gram
         }
     }
 
@@ -77,18 +80,35 @@ final class CheckViewModel {
         )
     }
 
+    func focus(_ field: Field) {
+        focusedField = field
+        isEditingFresh = true
+    }
+
     func inputDigit(_ digit: String) {
-        setFocusedText(Self.appending(digit, to: focusedText))
+        setFocusedText(Self.appending(digit, to: consumeFreshBase()))
     }
 
     func inputDecimalPoint() {
-        setFocusedText(Self.appending(".", to: focusedText))
+        setFocusedText(Self.appending(".", to: consumeFreshBase()))
     }
 
     func backspace() {
+        isEditingFresh = false
         var text = focusedText
         if !text.isEmpty { text.removeLast() }
         setFocusedText(text)
+    }
+
+    func clearFocusedField() {
+        isEditingFresh = false
+        setFocusedText("")
+    }
+
+    private func consumeFreshBase() -> String {
+        guard isEditingFresh else { return focusedText }
+        isEditingFresh = false
+        return ""
     }
 
     func deleteKeyPressStarted() {

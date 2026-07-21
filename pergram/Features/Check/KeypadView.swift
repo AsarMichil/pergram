@@ -2,58 +2,73 @@ import SwiftUI
 
 struct KeypadView: View {
     @Bindable var viewModel: CheckViewModel
-
-    private static let rows: [[String]] = [
-        ["1", "2", "3"],
-        ["4", "5", "6"],
-        ["7", "8", "9"],
-        [".", "0", "delete"],
-    ]
-
-    @State private var digitTick = 0
+    @State private var tick = 0
 
     var body: some View {
-        VStack(spacing: 10) {
-            ForEach(Self.rows, id: \.self) { row in
-                HStack(spacing: 10) {
-                    ForEach(row, id: \.self) { key in
-                        keyView(for: key)
-                    }
-                }
+        Grid(horizontalSpacing: 10, verticalSpacing: 10) {
+            GridRow {
+                digitKey("1")
+                digitKey("2")
+                digitKey("3")
+                DeleteKey(viewModel: viewModel, digitTick: $tick)
+            }
+            GridRow {
+                digitKey("4")
+                digitKey("5")
+                digitKey("6")
+                clearKey
+            }
+            GridRow {
+                digitKey("7")
+                digitKey("8")
+                digitKey("9")
+                decimalKey
+            }
+            GridRow {
+                digitKey("0")
+                    .gridCellColumns(3)
+                Color.clear
+                    .frame(maxWidth: .infinity)
             }
         }
-        .sensoryFeedback(.selection, trigger: digitTick)
+        .sensoryFeedback(.selection, trigger: tick)
     }
 
-    @ViewBuilder
-    private func keyView(for key: String) -> some View {
-        switch key {
-        case "delete":
-            DeleteKey(viewModel: viewModel, digitTick: $digitTick)
-        case ".":
-            Button {
-                viewModel.inputDecimalPoint()
-                digitTick &+= 1
-            } label: {
-                keyLabel(".")
-            }
-            .buttonStyle(.glass)
-        default:
-            Button {
-                viewModel.inputDigit(key)
-                digitTick &+= 1
-            } label: {
-                keyLabel(key)
-            }
-            .buttonStyle(.glass)
+    private func digitKey(_ digit: String) -> some View {
+        Button {
+            viewModel.inputDigit(digit)
+            tick &+= 1
+        } label: {
+            keyLabel(Text(digit))
         }
+        .buttonStyle(.glass)
     }
 
-    private func keyLabel(_ text: String) -> some View {
-        Text(text)
+    private var decimalKey: some View {
+        Button {
+            viewModel.inputDecimalPoint()
+            tick &+= 1
+        } label: {
+            keyLabel(Text("."))
+        }
+        .buttonStyle(.glass)
+    }
+
+    private var clearKey: some View {
+        Button {
+            viewModel.clearFocusedField()
+            tick &+= 1
+        } label: {
+            keyLabel(Text("C"))
+        }
+        .buttonStyle(.glass)
+    }
+
+    private func keyLabel(_ text: Text) -> some View {
+        text
             .font(.title2.weight(.medium))
             .monospacedDigit()
-            .frame(maxWidth: .infinity, minHeight: 48)
+            .frame(maxWidth: .infinity, minHeight: 46)
     }
 }
 
@@ -64,7 +79,7 @@ private struct DeleteKey: View {
     var body: some View {
         Image(systemName: "delete.left")
             .font(.title2.weight(.medium))
-            .frame(maxWidth: .infinity, minHeight: 48)
+            .frame(maxWidth: .infinity, minHeight: 46)
             .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 14))
             .contentShape(Rectangle())
             .onLongPressGesture(
