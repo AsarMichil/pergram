@@ -16,7 +16,13 @@ struct CheckView: View {
                 isSettled: viewModel.isSettled,
                 hasEnoughInput: viewModel.hasEnoughInput,
                 settleTick: viewModel.settleTick,
-                onSaveAsGoodPrice: { isShowingSaveSheet = true }
+                onSaveAsGoodPrice: {
+                    if viewModel.selectedItem == nil {
+                        isShowingSaveSheet = true
+                    } else {
+                        viewModel.updateSelectedGoodPrice()
+                    }
+                }
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 

@@ -29,6 +29,7 @@ struct VerdictPanelView: View {
         VStack(spacing: 12) {
             Spacer(minLength: 0)
             verdictWordRow
+                .frame(height: 30)
             Text(displayValue, format: .currency(code: "CAD"))
                 .font(.system(size: 76, weight: .black, design: .rounded))
                 .monospacedDigit()
@@ -43,7 +44,7 @@ struct VerdictPanelView: View {
                 .lineLimit(1)
                 .padding(.horizontal)
             unitCycleButton
-            baselineLine
+            contextSlot
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -107,27 +108,34 @@ struct VerdictPanelView: View {
         .sensoryFeedback(.selection, trigger: displayUnitRaw)
     }
 
-    @ViewBuilder
-    private var baselineLine: some View {
-        if let baselinePer100g, hasEnoughInput {
-            Text(
-                "your good price: \(PriceDisplay.price(per100g: baselinePer100g, in: displayUnit), format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: displayUnit))"
-            )
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-        } else if hasEnoughInput {
-            VStack(spacing: 8) {
-                Text("No baseline yet for this item")
+    private var contextSlot: some View {
+        VStack(spacing: 4) {
+            if !hasEnoughInput {
+                Text("Type a price and a weight to get a verdict")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                Button("Set as my good price", action: onSaveAsGoodPrice)
-                    .buttonStyle(.glass)
-            }
-        } else {
-            Text("Type a price and a weight to get a verdict")
+            } else if let baselinePer100g {
+                Text(
+                    "your good price: \(PriceDisplay.price(per100g: baselinePer100g, in: displayUnit), format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: displayUnit))"
+                )
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                saveLink("Update good price")
+            } else {
+                Text("No baseline yet")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                saveLink("Set as my good price")
+            }
         }
+        .frame(height: 60)
+    }
+
+    private func saveLink(_ title: String) -> some View {
+        Button(title, action: onSaveAsGoodPrice)
+            .font(.footnote.weight(.semibold))
+            .buttonStyle(.plain)
+            .foregroundStyle(.tint)
     }
 }
 

@@ -128,6 +128,14 @@ final class CheckViewModel {
         }
     }
 
+    func updateSelectedGoodPrice() {
+        guard let pricePer100g, let selectedItem, let modelContext else { return }
+        selectedItem.goodPricePer100g = pricePer100g
+        selectedItem.userModified = true
+        selectedItem.updatedAt = .now
+        try? modelContext.save()
+    }
+
     func saveAsGoodPrice(named name: String) {
         guard let pricePer100g, let modelContext else { return }
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
