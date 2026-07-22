@@ -27,18 +27,21 @@ struct ModeBubble: View {
             guard !isActive else { return }
             withAnimation(reduceMotion ? nil : switchAnimation) { mode = target }
         } label: {
-            HStack(spacing: 6) {
+            Group {
                 if isActive {
-                    Image(systemName: target.symbolName)
-                    Text(target.title)
+                    HStack(spacing: 6) {
+                        Image(systemName: target.symbolName)
+                        Text(target.title)
+                    }
+                    .padding(.vertical, 7)
+                    .padding(.horizontal, 14)
                 } else {
-                    Color.clear.frame(width: 4, height: 4)
+                    Color.clear
+                        .frame(width: 34, height: 34)
                 }
             }
             .font(.subheadline.weight(.semibold))
-            .frame(minHeight: 18)
-            .padding(.vertical, 7)
-            .padding(.horizontal, isActive ? 14 : 12)
+            .contentShape(.capsule)
         }
         .buttonStyle(.plain)
         .glassEffect(.regular.interactive(), in: .capsule)

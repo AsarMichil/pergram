@@ -129,6 +129,7 @@ final class CheckViewModel {
         selectedItem.userModified = true
         selectedItem.updatedAt = .now
         try? modelContext.save()
+        settle()
     }
 
     func saveAsGoodPrice(named name: String) {
@@ -142,6 +143,7 @@ final class CheckViewModel {
         modelContext.insert(item)
         try? modelContext.save()
         selectedItem = item
+        settle()
     }
 
     private var focusedText: String {
