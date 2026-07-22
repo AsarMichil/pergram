@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 
-enum CheckInputMode: CaseIterable {
+nonisolated enum CheckInputMode: CaseIterable, Hashable, Sendable {
     case type
     case scan
 

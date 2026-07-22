@@ -3,48 +3,53 @@ import SwiftUI
 struct ModeBubble: View {
     @Binding var mode: CheckInputMode
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var showsLabel = false
-    @State private var collapseTask: Task<Void, Never>?
+    @Namespace private var glass
+
+    private var switchAnimation: Animation { .spring(response: 0.4, dampingFraction: 0.82) }
 
     var body: some View {
-        Button {
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                mode = mode.toggled
+        GlassEffectContainer(spacing: 8) {
+            HStack(spacing: 8) {
+                element(for: .type)
+                element(for: .scan)
             }
+        }
+        .animation(reduceMotion ? nil : switchAnimation, value: mode)
+        .sensoryFeedback(.selection, trigger: mode)
+    }
+
+    /// Each mode keeps a fixed side (Type left, Scan right); the active one is a labelled pill, the
+    /// other collapses to a bare dot that taps back to it.
+    @ViewBuilder
+    private func element(for target: CheckInputMode) -> some View {
+        let isActive = mode == target
+        Button {
+            guard !isActive else { return }
+            withAnimation(reduceMotion ? nil : switchAnimation) { mode = target }
         } label: {
-            HStack(spacing: showsLabel ? 6 : 0) {
-                Image(systemName: mode.symbolName)
-                    .contentTransition(.symbolEffect(.replace))
-                if showsLabel {
-                    Text(mode.title)
-                        .fixedSize()
-                        .transition(.opacity)
+            HStack(spacing: 6) {
+                if isActive {
+                    Image(systemName: target.symbolName)
+                    Text(target.title)
+                } else {
+                    Color.clear.frame(width: 4, height: 4)
                 }
             }
             .font(.subheadline.weight(.semibold))
+            .frame(minHeight: 18)
             .padding(.vertical, 7)
-            .padding(.horizontal, showsLabel ? 14 : 9)
+            .padding(.horizontal, isActive ? 14 : 12)
         }
-        .buttonStyle(.glass)
-        .sensoryFeedback(.selection, trigger: mode)
-        .onAppear { revealLabel() }
-        .onChange(of: mode) { revealLabel() }
-    }
-
-    /// Rests as a bare icon and expands to the word only on a mode change, then settles back,
-    /// so the switcher stays out of the verdict's way. Reduce Motion keeps the word pinned.
-    private func revealLabel() {
-        collapseTask?.cancel()
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) { showsLabel = true }
-        guard !reduceMotion else { return }
-        collapseTask = Task {
-            try? await Task.sleep(for: .seconds(1.4))
-            guard !Task.isCancelled else { return }
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { showsLabel = false }
-        }
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: .capsule)
+        .glassEffectID(target, in: glass)
     }
 }
 
-#Preview {
+#Preview("Type") {
     ModeBubble(mode: .constant(.type))
+}
+
+#Preview("Scan") {
+    ModeBubble(mode: .constant(.scan))
 }
