@@ -43,8 +43,8 @@ struct CheckView: View {
             inputZone
                 .padding(.horizontal)
         }
-        .padding(.top, 52)
-        .padding(.bottom, 50)
+        .padding(.top, 8)
+        .padding(.bottom, 8)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
         .sensoryFeedback(.selection, trigger: mode)

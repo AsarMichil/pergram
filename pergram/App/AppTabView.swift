@@ -3,21 +3,41 @@ import SwiftUI
 
 struct AppTabView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var selection: AppTab = .check
+    @State private var isBarExpanded = true
+    @State private var idleTask: Task<Void, Never>?
 
     var body: some View {
-        TabView {
-            Tab("Check", systemImage: "checkmark.circle") {
-                CheckView()
-            }
-            Tab("Items", systemImage: "cart") {
-                ItemsView()
-            }
-            Tab("Settings", systemImage: "gearshape") {
-                SettingsView()
-            }
+        ZStack {
+            CheckView()
+                .opacity(selection == .check ? 1 : 0)
+                .allowsHitTesting(selection == .check)
+            ItemsView()
+                .opacity(selection == .items ? 1 : 0)
+                .allowsHitTesting(selection == .items)
+            SettingsView()
+                .opacity(selection == .settings ? 1 : 0)
+                .allowsHitTesting(selection == .settings)
         }
-        .tabBarMinimizeBehavior(.onScrollDown)
-        .task { importSeedIfNeeded() }
+        .safeAreaInset(edge: .bottom) {
+            CustomTabBar(selection: $selection, isExpanded: isBarExpanded, onActivity: nudgeIdle)
+        }
+        .task {
+            importSeedIfNeeded()
+            nudgeIdle()
+        }
+    }
+
+    /// Any tab-bar interaction expands the bar and restarts the idle timer; after a few seconds
+    /// with no bar interaction it minimizes to reclaim height for the content.
+    private func nudgeIdle() {
+        idleTask?.cancel()
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { isBarExpanded = true }
+        idleTask = Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { isBarExpanded = false }
+        }
     }
 
     private func importSeedIfNeeded() {
