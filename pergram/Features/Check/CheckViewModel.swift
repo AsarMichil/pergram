@@ -25,9 +25,6 @@ final class CheckViewModel {
             scheduleSettle()
         }
     }
-    var quantityCount = 1 {
-        didSet { scheduleSettle() }
-    }
     var selectedItem: GroceryItem? {
         didSet { scheduleSettle() }
     }
@@ -62,10 +59,8 @@ final class CheckViewModel {
     var amountValue: Double? { Double(amountText) }
 
     var rate: Rate? {
-        guard let priceValue, priceValue > 0, quantityCount > 0 else { return nil }
-        guard let amountValue, amountValue > 0 else { return nil }
-        return Rate(
-            money: priceValue / Double(quantityCount), quantity: amountValue, unit: amountUnit)
+        guard let priceValue, priceValue > 0, let amountValue, amountValue > 0 else { return nil }
+        return Rate(money: priceValue, quantity: amountValue, unit: amountUnit)
     }
 
     var pricePer100g: Double? { rate?.pricePer100g }

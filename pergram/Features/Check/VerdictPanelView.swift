@@ -27,7 +27,6 @@ struct VerdictPanelView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Spacer(minLength: 0)
             verdictWordRow
                 .frame(height: 30)
             Text(displayValue, format: .currency(code: "CAD"))
@@ -45,10 +44,8 @@ struct VerdictPanelView: View {
                 .padding(.horizontal)
             unitCycleButton
             contextSlot
-            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.background)
+        .frame(maxWidth: .infinity)
         .sensoryFeedback(trigger: settleTick) { _, _ in
             guard isSettled, let settledVerdict else { return nil }
             return settledVerdict.feedback
@@ -111,9 +108,7 @@ struct VerdictPanelView: View {
     private var contextSlot: some View {
         VStack(spacing: 4) {
             if !hasEnoughInput {
-                Text("Type a price and a weight to get a verdict")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                EmptyView()
             } else if let baselinePer100g {
                 Text(
                     "your good price: \(PriceDisplay.price(per100g: baselinePer100g, in: displayUnit), format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: displayUnit))"
@@ -122,9 +117,6 @@ struct VerdictPanelView: View {
                 .foregroundStyle(.secondary)
                 saveLink("Update good price")
             } else {
-                Text("No baseline yet")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
                 saveLink("Set as my good price")
             }
         }

@@ -13,11 +13,7 @@ struct CheckFieldsView: View {
 
     private var expressionCard: some View {
         VStack(spacing: 12) {
-            HStack(alignment: .center, spacing: 12) {
-                quantityControl
-                Spacer(minLength: 8)
-                priceField
-            }
+            priceField
             Divider()
             HStack(spacing: 8) {
                 Text("per")
@@ -33,31 +29,6 @@ struct CheckFieldsView: View {
         }
     }
 
-    private var quantityControl: some View {
-        HStack(spacing: 8) {
-            Button {
-                adjustQuantity(-1)
-            } label: {
-                Image(systemName: "minus")
-            }
-            .buttonStyle(.glass)
-            .disabled(viewModel.quantityCount <= 1)
-
-            Text("\(viewModel.quantityCount) for")
-                .font(.subheadline.weight(.semibold))
-                .monospacedDigit()
-                .contentTransition(.numericText())
-
-            Button {
-                adjustQuantity(1)
-            } label: {
-                Image(systemName: "plus")
-            }
-            .buttonStyle(.glass)
-        }
-        .sensoryFeedback(.selection, trigger: viewModel.quantityCount)
-    }
-
     private var priceField: some View {
         FieldBox(
             prefix: "$",
@@ -66,9 +37,8 @@ struct CheckFieldsView: View {
             isFocused: viewModel.focusedField == .price,
             isSelected: viewModel.focusedField == .price && viewModel.isEditingFresh,
             emphasized: true,
-            alignment: .trailing
+            alignment: .leading
         )
-        .frame(maxWidth: 150)
         .onTapGesture { viewModel.focus(.price) }
     }
 
@@ -119,12 +89,6 @@ struct CheckFieldsView: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.glass)
-    }
-
-    private func adjustQuantity(_ delta: Int) {
-        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
-            viewModel.quantityCount = min(20, max(1, viewModel.quantityCount + delta))
-        }
     }
 
     private static func unitNoun(_ unit: MeasureUnit) -> String {
