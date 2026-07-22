@@ -16,6 +16,7 @@ struct AppTabView: View {
                 SettingsView()
             }
         }
+        .tabBarMinimizeBehavior(.onScrollDown)
         .task { importSeedIfNeeded() }
     }
 
