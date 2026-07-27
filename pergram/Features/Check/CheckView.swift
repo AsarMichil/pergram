@@ -17,16 +17,11 @@ struct CheckView: View {
     @State private var isShowingItemPicker = false
     @State private var isShowingSaveSheet = false
 
-    // iOS 26 lays a TabView tab's content edge-to-edge: neither the Dynamic Island / status bar
-    // nor the floating tab bar reduces the safe area for non-scrolling content, and no API exposes
-    // their heights, so this fixed keypad screen clears both bars with manual insets.
-    private static let islandClearance: CGFloat = 60
-    private static let tabBarHeight: CGFloat = 49
-    private static let bottomBreathingRoom: CGFloat = 15
-    private static let tabBarClearance = tabBarHeight + bottomBreathingRoom
-
     var body: some View {
-        VStack(spacing: 12) {
+        // The system safe area already clears the Dynamic Island / status bar (adapting per device)
+        // and reserves room for the floating Liquid Glass tab bar, so this fixed keypad screen just
+        // lives inside it — no manual clearances or edge-to-edge overrides needed.
+        VStack {
             ModeBubble(mode: $mode)
 
             Spacer(minLength: 0)
@@ -47,11 +42,11 @@ struct CheckView: View {
                 }
             )
 
-            inputZone
-                .padding(.horizontal)
+            Spacer(minLength: 0)
+
+            inputZone.padding()
         }
-        .padding(.top, Self.islandClearance)
-        .padding(.bottom, Self.tabBarClearance)
+        .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
         .onAppear { viewModel.attach(modelContext: modelContext) }
@@ -71,14 +66,16 @@ struct CheckView: View {
     private var inputZone: some View {
         switch mode {
         case .type:
-            VStack(spacing: 12) {
+            VStack {
                 CheckFieldsView(viewModel: viewModel, isShowingItemPicker: $isShowingItemPicker)
                 KeypadView(viewModel: viewModel)
             }
             .transition(.move(edge: .leading).combined(with: .opacity))
         case .scan:
-            ScanModeView()
-                .transition(.move(edge: .trailing).combined(with: .opacity))
+            VStack {
+                ScanModeView()
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
+            }
         }
     }
 

@@ -27,7 +27,7 @@ struct KeypadView: View {
                 digitKey("0")
                     .gridCellColumns(3)
                 Color.clear
-                    .frame(maxWidth: .infinity)
+                    .gridCellUnsizedAxes([.horizontal, .vertical])
             }
         }
     }

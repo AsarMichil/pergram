@@ -26,9 +26,8 @@ struct VerdictPanelView: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack {
             verdictWordRow
-                .frame(height: 30)
             Text(displayValue, format: .currency(code: "CAD"))
                 .font(.system(size: 64, weight: .black, design: .rounded))
                 .monospacedDigit()
@@ -39,8 +38,10 @@ struct VerdictPanelView: View {
                         ? .easeInOut(duration: 0.2) : .spring(response: 0.35, dampingFraction: 0.8),
                     value: displayValue
                 )
-                .minimumScaleFactor(0.4)
+                .minimumScaleFactor(0.2)
                 .lineLimit(1)
+                .frame(maxWidth: .infinity)
+                .frame(height: 78, alignment: .top)
                 .padding(.horizontal)
             unitCycleButton
             contextSlot

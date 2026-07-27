@@ -10,6 +10,7 @@ struct ScanModeView: View {
             )
         }
         .frame(maxWidth: .infinity)
+        .fixedSize(horizontal: false, vertical: true)
         .padding(.vertical, 40)
     }
 }

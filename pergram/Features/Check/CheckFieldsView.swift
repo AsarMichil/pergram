@@ -5,14 +5,14 @@ struct CheckFieldsView: View {
     @Binding var isShowingItemPicker: Bool
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack {
             expressionCard
             itemChip
         }
     }
 
     private var expressionCard: some View {
-        VStack(spacing: 12) {
+        VStack {
             priceField
             Divider()
             HStack(spacing: 8) {

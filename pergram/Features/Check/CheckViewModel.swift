@@ -205,10 +205,12 @@ final class CheckViewModel {
 
     /// Only matched checks are recorded, and identical consecutive settles are skipped: history
     /// exists to feed a future per-item trend, so unmatched or partial-entry values are noise.
+    /// Dedup keys on the item's object identity, which is stable regardless of SwiftData's
+    /// persistent id changing when a freshly-created item is saved.
     private func recordObservationIfNeeded() {
         guard let pricePer100g, let selectedItem, let modelContext else { return }
         let cents = Int((pricePer100g * 100).rounded())
-        let signature = "\(selectedItem.persistentModelID.hashValue)-\(cents)"
+        let signature = "\(ObjectIdentifier(selectedItem))-\(cents)"
         guard signature != lastRecordedSignature else { return }
         lastRecordedSignature = signature
         let observation = PriceObservation(
