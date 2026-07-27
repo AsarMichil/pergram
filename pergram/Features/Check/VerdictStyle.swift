@@ -24,12 +24,4 @@ extension Verdict {
         case .bad: return "xmark.circle.fill"
         }
     }
-
-    var feedback: SensoryFeedback {
-        switch self {
-        case .good: return .success
-        case .meh: return .impact(weight: .light)
-        case .bad: return .warning
-        }
-    }
 }

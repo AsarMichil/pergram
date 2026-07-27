@@ -2,15 +2,14 @@ import SwiftUI
 
 struct KeypadView: View {
     @Bindable var viewModel: CheckViewModel
-    @State private var tick = 0
 
     var body: some View {
-        Grid(horizontalSpacing: 10, verticalSpacing: 10) {
+        Grid(horizontalSpacing: 10, verticalSpacing: 6) {
             GridRow {
                 digitKey("1")
                 digitKey("2")
                 digitKey("3")
-                DeleteKey(viewModel: viewModel, digitTick: $tick)
+                DeleteKey(viewModel: viewModel)
             }
             GridRow {
                 digitKey("4")
@@ -31,13 +30,11 @@ struct KeypadView: View {
                     .frame(maxWidth: .infinity)
             }
         }
-        .sensoryFeedback(.selection, trigger: tick)
     }
 
     private func digitKey(_ digit: String) -> some View {
         Button {
             viewModel.inputDigit(digit)
-            tick &+= 1
         } label: {
             keyLabel(Text(digit))
         }
@@ -47,7 +44,6 @@ struct KeypadView: View {
     private var decimalKey: some View {
         Button {
             viewModel.inputDecimalPoint()
-            tick &+= 1
         } label: {
             keyLabel(Text("."))
         }
@@ -57,7 +53,6 @@ struct KeypadView: View {
     private var clearKey: some View {
         Button {
             viewModel.clearFocusedField()
-            tick &+= 1
         } label: {
             keyLabel(Text("C"))
         }
@@ -68,18 +63,17 @@ struct KeypadView: View {
         text
             .font(.title2.weight(.medium))
             .monospacedDigit()
-            .frame(maxWidth: .infinity, minHeight: 46)
+            .frame(maxWidth: .infinity, minHeight: 38)
     }
 }
 
 private struct DeleteKey: View {
     @Bindable var viewModel: CheckViewModel
-    @Binding var digitTick: Int
 
     var body: some View {
         Image(systemName: "delete.left")
             .font(.title2.weight(.medium))
-            .frame(maxWidth: .infinity, minHeight: 46)
+            .frame(maxWidth: .infinity, minHeight: 38)
             .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 14))
             .contentShape(Rectangle())
             .onLongPressGesture(
@@ -93,7 +87,6 @@ private struct DeleteKey: View {
                         viewModel.deleteKeyPressStarted()
                     } else {
                         viewModel.deleteKeyPressEnded()
-                        digitTick &+= 1
                     }
                 }
             )

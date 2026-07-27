@@ -15,8 +15,6 @@ struct ModeBubble: View {
         .sensoryFeedback(.selection, trigger: mode)
     }
 
-    /// Each mode keeps a fixed side (Type left, Scan right); the active one is a labelled glass
-    /// pill, the other collapses to a small glass dot that taps back to it.
     @ViewBuilder
     private func element(for target: CheckInputMode) -> some View {
         if mode == target {
@@ -36,8 +34,9 @@ struct ModeBubble: View {
             Button {
                 withAnimation(reduceMotion ? nil : switchAnimation) { mode = target }
             } label: {
-                Color.clear
-                    .frame(width: 8, height: 8)
+                Text(" ")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(width: 10, height: 10)
             }
             .buttonStyle(.glass)
             .buttonBorderShape(.circle)

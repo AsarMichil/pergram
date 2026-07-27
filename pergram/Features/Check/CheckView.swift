@@ -17,37 +17,43 @@ struct CheckView: View {
     @State private var isShowingItemPicker = false
     @State private var isShowingSaveSheet = false
 
+    // iOS 26 lays a TabView tab's content edge-to-edge: neither the Dynamic Island / status bar
+    // nor the floating tab bar reduces the safe area for non-scrolling content, and no API exposes
+    // their heights, so this fixed keypad screen clears both bars with manual insets.
+    private static let islandClearance: CGFloat = 60
+    private static let tabBarHeight: CGFloat = 49
+    private static let bottomBreathingRoom: CGFloat = 15
+    private static let tabBarClearance = tabBarHeight + bottomBreathingRoom
+
     var body: some View {
         VStack(spacing: 12) {
-            VStack(spacing: 16) {
-                ModeBubble(mode: $mode)
+            ModeBubble(mode: $mode)
 
-                VerdictPanelView(
-                    pricePer100g: viewModel.pricePer100g,
-                    baselinePer100g: viewModel.selectedItem?.goodPricePer100g,
-                    settledVerdict: viewModel.settledVerdict,
-                    isSettled: viewModel.isSettled,
-                    hasEnoughInput: viewModel.hasEnoughInput,
-                    settleTick: viewModel.settleTick,
-                    onSaveAsGoodPrice: {
-                        if viewModel.selectedItem == nil {
-                            isShowingSaveSheet = true
-                        } else {
-                            viewModel.updateSelectedGoodPrice()
-                        }
+            Spacer(minLength: 0)
+
+            VerdictPanelView(
+                pricePer100g: viewModel.pricePer100g,
+                baselinePer100g: viewModel.selectedItem?.goodPricePer100g,
+                settledVerdict: viewModel.settledVerdict,
+                isSettled: viewModel.isSettled,
+                hasEnoughInput: viewModel.hasEnoughInput,
+                settleTick: viewModel.settleTick,
+                onSaveAsGoodPrice: {
+                    if viewModel.selectedItem == nil {
+                        isShowingSaveSheet = true
+                    } else {
+                        viewModel.updateSelectedGoodPrice()
                     }
-                )
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            )
 
             inputZone
                 .padding(.horizontal)
         }
-        .padding(.top, 52)
-        .padding(.bottom, 50)
+        .padding(.top, Self.islandClearance)
+        .padding(.bottom, Self.tabBarClearance)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
-        .sensoryFeedback(.selection, trigger: mode)
         .onAppear { viewModel.attach(modelContext: modelContext) }
         .sheet(isPresented: $isShowingItemPicker) {
             ItemPickerSheet(selectedItem: $viewModel.selectedItem)

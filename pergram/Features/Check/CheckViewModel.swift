@@ -36,7 +36,7 @@ final class CheckViewModel {
     private(set) var settleTick = 0
 
     private var settleTask: Task<Void, Never>?
-    private var deleteRollbackTask: Task<Void, Never>?
+    private var acceleratingClearTask: Task<Void, Never>?
     private var deleteWasLongPress = false
     private var modelContext: ModelContext?
     private var lastRecordedSignature: String?
@@ -116,8 +116,8 @@ final class CheckViewModel {
     }
 
     func deleteKeyPressEnded() {
-        deleteRollbackTask?.cancel()
-        deleteRollbackTask = nil
+        acceleratingClearTask?.cancel()
+        acceleratingClearTask = nil
         if !deleteWasLongPress {
             backspace()
         }
@@ -172,8 +172,8 @@ final class CheckViewModel {
     }
 
     private func startAcceleratingClear() {
-        deleteRollbackTask?.cancel()
-        deleteRollbackTask = Task { @MainActor [weak self] in
+        acceleratingClearTask?.cancel()
+        acceleratingClearTask = Task { @MainActor [weak self] in
             var delay: UInt64 = 55_000_000
             while true {
                 guard let self, !Task.isCancelled else { return }
@@ -196,6 +196,7 @@ final class CheckViewModel {
     }
 
     private func settle() {
+        settleTask?.cancel()
         isSettled = true
         settledVerdict = liveVerdict
         settleTick &+= 1

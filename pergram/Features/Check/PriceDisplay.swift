@@ -26,17 +26,6 @@ nonisolated enum PriceDisplay {
         }
     }
 
-    static func amountUnitLabel(for unit: MeasureUnit) -> String {
-        switch unit {
-        case .gram: return "g"
-        case .kilogram: return "kg"
-        case .pound: return "lb"
-        case .ounce: return "oz"
-        case .per100Grams: return "/100g"
-        case .each: return "each"
-        }
-    }
-
     static func next(after unit: MeasureUnit) -> MeasureUnit {
         guard let index = cycleOrder.firstIndex(of: unit) else { return cycleOrder[0] }
         return cycleOrder[(index + 1) % cycleOrder.count]

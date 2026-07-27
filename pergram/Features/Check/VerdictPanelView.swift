@@ -30,7 +30,7 @@ struct VerdictPanelView: View {
             verdictWordRow
                 .frame(height: 30)
             Text(displayValue, format: .currency(code: "CAD"))
-                .font(.system(size: 76, weight: .black, design: .rounded))
+                .font(.system(size: 64, weight: .black, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(.primary)
                 .contentTransition(.numericText())
@@ -47,8 +47,8 @@ struct VerdictPanelView: View {
         }
         .frame(maxWidth: .infinity)
         .sensoryFeedback(trigger: settleTick) { _, _ in
-            guard isSettled, let settledVerdict else { return nil }
-            return settledVerdict.feedback
+            guard isSettled, hasEnoughInput else { return nil }
+            return .impact(weight: .light)
         }
     }
 
@@ -120,7 +120,7 @@ struct VerdictPanelView: View {
                 saveLink("Set as my good price")
             }
         }
-        .frame(height: 60)
+        .frame(height: 40)
     }
 
     private func saveLink(_ title: String) -> some View {
