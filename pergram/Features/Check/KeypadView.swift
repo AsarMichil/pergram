@@ -2,6 +2,9 @@ import SwiftUI
 
 struct KeypadView: View {
     @Bindable var viewModel: CheckViewModel
+    var onBookmark: () -> Void
+
+    private var canBookmark: Bool { viewModel.hasEnoughInput }
 
     var body: some View {
         Grid(horizontalSpacing: 10, verticalSpacing: 6) {
@@ -26,10 +29,21 @@ struct KeypadView: View {
             GridRow {
                 digitKey("0")
                     .gridCellColumns(3)
-                Color.clear
-                    .gridCellUnsizedAxes([.horizontal, .vertical])
+                bookmarkKey
             }
         }
+        .animation(.easeInOut(duration: 0.45), value: canBookmark)
+    }
+
+    private var bookmarkKey: some View {
+        Button(action: onBookmark) {
+            Image(systemName: "bookmark")
+                .font(.title2.weight(.medium))
+                .frame(maxWidth: .infinity, minHeight: 38)
+        }
+        .buttonStyle(.glassProminent)
+        .tint(canBookmark ? Color.accentColor : Color(.systemGray4))
+        .disabled(!canBookmark)
     }
 
     private func digitKey(_ digit: String) -> some View {
@@ -94,6 +108,6 @@ private struct DeleteKey: View {
 }
 
 #Preview {
-    KeypadView(viewModel: CheckViewModel())
+    KeypadView(viewModel: CheckViewModel(), onBookmark: {})
         .padding()
 }
