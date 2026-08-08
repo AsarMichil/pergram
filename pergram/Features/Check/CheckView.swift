@@ -40,7 +40,15 @@ struct CheckView: View {
                         viewModel.updateSelectedGoodPrice()
                     }
                 }
-            )
+            ) {
+                if let lastBookmarkedPricePer100g = viewModel.lastBookmarkedPricePer100g {
+                    LastPriceChip(pricePer100g: lastBookmarkedPricePer100g) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            viewModel.clearBookmark()
+                        }
+                    }
+                }
+            }
 
             Spacer(minLength: 0)
 
@@ -68,7 +76,7 @@ struct CheckView: View {
         case .type:
             VStack {
                 CheckFieldsView(viewModel: viewModel, isShowingItemPicker: $isShowingItemPicker)
-                KeypadView(viewModel: viewModel)
+                KeypadView(viewModel: viewModel, onBookmark: viewModel.bookmarkCurrentPrice)
             }
             .transition(.move(edge: .leading).combined(with: .opacity))
         case .scan:

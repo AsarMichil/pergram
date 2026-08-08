@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct VerdictPanelView: View {
+struct VerdictPanelView<UnitRowLeading: View>: View {
     let pricePer100g: Double?
     let baselinePer100g: Double?
     let settledVerdict: Verdict?
@@ -8,6 +8,7 @@ struct VerdictPanelView: View {
     let hasEnoughInput: Bool
     let settleTick: Int
     var onSaveAsGoodPrice: () -> Void
+    @ViewBuilder var unitRowLeading: UnitRowLeading
 
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -28,6 +29,7 @@ struct VerdictPanelView: View {
     var body: some View {
         VStack {
             verdictWordRow
+                .frame(height: 34)
             Text(displayValue, format: .currency(code: "CAD"))
                 .font(.system(size: 64, weight: .black, design: .rounded))
                 .monospacedDigit()
@@ -43,7 +45,7 @@ struct VerdictPanelView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 78, alignment: .top)
                 .padding(.horizontal)
-            unitCycleButton
+            unitRow
             contextSlot
         }
         .frame(maxWidth: .infinity)
@@ -85,6 +87,15 @@ struct VerdictPanelView: View {
                 .foregroundStyle(neutralColor)
                 .transition(.opacity)
         }
+    }
+
+    private var unitRow: some View {
+        HStack {
+            unitRowLeading
+            Spacer()
+            unitCycleButton
+        }
+        .padding(.horizontal)
     }
 
     @ViewBuilder
@@ -141,7 +152,9 @@ struct VerdictPanelView: View {
         hasEnoughInput: true,
         settleTick: 1,
         onSaveAsGoodPrice: {}
-    )
+    ) {
+        Text("leading slot").font(.caption).foregroundStyle(.secondary)
+    }
 }
 
 #Preview("Unmatched") {
@@ -153,7 +166,9 @@ struct VerdictPanelView: View {
         hasEnoughInput: true,
         settleTick: 0,
         onSaveAsGoodPrice: {}
-    )
+    ) {
+        EmptyView()
+    }
 }
 
 #Preview("Empty") {
@@ -165,5 +180,7 @@ struct VerdictPanelView: View {
         hasEnoughInput: false,
         settleTick: 0,
         onSaveAsGoodPrice: {}
-    )
+    ) {
+        EmptyView()
+    }
 }

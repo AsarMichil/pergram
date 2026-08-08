@@ -35,6 +35,8 @@ final class CheckViewModel {
     private(set) var settledVerdict: Verdict?
     private(set) var settleTick = 0
 
+    private(set) var lastBookmarkedPricePer100g: Double?
+
     private var settleTask: Task<Void, Never>?
     private var acceleratingClearTask: Task<Void, Never>?
     private var deleteWasLongPress = false
@@ -123,6 +125,18 @@ final class CheckViewModel {
         }
     }
 
+    /// Bookmarking pins the current price into the "last" chip. It is deliberately independent of
+    /// the good-price baseline — a bookmark is a throwaway reference for comparison shopping, not a
+    /// commitment — and needs no selected item.
+    func bookmarkCurrentPrice() {
+        guard let pricePer100g else { return }
+        lastBookmarkedPricePer100g = pricePer100g
+    }
+
+    func clearBookmark() {
+        lastBookmarkedPricePer100g = nil
+    }
+
     func updateSelectedGoodPrice() {
         guard let pricePer100g, let selectedItem, let modelContext else { return }
         selectedItem.goodPricePer100g = pricePer100g
@@ -206,7 +220,8 @@ final class CheckViewModel {
     /// Only matched checks are recorded, and identical consecutive settles are skipped: history
     /// exists to feed a future per-item trend, so unmatched or partial-entry values are noise.
     /// Dedup keys on the item's object identity, which is stable regardless of SwiftData's
-    /// persistent id changing when a freshly-created item is saved.
+    /// persistent id changing when a freshly-created item is saved. Recording is silent: the
+    /// "last" chip is driven only by an explicit bookmark, never by settling.
     private func recordObservationIfNeeded() {
         guard let pricePer100g, let selectedItem, let modelContext else { return }
         let cents = Int((pricePer100g * 100).rounded())
