@@ -5,8 +5,9 @@ struct SettingsView: View {
     @State private var isShowingMail = false
 
     private static let feedbackEmail = "helpPERGRAM@asarmichil.com"
-    private static let privacyURL = URL(string: "https://asarmichil.github.io/pergram/privacy")!
-    private static let supportURL = URL(string: "https://asarmichil.github.io/pergram/support")!
+    private static let supportURL = URL(string: "https://asarmichil.com/pergram")!
+    private static let privacyURL = URL(string: "https://asarmichil.com/pergram/privacy-policy")!
+    private static let siteURL = URL(string: "https://asarmichil.com")!
 
     var body: some View {
         NavigationStack {
@@ -45,6 +46,14 @@ struct SettingsView: View {
 
                 Section {
                     LabeledContent("Version", value: Self.appVersion)
+                } footer: {
+                    Link(destination: Self.siteURL) {
+                        Text("Made by Asar · asarmichil.com")
+                            .font(.footnote)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 8)
                 }
             }
             .navigationTitle("Settings")
