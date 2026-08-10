@@ -8,3 +8,6 @@ xcuserdata/
 
 # macOS
 .DS_Store
+
+# Local agent handover notes (not tracked)
+agent-docs/
