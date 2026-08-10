@@ -1,0 +1,12 @@
+PerGram — a unit-price sanity checker for Canadian grocery shopping. Type a shelf price, get an instant good / meh / bad verdict in $/100g.
+
+What to try:
+• Type a price and an amount (g, kg, lb, oz), then read the verdict.
+• Cycle the display unit ($/100g ↔ $/lb) and confirm the big number and the "last" chip update together.
+• Tap the bookmark key (right of the 0) to pin a price, then tap the "last" chip to pop it away.
+• Set or update your "good price" for an item, then re-check to watch the verdict change.
+
+Known limits:
+• Scan mode is still a work in progress.
+
+Please send feedback with the TestFlight "Send Feedback" button — screenshots welcome.
