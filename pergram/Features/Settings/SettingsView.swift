@@ -4,7 +4,7 @@ import SwiftUI
 struct SettingsView: View {
     @State private var isShowingMail = false
 
-    private static let feedbackEmail = "helpPERGRAM@asarmichil.com"
+    private static let feedbackEmail = "help-pergram@asarmichil.com"
     private static let supportURL = URL(string: "https://asarmichil.com/pergram")!
     private static let privacyURL = URL(string: "https://asarmichil.com/pergram/privacy-policy")!
     private static let siteURL = URL(string: "https://asarmichil.com")!
@@ -14,7 +14,7 @@ struct SettingsView: View {
             List {
                 Section("How it works") {
                     Text(
-                        "Type or scan a shelf price. PerGram normalizes it to a price per 100g and "
+                        "Type or scan a shelf price. PerGram Go normalizes it to a price per 100g and "
                             + "compares it against the good prices you set."
                     )
                     Text("Prices are your own baselines, not live store data.")
@@ -61,7 +61,7 @@ struct SettingsView: View {
         .sheet(isPresented: $isShowingMail) {
             MailComposeView(
                 recipient: Self.feedbackEmail,
-                subject: "PerGram feedback",
+                subject: "PerGram Go feedback",
                 body: Self.feedbackBody
             )
             .ignoresSafeArea()
@@ -78,7 +78,7 @@ struct SettingsView: View {
 
     private static var feedbackBody: String {
         let os = ProcessInfo.processInfo.operatingSystemVersion
-        return "\n\n—\nPerGram \(appVersion) · iOS \(os.majorVersion).\(os.minorVersion)"
+        return "\n\n—\nPerGram Go \(appVersion) · iOS \(os.majorVersion).\(os.minorVersion)"
     }
 }
 

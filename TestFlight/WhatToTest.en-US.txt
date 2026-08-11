@@ -1,4 +1,4 @@
-PerGram — a unit-price sanity checker for Canadian grocery shopping. Type a shelf price, get an instant good / meh / bad verdict in $/100g.
+PerGram Go — a unit-price sanity checker for Canadian grocery shopping. Type a shelf price, get an instant good / meh / bad verdict in $/100g.
 
 What to try:
 • Type a price and an amount (g, kg, lb, oz), then read the verdict.
