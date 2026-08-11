@@ -15,7 +15,9 @@ struct SeedImporterTests {
 
     private func seed(version: Int, ids: [String], price: Double = 1.00) -> SeedFile {
         let items = ids.map {
-            SeedItem(id: $0, name: $0, aliases: [], category: "test", goodPricePer100g: price)
+            SeedItem(
+                id: $0, name: $0, aliases: [], category: "test", goodPricePer100g: price,
+                dimension: nil)
         }
         return SeedFile(seedVersion: version, items: items)
     }
@@ -54,15 +56,19 @@ struct SeedImporterTests {
         )
 
         let item = try #require(try allItems(context).first { $0.id == "a" })
-        item.goodPricePer100g = 0.42
+        item.goodPriceCanonical = 0.42
         item.userModified = true
         try context.save()
 
         let bumped = SeedFile(
             seedVersion: 2,
             items: [
-                SeedItem(id: "a", name: "a", aliases: [], category: "test", goodPricePer100g: 9.99),
-                SeedItem(id: "b", name: "b", aliases: [], category: "test", goodPricePer100g: 1.00),
+                SeedItem(
+                    id: "a", name: "a", aliases: [], category: "test", goodPricePer100g: 9.99,
+                    dimension: nil),
+                SeedItem(
+                    id: "b", name: "b", aliases: [], category: "test", goodPricePer100g: 1.00,
+                    dimension: nil),
             ]
         )
         let version = try SeedImporter.importMissingItems(
@@ -70,7 +76,7 @@ struct SeedImporterTests {
 
         #expect(version == 2)
         let reloaded = try #require(try allItems(context).first { $0.id == "a" })
-        #expect(reloaded.goodPricePer100g == 0.42)
+        #expect(reloaded.goodPriceCanonical == 0.42)
         #expect(reloaded.userModified)
         #expect(try allItems(context).count == 2)
     }

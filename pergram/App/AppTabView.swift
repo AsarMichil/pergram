@@ -50,7 +50,7 @@ struct AppTabView: View {
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
             category: "meat",
-            goodPricePer100g: 1.10
+            goodPriceCanonical: 1.10
         )
     )
     return AppTabView()

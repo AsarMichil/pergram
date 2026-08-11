@@ -27,8 +27,8 @@ struct CheckView: View {
             Spacer(minLength: 0)
 
             VerdictPanelView(
-                pricePer100g: viewModel.pricePer100g,
-                baselinePer100g: viewModel.selectedItem?.goodPricePer100g,
+                entered: viewModel.normalizedPrice,
+                baseline: viewModel.selectedBaseline,
                 settledVerdict: viewModel.settledVerdict,
                 isSettled: viewModel.isSettled,
                 hasEnoughInput: viewModel.hasEnoughInput,
@@ -41,8 +41,8 @@ struct CheckView: View {
                     }
                 }
             ) {
-                if let lastBookmarkedPricePer100g = viewModel.lastBookmarkedPricePer100g {
-                    LastPriceChip(pricePer100g: lastBookmarkedPricePer100g) {
+                if let lastBookmarked = viewModel.lastBookmarked {
+                    LastPriceChip(price: lastBookmarked) {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                             viewModel.clearBookmark()
                         }
@@ -62,8 +62,8 @@ struct CheckView: View {
             ItemPickerSheet(selectedItem: $viewModel.selectedItem)
         }
         .sheet(isPresented: $isShowingSaveSheet) {
-            if let pricePer100g = viewModel.pricePer100g {
-                SetGoodPriceSheet(pricePer100g: pricePer100g) { name in
+            if let normalizedPrice = viewModel.normalizedPrice {
+                SetGoodPriceSheet(price: normalizedPrice) { name in
                     viewModel.saveAsGoodPrice(named: name)
                 }
             }
@@ -112,7 +112,7 @@ struct CheckView: View {
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
             category: "meat",
-            goodPricePer100g: 1.10
+            goodPriceCanonical: 1.10
         )
     )
     return CheckView()

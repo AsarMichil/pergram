@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct VerdictPanelView<UnitRowLeading: View>: View {
-    let pricePer100g: Double?
-    let baselinePer100g: Double?
+    let entered: NormalizedPrice?
+    let baseline: NormalizedPrice?
     let settledVerdict: Verdict?
     let isSettled: Bool
     let hasEnoughInput: Bool
@@ -13,13 +13,27 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
+    private var enteredDimension: PriceDimension { entered?.dimension ?? .mass }
+
     private var displayUnit: MeasureUnit {
-        MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams
+        PriceDisplay.displayUnit(for: enteredDimension, preferred: storedUnit)
     }
 
+    private var baselineUnit: MeasureUnit {
+        PriceDisplay.displayUnit(for: baseline?.dimension ?? .mass, preferred: storedUnit)
+    }
+
+    private var canCycleUnit: Bool { PriceDisplay.units(for: enteredDimension).count > 1 }
+
     private var displayValue: Double {
-        guard let pricePer100g else { return 0 }
-        return PriceDisplay.price(per100g: pricePer100g, in: displayUnit)
+        guard let entered else { return 0 }
+        return PriceDisplay.value(entered, in: displayUnit)
+    }
+
+    private var dimensionMismatch: Bool {
+        guard let entered, let baseline else { return false }
+        return entered.dimension != baseline.dimension
     }
 
     private var neutralColor: Color {
@@ -80,6 +94,12 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
                         : .spring(response: 0.35, dampingFraction: 0.55), value: settleTick
                 )
                 .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale))
+        } else if dimensionMismatch {
+            Label("DIFFERENT UNIT", systemImage: "exclamationmark.triangle")
+                .font(.title2.bold())
+                .tracking(2)
+                .foregroundStyle(neutralColor)
+                .transition(.opacity)
         } else {
             Label("NO BASELINE", systemImage: "questionmark.circle")
                 .font(.title2.bold())
@@ -105,7 +125,8 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
                 reduceMotion
                     ? .easeInOut(duration: 0.2) : .spring(response: 0.35, dampingFraction: 0.8)
             ) {
-                displayUnitRaw = PriceDisplay.next(after: displayUnit).rawValue
+                displayUnitRaw =
+                    PriceDisplay.next(after: displayUnit, in: enteredDimension).rawValue
             }
         } label: {
             Text(PriceDisplay.suffix(for: displayUnit))
@@ -114,6 +135,7 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.secondary)
+        .disabled(!canCycleUnit)
         .sensoryFeedback(.selection, trigger: displayUnitRaw)
     }
 
@@ -121,9 +143,9 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
         VStack(spacing: 4) {
             if !hasEnoughInput {
                 EmptyView()
-            } else if let baselinePer100g {
+            } else if let baseline {
                 Text(
-                    "your good price: \(PriceDisplay.price(per100g: baselinePer100g, in: displayUnit), format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: displayUnit))"
+                    "your good price: \(PriceDisplay.value(baseline, in: baselineUnit), format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: baselineUnit))"
                 )
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -145,8 +167,8 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
 
 #Preview("Good") {
     VerdictPanelView(
-        pricePer100g: 1.05,
-        baselinePer100g: 1.10,
+        entered: NormalizedPrice(dimension: .mass, canonical: 1.05),
+        baseline: NormalizedPrice(dimension: .mass, canonical: 1.10),
         settledVerdict: .good,
         isSettled: true,
         hasEnoughInput: true,
@@ -157,14 +179,14 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
     }
 }
 
-#Preview("Unmatched") {
+#Preview("Count") {
     VerdictPanelView(
-        pricePer100g: 2.20,
-        baselinePer100g: nil,
-        settledVerdict: nil,
+        entered: NormalizedPrice(dimension: .count, canonical: 0.42),
+        baseline: NormalizedPrice(dimension: .count, canonical: 0.50),
+        settledVerdict: .good,
         isSettled: true,
         hasEnoughInput: true,
-        settleTick: 0,
+        settleTick: 1,
         onSaveAsGoodPrice: {}
     ) {
         EmptyView()
@@ -173,8 +195,8 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
 
 #Preview("Empty") {
     VerdictPanelView(
-        pricePer100g: nil,
-        baselinePer100g: nil,
+        entered: nil,
+        baseline: nil,
         settledVerdict: nil,
         isSettled: true,
         hasEnoughInput: false,

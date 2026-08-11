@@ -12,7 +12,7 @@ final class CheckViewModel {
         case amount
     }
 
-    static let amountUnits: [MeasureUnit] = [.gram, .kilogram, .pound, .ounce]
+    static let amountUnits: [MeasureUnit] = [.gram, .kilogram, .pound, .ounce, .each]
 
     private static let amountUnitDefaultsKey = "checkAmountUnit"
     private static let settleDelayNanoseconds: UInt64 = 350_000_000
@@ -35,7 +35,7 @@ final class CheckViewModel {
     private(set) var settledVerdict: Verdict?
     private(set) var settleTick = 0
 
-    private(set) var lastBookmarkedPricePer100g: Double?
+    private(set) var lastBookmarked: NormalizedPrice?
 
     private var settleTask: Task<Void, Never>?
     private var acceleratingClearTask: Task<Void, Never>?
@@ -60,21 +60,25 @@ final class CheckViewModel {
     var priceValue: Double? { Double(priceText) }
     var amountValue: Double? { Double(amountText) }
 
-    var rate: Rate? {
-        guard let priceValue, priceValue > 0, let amountValue, amountValue > 0 else { return nil }
-        return Rate(money: priceValue, quantity: amountValue, unit: amountUnit)
+    var normalizedPrice: NormalizedPrice? {
+        guard let priceValue, let amountValue else { return nil }
+        return NormalizedPrice(money: priceValue, quantity: amountValue, unit: amountUnit)
     }
 
-    var pricePer100g: Double? { rate?.pricePer100g }
+    /// The selected item's good price as a `NormalizedPrice`, or `nil` when no item is selected.
+    var selectedBaseline: NormalizedPrice? {
+        guard let selectedItem else { return nil }
+        return NormalizedPrice(
+            dimension: selectedItem.dimension, canonical: selectedItem.goodPriceCanonical)
+    }
 
-    var hasEnoughInput: Bool { pricePer100g != nil }
+    var hasEnoughInput: Bool { normalizedPrice != nil }
 
     var liveVerdict: Verdict? {
-        guard let pricePer100g else { return nil }
-        return VerdictEngine.evaluate(
-            pricePer100g: pricePer100g,
-            baselinePer100g: selectedItem?.goodPricePer100g
-        )
+        guard let normalizedPrice, let baseline = selectedBaseline,
+            baseline.dimension == normalizedPrice.dimension, baseline.canonical > 0
+        else { return nil }
+        return VerdictEngine.verdict(price: normalizedPrice.canonical, baseline: baseline.canonical)
     }
 
     func focus(_ field: Field) {
@@ -129,17 +133,18 @@ final class CheckViewModel {
     /// the good-price baseline — a bookmark is a throwaway reference for comparison shopping, not a
     /// commitment — and needs no selected item.
     func bookmarkCurrentPrice() {
-        guard let pricePer100g else { return }
-        lastBookmarkedPricePer100g = pricePer100g
+        guard let normalizedPrice else { return }
+        lastBookmarked = normalizedPrice
     }
 
     func clearBookmark() {
-        lastBookmarkedPricePer100g = nil
+        lastBookmarked = nil
     }
 
     func updateSelectedGoodPrice() {
-        guard let pricePer100g, let selectedItem, let modelContext else { return }
-        selectedItem.goodPricePer100g = pricePer100g
+        guard let normalizedPrice, let selectedItem, let modelContext else { return }
+        selectedItem.goodPriceCanonical = normalizedPrice.canonical
+        selectedItem.dimension = normalizedPrice.dimension
         selectedItem.userModified = true
         selectedItem.updatedAt = .now
         try? modelContext.save()
@@ -147,11 +152,12 @@ final class CheckViewModel {
     }
 
     func saveAsGoodPrice(named name: String) {
-        guard let pricePer100g, let modelContext else { return }
+        guard let normalizedPrice, let modelContext else { return }
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let item = GroceryItem(
             name: trimmed.isEmpty ? "Untitled item" : trimmed,
-            goodPricePer100g: pricePer100g,
+            goodPriceCanonical: normalizedPrice.canonical,
+            dimension: normalizedPrice.dimension,
             userModified: true
         )
         modelContext.insert(item)
@@ -223,13 +229,15 @@ final class CheckViewModel {
     /// persistent id changing when a freshly-created item is saved. Recording is silent: the
     /// "last" chip is driven only by an explicit bookmark, never by settling.
     private func recordObservationIfNeeded() {
-        guard let pricePer100g, let selectedItem, let modelContext else { return }
-        let cents = Int((pricePer100g * 100).rounded())
+        guard let normalizedPrice, let selectedItem, let modelContext,
+            selectedItem.dimension == normalizedPrice.dimension
+        else { return }
+        let cents = Int((normalizedPrice.canonical * 100).rounded())
         let signature = "\(ObjectIdentifier(selectedItem))-\(cents)"
         guard signature != lastRecordedSignature else { return }
         lastRecordedSignature = signature
         let observation = PriceObservation(
-            pricePer100g: pricePer100g,
+            priceCanonical: normalizedPrice.canonical,
             date: .now,
             source: .keypad,
             item: selectedItem

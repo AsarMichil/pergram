@@ -1,14 +1,15 @@
 import SwiftUI
 
 struct LastPriceChip: View {
-    let pricePer100g: Double
+    let price: NormalizedPrice
     var onDelete: () -> Void
 
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var displayUnit: MeasureUnit {
-        MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams
+        PriceDisplay.displayUnit(
+            for: price.dimension, preferred: MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams)
     }
 
     private var popTransition: AnyTransition {
@@ -25,8 +26,7 @@ struct LastPriceChip: View {
             Image(systemName: "clock.arrow.circlepath")
             Text("last")
             Text(
-                PriceDisplay.price(per100g: pricePer100g, in: displayUnit),
-                format: .currency(code: "CAD")
+                "\(PriceDisplay.value(price, in: displayUnit), format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: displayUnit))"
             )
             .fontWeight(.semibold)
             .monospacedDigit()
@@ -43,5 +43,5 @@ struct LastPriceChip: View {
 }
 
 #Preview {
-    LastPriceChip(pricePer100g: 1.05, onDelete: {})
+    LastPriceChip(price: NormalizedPrice(dimension: .mass, canonical: 1.05), onDelete: {})
 }

@@ -1,19 +1,23 @@
 import SwiftUI
 
 struct SetGoodPriceSheet: View {
-    let pricePer100g: Double
+    let price: NormalizedPrice
     var onSave: (String) -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
+
+    private var canonicalUnit: MeasureUnit { .canonicalUnit(for: price.dimension) }
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     LabeledContent("Good price") {
-                        Text(pricePer100g, format: .currency(code: "CAD"))
-                            .monospacedDigit()
+                        Text(
+                            "\(price.canonical, format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: canonicalUnit))"
+                        )
+                        .monospacedDigit()
                     }
                 }
                 Section("Item name") {
@@ -40,5 +44,6 @@ struct SetGoodPriceSheet: View {
 }
 
 #Preview {
-    SetGoodPriceSheet(pricePer100g: 1.32, onSave: { _ in })
+    SetGoodPriceSheet(
+        price: NormalizedPrice(dimension: .mass, canonical: 1.32), onSave: { _ in })
 }

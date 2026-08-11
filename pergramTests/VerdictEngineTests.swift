@@ -7,30 +7,29 @@ struct VerdictEngineTests {
     let baseline = 1.00
 
     @Test func farBelowBaselineIsGood() {
-        #expect(VerdictEngine.verdict(pricePer100g: 0.80, baselinePer100g: baseline) == .good)
+        #expect(VerdictEngine.verdict(price: 0.80, baseline: baseline) == .good)
     }
 
     @Test func exactlyAtGoodBoundaryIsGood() {
-        #expect(VerdictEngine.verdict(pricePer100g: 1.05, baselinePer100g: baseline) == .good)
+        #expect(VerdictEngine.verdict(price: 1.05, baseline: baseline) == .good)
     }
 
     @Test func justAboveGoodBoundaryIsMeh() {
-        #expect(VerdictEngine.verdict(pricePer100g: 1.06, baselinePer100g: baseline) == .meh)
+        #expect(VerdictEngine.verdict(price: 1.06, baseline: baseline) == .meh)
     }
 
     @Test func exactlyAtMehBoundaryIsMeh() {
-        #expect(VerdictEngine.verdict(pricePer100g: 1.25, baselinePer100g: baseline) == .meh)
+        #expect(VerdictEngine.verdict(price: 1.25, baseline: baseline) == .meh)
     }
 
     @Test func justAboveMehBoundaryIsBad() {
-        #expect(VerdictEngine.verdict(pricePer100g: 1.26, baselinePer100g: baseline) == .bad)
+        #expect(VerdictEngine.verdict(price: 1.26, baseline: baseline) == .bad)
     }
 
-    @Test func missingBaselineHasNoVerdict() {
-        #expect(VerdictEngine.evaluate(pricePer100g: 1.10, baselinePer100g: nil) == nil)
-    }
-
-    @Test func presentBaselineEvaluates() {
-        #expect(VerdictEngine.evaluate(pricePer100g: 0.90, baselinePer100g: baseline) == .good)
+    /// The engine is scale-agnostic: the same bands apply to a count baseline in `$/each`.
+    @Test func countBaselineUsesSameBands() {
+        #expect(VerdictEngine.verdict(price: 0.40, baseline: 0.50) == .good)
+        #expect(VerdictEngine.verdict(price: 0.60, baseline: 0.50) == .meh)
+        #expect(VerdictEngine.verdict(price: 0.70, baseline: 0.50) == .bad)
     }
 }

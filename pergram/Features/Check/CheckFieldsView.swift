@@ -97,6 +97,7 @@ struct CheckFieldsView: View {
         case .kilogram: return "kg"
         case .pound: return "lb"
         case .ounce: return "oz"
+        case .each: return "ea"
         default: return unit.rawValue
         }
     }

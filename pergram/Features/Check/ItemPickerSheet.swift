@@ -31,9 +31,11 @@ struct ItemPickerSheet: View {
                         dismiss()
                     } label: {
                         LabeledContent {
-                            Text(item.goodPricePer100g, format: .currency(code: "CAD"))
-                                .monospacedDigit()
-                                .foregroundStyle(.secondary)
+                            Text(
+                                "\(item.goodPriceCanonical, format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: MeasureUnit.canonicalUnit(for: item.dimension)))"
+                            )
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
                         } label: {
                             Text(item.name)
                                 .foregroundStyle(.primary)
@@ -69,7 +71,7 @@ struct ItemPickerSheet: View {
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
             category: "meat",
-            goodPricePer100g: 1.10
+            goodPriceCanonical: 1.10
         )
     )
     return ItemPickerSheet(selectedItem: .constant(nil))

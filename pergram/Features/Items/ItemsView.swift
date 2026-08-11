@@ -8,8 +8,10 @@ struct ItemsView: View {
         NavigationStack {
             List(items) { item in
                 LabeledContent {
-                    Text(item.goodPricePer100g, format: .currency(code: "CAD"))
-                        .monospacedDigit()
+                    Text(
+                        "\(item.goodPriceCanonical, format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: MeasureUnit.canonicalUnit(for: item.dimension)))"
+                    )
+                    .monospacedDigit()
                 } label: {
                     Text(item.name)
                 }
@@ -39,7 +41,7 @@ struct ItemsView: View {
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
             category: "meat",
-            goodPricePer100g: 1.10
+            goodPriceCanonical: 1.10
         )
     )
     return ItemsView()

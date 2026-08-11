@@ -15,6 +15,7 @@ nonisolated struct SeedItem: Codable, Sendable {
     let aliases: [String]
     let category: String
     let goodPricePer100g: Double
+    let dimension: PriceDimension?
 
     func makeModel() -> GroceryItem {
         GroceryItem(
@@ -22,7 +23,8 @@ nonisolated struct SeedItem: Codable, Sendable {
             name: name,
             aliases: aliases,
             category: category,
-            goodPricePer100g: goodPricePer100g,
+            goodPriceCanonical: goodPricePer100g,
+            dimension: dimension ?? .mass,
             userModified: false,
             updatedAt: .now
         )
