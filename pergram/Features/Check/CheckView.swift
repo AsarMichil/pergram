@@ -12,10 +12,31 @@ nonisolated enum CheckInputMode: CaseIterable, Hashable, Sendable {
 
 struct CheckView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var items: [GroceryItem]
     @State private var viewModel = CheckViewModel()
     @State private var mode: CheckInputMode = .type
     @State private var isShowingItemPicker = false
     @State private var isShowingSaveSheet = false
+
+    /// Resolved from the live `@Query`, so a deleted row becomes `nil` reactively — the fix for a
+    /// stale selection is that the query, not a held reference, is the source of truth.
+    private var selectedItem: GroceryItem? {
+        guard let id = viewModel.selectedItemID else { return nil }
+        return items.first { $0.persistentModelID == id }
+    }
+
+    private var baseline: NormalizedPrice? {
+        selectedItem.map {
+            NormalizedPrice(dimension: $0.dimension, canonical: $0.goodPriceCanonical)
+        }
+    }
+
+    private var settledVerdict: Verdict? {
+        guard let settledPrice = viewModel.settledPrice, let baseline,
+            settledPrice.dimension == baseline.dimension, baseline.canonical > 0
+        else { return nil }
+        return VerdictEngine.verdict(price: settledPrice.canonical, baseline: baseline.canonical)
+    }
 
     var body: some View {
         // The system safe area already clears the Dynamic Island / status bar (adapting per device)
@@ -28,16 +49,16 @@ struct CheckView: View {
 
             VerdictPanelView(
                 entered: viewModel.normalizedPrice,
-                baseline: viewModel.selectedBaseline,
-                settledVerdict: viewModel.settledVerdict,
+                baseline: baseline,
+                settledVerdict: settledVerdict,
                 isSettled: viewModel.isSettled,
                 hasEnoughInput: viewModel.hasEnoughInput,
                 settleTick: viewModel.settleTick,
                 onSaveAsGoodPrice: {
-                    if viewModel.selectedItem == nil {
-                        isShowingSaveSheet = true
+                    if let selectedItem {
+                        viewModel.updateGoodPrice(for: selectedItem)
                     } else {
-                        viewModel.updateSelectedGoodPrice()
+                        isShowingSaveSheet = true
                     }
                 }
             ) {
@@ -58,8 +79,11 @@ struct CheckView: View {
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
         .onAppear { viewModel.attach(modelContext: modelContext) }
+        .onChange(of: viewModel.settleTick) {
+            viewModel.recordSettledObservation(for: selectedItem)
+        }
         .sheet(isPresented: $isShowingItemPicker) {
-            ItemPickerSheet(selectedItem: $viewModel.selectedItem)
+            ItemPickerSheet(selectedItemID: $viewModel.selectedItemID)
         }
         .sheet(isPresented: $isShowingSaveSheet) {
             if let normalizedPrice = viewModel.normalizedPrice {
@@ -75,7 +99,11 @@ struct CheckView: View {
         switch mode {
         case .type:
             VStack {
-                CheckFieldsView(viewModel: viewModel, isShowingItemPicker: $isShowingItemPicker)
+                CheckFieldsView(
+                    viewModel: viewModel,
+                    selectedItemName: selectedItem?.name,
+                    isShowingItemPicker: $isShowingItemPicker
+                )
                 KeypadView(viewModel: viewModel, onBookmark: viewModel.bookmarkCurrentPrice)
             }
             .transition(.move(edge: .leading).combined(with: .opacity))
@@ -108,7 +136,7 @@ struct CheckView: View {
     )
     container.mainContext.insert(
         GroceryItem(
-            id: "chicken-thigh-boneless",
+            seedID: "chicken-thigh-boneless",
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
             category: "meat",

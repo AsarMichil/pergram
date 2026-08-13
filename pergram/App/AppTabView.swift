@@ -46,7 +46,7 @@ struct AppTabView: View {
     )
     container.mainContext.insert(
         GroceryItem(
-            id: "chicken-thigh-boneless",
+            seedID: "chicken-thigh-boneless",
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
             category: "meat",

@@ -5,7 +5,11 @@ import SwiftData
 /// CloudKit later by flipping a checkbox rather than performing a migration.
 @Model
 final class GroceryItem {
-    var id: String = ""
+    /// The seed catalog's stable slug, used only by `SeedImporter` to dedup on re-import. Item
+    /// identity for SwiftUI (`ForEach`, `sheet(item:)`) is SwiftData's `persistentModelID`, not this
+    /// — user-created items leave it empty, and that must never collide them. Renamed from `id`.
+    @Attribute(originalName: "id")
+    var seedID: String = ""
     var name: String = ""
     var aliases: [String] = []
     var category: String = ""
@@ -28,7 +32,7 @@ final class GroceryItem {
     }
 
     init(
-        id: String = "",
+        seedID: String = "",
         name: String = "",
         aliases: [String] = [],
         category: String = "",
@@ -37,7 +41,7 @@ final class GroceryItem {
         userModified: Bool = false,
         updatedAt: Date = .now
     ) {
-        self.id = id
+        self.seedID = seedID
         self.name = name
         self.aliases = aliases
         self.category = category

@@ -26,7 +26,7 @@ enum SeedImporter {
         currentVersion: Int
     ) throws -> Int {
         guard seed.seedVersion > currentVersion else { return currentVersion }
-        let existingIds = Set(try context.fetch(FetchDescriptor<GroceryItem>()).map(\.id))
+        let existingIds = Set(try context.fetch(FetchDescriptor<GroceryItem>()).map(\.seedID))
         for item in seed.items where !existingIds.contains(item.id) {
             context.insert(item.makeModel())
         }

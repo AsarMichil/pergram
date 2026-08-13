@@ -25,14 +25,17 @@ final class CheckViewModel {
             scheduleSettle()
         }
     }
-    var selectedItem: GroceryItem? {
+    /// Selection is held by identity, not by a live object: SwiftData object references do not react
+    /// to deletion, so the Check view resolves the item from its `@Query` (the reactive source of
+    /// truth) and a deleted row simply resolves to `nil`. The view model keeps only the id.
+    var selectedItemID: PersistentIdentifier? {
         didSet { scheduleSettle() }
     }
     private(set) var focusedField: Field = .price
     private(set) var isEditingFresh = true
 
     private(set) var isSettled = true
-    private(set) var settledVerdict: Verdict?
+    private(set) var settledPrice: NormalizedPrice?
     private(set) var settleTick = 0
 
     private(set) var lastBookmarked: NormalizedPrice?
@@ -65,21 +68,7 @@ final class CheckViewModel {
         return NormalizedPrice(money: priceValue, quantity: amountValue, unit: amountUnit)
     }
 
-    /// The selected item's good price as a `NormalizedPrice`, or `nil` when no item is selected.
-    var selectedBaseline: NormalizedPrice? {
-        guard let selectedItem else { return nil }
-        return NormalizedPrice(
-            dimension: selectedItem.dimension, canonical: selectedItem.goodPriceCanonical)
-    }
-
     var hasEnoughInput: Bool { normalizedPrice != nil }
-
-    var liveVerdict: Verdict? {
-        guard let normalizedPrice, let baseline = selectedBaseline,
-            baseline.dimension == normalizedPrice.dimension, baseline.canonical > 0
-        else { return nil }
-        return VerdictEngine.verdict(price: normalizedPrice.canonical, baseline: baseline.canonical)
-    }
 
     func focus(_ field: Field) {
         focusedField = field
@@ -141,12 +130,12 @@ final class CheckViewModel {
         lastBookmarked = nil
     }
 
-    func updateSelectedGoodPrice() {
-        guard let normalizedPrice, let selectedItem, let modelContext else { return }
-        selectedItem.goodPriceCanonical = normalizedPrice.canonical
-        selectedItem.dimension = normalizedPrice.dimension
-        selectedItem.userModified = true
-        selectedItem.updatedAt = .now
+    func updateGoodPrice(for item: GroceryItem) {
+        guard let normalizedPrice, let modelContext else { return }
+        item.goodPriceCanonical = normalizedPrice.canonical
+        item.dimension = normalizedPrice.dimension
+        item.userModified = true
+        item.updatedAt = .now
         try? modelContext.save()
         settle()
     }
@@ -162,7 +151,7 @@ final class CheckViewModel {
         )
         modelContext.insert(item)
         try? modelContext.save()
-        selectedItem = item
+        selectedItemID = item.persistentModelID
         settle()
     }
 
@@ -218,29 +207,28 @@ final class CheckViewModel {
     private func settle() {
         settleTask?.cancel()
         isSettled = true
-        settledVerdict = liveVerdict
+        settledPrice = normalizedPrice
         settleTick &+= 1
-        recordObservationIfNeeded()
     }
 
-    /// Only matched checks are recorded, and identical consecutive settles are skipped: history
-    /// exists to feed a future per-item trend, so unmatched or partial-entry values are noise.
-    /// Dedup keys on the item's object identity, which is stable regardless of SwiftData's
-    /// persistent id changing when a freshly-created item is saved. Recording is silent: the
-    /// "last" chip is driven only by an explicit bookmark, never by settling.
-    private func recordObservationIfNeeded() {
-        guard let normalizedPrice, let selectedItem, let modelContext,
-            selectedItem.dimension == normalizedPrice.dimension
+    /// Records the settled check against its item so a future per-item trend has history. The Check
+    /// view supplies the item it resolved from its `@Query` (the view model holds no reference), and
+    /// passes `nil` when nothing is selected. Only matched, same-dimension checks are recorded, and
+    /// identical consecutive settles are skipped. Silent: the "last" chip is driven only by an
+    /// explicit bookmark, never by settling.
+    func recordSettledObservation(for item: GroceryItem?) {
+        guard let settledPrice, let item, let modelContext,
+            !item.isDeleted, item.dimension == settledPrice.dimension
         else { return }
-        let cents = Int((normalizedPrice.canonical * 100).rounded())
-        let signature = "\(ObjectIdentifier(selectedItem))-\(cents)"
+        let cents = Int((settledPrice.canonical * 100).rounded())
+        let signature = "\(ObjectIdentifier(item))-\(cents)"
         guard signature != lastRecordedSignature else { return }
         lastRecordedSignature = signature
         let observation = PriceObservation(
-            priceCanonical: normalizedPrice.canonical,
+            priceCanonical: settledPrice.canonical,
             date: .now,
             source: .keypad,
-            item: selectedItem
+            item: item
         )
         modelContext.insert(observation)
         try? modelContext.save()

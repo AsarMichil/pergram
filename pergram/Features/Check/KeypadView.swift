@@ -2,7 +2,7 @@ import SwiftUI
 
 struct KeypadView: View {
     @Bindable var viewModel: CheckViewModel
-    var onBookmark: () -> Void
+    var onBookmark: (() -> Void)?
 
     private var canBookmark: Bool { viewModel.hasEnoughInput }
 
@@ -29,14 +29,16 @@ struct KeypadView: View {
             GridRow {
                 digitKey("0")
                     .gridCellColumns(3)
-                bookmarkKey
+                if let onBookmark {
+                    bookmarkKey(onBookmark)
+                }
             }
         }
         .animation(.easeInOut(duration: 0.45), value: canBookmark)
     }
 
-    private var bookmarkKey: some View {
-        Button(action: onBookmark) {
+    private func bookmarkKey(_ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             Image(systemName: "bookmark")
                 .font(.title2.weight(.medium))
                 .frame(maxWidth: .infinity, minHeight: 38)

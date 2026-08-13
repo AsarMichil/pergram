@@ -19,7 +19,7 @@ nonisolated struct SeedItem: Codable, Sendable {
 
     func makeModel() -> GroceryItem {
         GroceryItem(
-            id: id,
+            seedID: id,
             name: name,
             aliases: aliases,
             category: category,

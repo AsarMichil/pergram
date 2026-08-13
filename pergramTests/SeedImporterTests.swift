@@ -55,7 +55,7 @@ struct SeedImporterTests {
             currentVersion: 0
         )
 
-        let item = try #require(try allItems(context).first { $0.id == "a" })
+        let item = try #require(try allItems(context).first { $0.seedID == "a" })
         item.goodPriceCanonical = 0.42
         item.userModified = true
         try context.save()
@@ -75,7 +75,7 @@ struct SeedImporterTests {
             from: bumped, into: context, currentVersion: 1)
 
         #expect(version == 2)
-        let reloaded = try #require(try allItems(context).first { $0.id == "a" })
+        let reloaded = try #require(try allItems(context).first { $0.seedID == "a" })
         #expect(reloaded.goodPriceCanonical == 0.42)
         #expect(reloaded.userModified)
         #expect(try allItems(context).count == 2)

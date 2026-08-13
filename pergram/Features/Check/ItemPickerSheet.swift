@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct ItemPickerSheet: View {
-    @Binding var selectedItem: GroceryItem?
+    @Binding var selectedItemID: PersistentIdentifier?
     @Environment(\.dismiss) private var dismiss
     @Query(sort: \GroceryItem.name) private var items: [GroceryItem]
     @State private var searchText = ""
@@ -19,15 +19,15 @@ struct ItemPickerSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                if selectedItem != nil {
+                if selectedItemID != nil {
                     Button("Clear selection", role: .destructive) {
-                        selectedItem = nil
+                        selectedItemID = nil
                         dismiss()
                     }
                 }
                 ForEach(filteredItems) { item in
                     Button {
-                        selectedItem = item
+                        selectedItemID = item.persistentModelID
                         dismiss()
                     } label: {
                         LabeledContent {
@@ -67,13 +67,13 @@ struct ItemPickerSheet: View {
     )
     container.mainContext.insert(
         GroceryItem(
-            id: "chicken-thigh-boneless",
+            seedID: "chicken-thigh-boneless",
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
             category: "meat",
             goodPriceCanonical: 1.10
         )
     )
-    return ItemPickerSheet(selectedItem: .constant(nil))
+    return ItemPickerSheet(selectedItemID: .constant(nil))
         .modelContainer(container)
 }
