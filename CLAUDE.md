@@ -17,11 +17,27 @@ instant verdict ($/100g by default): good, meh, or bad. See `pergram-spec.md` fo
 After writing code, remove comments. A comment is usually a smell that the code is not legible
 enough — fix the names and structure until the code explains itself, rather than annotating it.
 
-Keep only comments that carry information the code cannot:
+A comment earns its place only by carrying what the code cannot:
 
-- Non-obvious **why** (a decision, a workaround, a constraint).
+- Non-obvious **why**: a decision, a workaround, a constraint that would otherwise read as arbitrary.
 - Format/regulatory quirks (e.g. bilingual French/English shelf-tag tokens).
 - Doc comments (`///`) on public Core APIs.
+
+Do not write:
+
+- **Provenance.** How a rule was discovered — a device log, a bug report, a conversation — belongs
+  in the commit message or a spec. "Found on a real capture", "straight from the aisle" and
+  "the case from the log" give a future reader nothing to act on.
+- **Specification.** Rationale, trade-offs and rejected alternatives belong in `agent-docs/`. A
+  comment restating the spec goes stale the moment the spec moves, and then misleads.
+- **Narration.** Anything the reader already gets from the line beneath it.
+
+**Density is a signal.** A file needing many comments is usually asking to be refactored — extract
+the named function the comment is describing, and delete the comment.
+
+**Tests carry the least.** The test name is the comment. Add `///` only when a case looks arbitrary
+and the reason cannot be recovered from the name and the assertions — then one line, about the case,
+never about how it was found.
 
 ## Formatting
 
