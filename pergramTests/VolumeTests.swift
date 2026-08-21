@@ -3,8 +3,6 @@ import Testing
 
 @testable import pergram
 
-/// Volume mirrors mass rather than count: millilitres and litres interconvert freely, and only
-/// refuse to cross into grams.
 struct VolumeTests {
     @Test(arguments: [
         (unit: MeasureUnit.millilitre, quantity: 100.0, canonical: 1.17),
@@ -21,8 +19,6 @@ struct VolumeTests {
         #expect(abs(price.canonical - expected.canonical) < 1e-9)
     }
 
-    /// The two components of the graph are disconnected, which is the guard against comparing a
-    /// price per 100 mL to a price per 100 g. Nothing else enforces it.
     @Test(arguments: [MeasureUnit.gram, .kilogram, .pound, .ounce, .per100Grams, .each])
     func volumeDoesNotConvertIntoAnyOtherDimension(_ other: MeasureUnit) {
         #expect(UnitGraph.standard.conversionFactor(from: .millilitre, to: other) == nil)
@@ -42,7 +38,6 @@ struct VolumeTests {
         }
     }
 
-    /// A dimension the display layer cannot render would show a blank verdict.
     @Test(arguments: PriceDimension.allCases)
     func everyDimensionHasDisplayUnits(_ dimension: PriceDimension) {
         let units = PriceDisplay.units(for: dimension)
@@ -59,15 +54,12 @@ struct VolumeTests {
         }
     }
 
-    /// $1.17 per 100 mL is $11.70 a litre.
     @Test func displaysPerLitre() {
         let price = NormalizedPrice(dimension: .volume, canonical: 1.17)
         #expect(abs(PriceDisplay.value(price, in: .litre) - 11.70) < 1e-9)
         #expect(abs(PriceDisplay.value(price, in: .per100Millilitres) - 1.17) < 1e-9)
     }
 
-    /// Tags price per 100 mL or per litre, never per single millilitre — so a bare `/mL`, like a
-    /// bare `/g`, is a truncation of the unit above it.
     @Test func aBarePerMillilitreReadingIsRejected() throws {
         let candidate = try #require(ShelfTagParser.candidate(from: ["JUICE", "$3.99", "/mL"]))
         #expect(candidate.price == 3.99)
@@ -88,7 +80,6 @@ struct VolumeTests {
         #expect(candidate.amount == expected.amount)
     }
 
-    /// A bottle size is a pack size, exactly as a net weight is.
     @Test func infersAUnitPriceFromABottleSize() throws {
         let candidate = try #require(ShelfTagParser.candidate(from: ["JUICE", "$3.99", "1.89 L"]))
         #expect(candidate.price == 3.99)
@@ -96,7 +87,6 @@ struct VolumeTests {
         #expect(candidate.unit == .litre)
     }
 
-    /// The postal code `K1L` reads as "1 litre" without a guard on the quantity.
     @Test func aPostalCodeIsNotABottle() throws {
         let lines = ["130 MCARTHUR ROAD, OTTAWA, ON K1L 6PS", "$16.81", "1.528 kg"]
         let candidate = try #require(ShelfTagParser.candidate(from: lines))
@@ -105,10 +95,7 @@ struct VolumeTests {
     }
 }
 
-/// The narrowed pack-size guard still has to stop a price being read as its own quantity.
 struct PackSizeGuardTests {
-    /// `$5.45 kg` is a price per one kilogram. What it must never be is a price for 5.45 of
-    /// something — the number carries a currency symbol, so it is the price, not the size.
     @Test(arguments: [
         (line: "$5.45 g", price: 5.45), (line: "$5.45 kg", price: 5.45),
         (line: "$1.89 L", price: 1.89), (line: "$1.89 ml", price: 1.89),

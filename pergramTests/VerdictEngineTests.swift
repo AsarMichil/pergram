@@ -26,7 +26,6 @@ struct VerdictEngineTests {
         #expect(VerdictEngine.verdict(price: 1.26, baseline: baseline) == .bad)
     }
 
-    /// The engine is scale-agnostic: the same bands apply to a count baseline in `$/each`.
     @Test func countBaselineUsesSameBands() {
         #expect(VerdictEngine.verdict(price: 0.40, baseline: 0.50) == .good)
         #expect(VerdictEngine.verdict(price: 0.60, baseline: 0.50) == .meh)

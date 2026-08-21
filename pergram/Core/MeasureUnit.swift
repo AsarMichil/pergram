@@ -17,10 +17,8 @@ nonisolated enum MeasureUnit: String, CaseIterable, Codable, Sendable {
     case per100Millilitres
     case each
 
-    /// Mass and volume are each a connected component of the `UnitGraph` — grams interconvert with
-    /// pounds, millilitres with litres, and neither crosses into the other. `.each` converts to
-    /// nothing at all. Exhaustive on purpose: a new unit defaulting silently into mass would be
-    /// wrong in a way nothing catches.
+    /// Exhaustive on purpose: a new unit defaulting silently into mass would be wrong in a way
+    /// nothing catches.
     var dimension: PriceDimension {
         switch self {
         case .gram, .kilogram, .pound, .ounce, .per100Grams: return .mass

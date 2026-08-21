@@ -17,10 +17,8 @@ final class ScanModel {
         case unavailable
     }
 
-    /// A reading has to win a vote over the last few frames rather than simply repeat twice in a
-    /// row. Recognition does not fail cleanly on a stylized price — it alternates between two
-    /// plausible readings, `$2.47` and `$2.41`, and a run-of-two rule fills whichever happened to
-    /// stutter first.
+    /// A vote over the last few frames rather than a run of two: recognition does not fail cleanly
+    /// on a stylized price, it alternates between two plausible readings.
     private static let voteWindow = 6
     private static let agreeingFramesNeeded = 2
 
@@ -119,14 +117,12 @@ final class ScanModel {
         onCandidate?(winner)
     }
 
-    /// Frames of the same tag disagree about which half they can read. A produce sign setting the
-    /// dollars larger than the cents gets `1⁴⁹` read as `149` on one frame — losing the `/LB` — and
-    /// as a bare `1` and `49` on the next, which keeps the `/LB` but has no price. The tag is
-    /// legible across the window and illegible in every single member of it.
+    /// A tag can be legible across the window and illegible in every single frame of it: one frame
+    /// resolves the price and loses the `/LB`, the next keeps the `/LB` and has no price.
     ///
     /// Joining them is safe only where the window is unambiguous about both halves. Two distinct
-    /// prices means the tag prints two unit prices, and pairing across frames there would repeat
-    /// exactly the mistake that read a per-kilogram price as per-pound.
+    /// prices means the tag prints two unit prices, and pairing across frames would then hand one of
+    /// them the other's unit.
     static func carriedUnit(in recent: [ShelfTagReading]) -> ScanUnit? {
         let prices = Set(recent.compactMap { $0.candidate?.price })
         let units = Set(recent.compactMap(\.unpairedUnit))
@@ -135,27 +131,37 @@ final class ScanModel {
     }
 
     /// Never trade a reading with a unit for one without it at the same price. The frames that
-    /// resolved the unit are the rare ones, so they age out of the window while the bare readings
-    /// keep arriving — without this the fill walks backwards a second after landing on the better
-    /// answer.
+    /// resolved the unit are the rare ones, so they age out while bare readings keep arriving, and
+    /// the fill would walk backwards a second after landing on the better answer.
     static func isDowngrade(_ candidate: ScanCandidate, from filled: ScanCandidate?) -> Bool {
         guard let filled else { return false }
         return candidate.price == filled.price && candidate.unit == nil && filled.unit != nil
     }
 
-    /// A reading that carries a unit beats one that does not, however often the bare one repeats.
-    /// It had to satisfy more of the tag to be produced at all — a separator, or two prices
-    /// confirming each other — so it is the better-evidenced reading, not merely the luckier one.
+    /// A reading that carries a unit beats one that does not, however often the bare one repeats:
+    /// it had to satisfy more of the tag to be produced at all, so it is the better-evidenced one.
     static func winner(among recent: [ScanCandidate]) -> ScanCandidate? {
         var counts: [ScanCandidate: Int] = [:]
         for candidate in recent { counts[candidate, default: 0] += 1 }
-        return
-            counts
-            .filter { $0.value >= agreeingFramesNeeded }
-            .max { lhs, rhs in
-                if (lhs.key.unit != nil) != (rhs.key.unit != nil) { return rhs.key.unit != nil }
-                return lhs.value < rhs.value
-            }?
-            .key
+
+        // Walked newest-first over the window rather than over the counts, because a dictionary
+        // iterates in hash order, which is seeded per launch: two readings tied on evidence would
+        // fill differently from one run to the next. Ties go to the newer reading.
+        var winner: (candidate: ScanCandidate, count: Int)?
+        for candidate in recent.reversed() {
+            let count = counts[candidate, default: 0]
+            guard count >= agreeingFramesNeeded else { continue }
+            guard let held = winner else {
+                winner = (candidate, count)
+                continue
+            }
+            let carriesUnit = candidate.unit != nil
+            if carriesUnit != (held.candidate.unit != nil) {
+                if carriesUnit { winner = (candidate, count) }
+            } else if count > held.count {
+                winner = (candidate, count)
+            }
+        }
+        return winner?.candidate
     }
 }

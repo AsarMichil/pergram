@@ -3,23 +3,14 @@ import Testing
 
 @testable import pergram
 
-/// Labels captured from the device, kept verbatim.
-///
-/// To add one: scan the tag, take the `lines:` payload from the `vision` log exactly as printed —
-///
-/// ```
-/// log stream --device --predicate 'subsystem == "com.asarmichil.pergram"' --level debug
-/// ```
-///
-/// — paste it as `lines`, and state what it should have read. The separator here is the same `" | "`
-/// the log writes, so the paste needs no editing. Everything in these strings is real, OCR misreads
-/// included; that is the point of keeping them rather than idealised versions.
+/// Whole `lines:` payloads from the `vision` log, split on the same `" | "` the log writes, so a
+/// captured label pastes in unedited, OCR misreads and all. A `nil` price means the frame should
+/// read as nothing.
 struct ShelfTagFixtureTests {
     struct Fixture {
         let name: String
-        /// The `lines:` payload from the vision log, verbatim.
         let lines: String
-        let price: Double
+        let price: Double?
         let amount: Double?
         let unit: MeasureUnit?
     }
@@ -72,19 +63,19 @@ struct ShelfTagFixtureTests {
                 SAN | HOT DEALS | First | Cale | utranke | HOT | •DEALS | 037 | 82 | I STN | \
                 DEAS | NAT 258 | 42 | NETL | on!
                 """,
-            price: .nan, amount: nil, unit: nil
+            price: nil, amount: nil, unit: nil
         ),
     ])
     func capturedLabel(_ fixture: Fixture) throws {
         let lines = fixture.lines.components(separatedBy: " | ")
         let candidate = ShelfTagParser.candidate(from: lines)
 
-        guard !fixture.price.isNaN else {
+        guard let price = fixture.price else {
             #expect(candidate == nil, "\(fixture.name) should read as nothing")
             return
         }
         let read = try #require(candidate, "\(fixture.name) should have been read")
-        #expect(read.price == fixture.price)
+        #expect(read.price == price)
         #expect(read.amount == fixture.amount)
         #expect(read.unit == fixture.unit)
     }

@@ -1,8 +1,7 @@
 import Foundation
 
-/// Formats a `NormalizedPrice` into the user's chosen display unit. For mass and volume this rides
-/// the same `UnitGraph` the Core engine uses, so cycling is a formatting concern, not a second
-/// conversion path; for count there is a single unit (`/each`) and nothing to convert.
+/// Formats a `NormalizedPrice` into the user's chosen display unit, riding the same `UnitGraph` the
+/// Core engine uses so that cycling the unit is a formatting concern, not a second conversion path.
 nonisolated enum PriceDisplay {
     static func units(for dimension: PriceDimension) -> [MeasureUnit] {
         switch dimension {
@@ -12,8 +11,6 @@ nonisolated enum PriceDisplay {
         }
     }
 
-    /// The unit to display a value of `dimension` in, honoring the user's stored preference when it
-    /// belongs to that dimension and falling back to the dimension's canonical unit otherwise.
     static func displayUnit(for dimension: PriceDimension, preferred: MeasureUnit) -> MeasureUnit {
         let allowed = units(for: dimension)
         return allowed.contains(preferred) ? preferred : allowed[0]
@@ -48,7 +45,7 @@ nonisolated enum PriceDisplay {
     }
 
     /// The canonical value is per 100 of the dimension's base, so scaling to any other unit in the
-    /// dimension is one graph hop. Mass and volume differ only in which base they hang off.
+    /// dimension is one graph hop.
     private static func scaled(
         _ canonical: Double, to unit: MeasureUnit, base: MeasureUnit,
         graph: UnitGraph = .standard

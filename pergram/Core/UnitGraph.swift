@@ -1,11 +1,10 @@
 import Foundation
 
-/// Converts a quantity between mass units by walking a graph of conversion edges.
+/// Converts a quantity between units by walking a graph of bidirectional conversion edges,
+/// multiplying weights along the path.
 ///
-/// Units are nodes and conversions are bidirectional weighted edges anchored on grams.
-/// Resolution is a breadth-first search that multiplies edge weights along the path — overkill
-/// for six units on purpose, so adding volume (mL, L, per-100mL) later is a new node and edge
-/// rather than a rewrite.
+/// Mass and volume are separate connected components, anchored on grams and on millilitres. A
+/// search between them finds no path, which is the guard against comparing volume to mass.
 nonisolated struct UnitGraph: Sendable {
     static let standard = UnitGraph()
 
@@ -26,8 +25,6 @@ nonisolated struct UnitGraph: Sendable {
         link(.pound, .gram, perA: 453.592)
         link(.ounce, .gram, perA: 28.3495)
         link(.per100Grams, .gram, perA: 100)
-        // A second component, anchored on millilitres. Nothing links it to grams, so a search
-        // across the two returns nil — which is the guard against comparing volume to mass.
         link(.litre, .millilitre, perA: 1000)
         link(.per100Millilitres, .millilitre, perA: 100)
         self.adjacency = adjacency

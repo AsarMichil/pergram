@@ -76,7 +76,6 @@ struct ShelfTagParserTests {
         #expect(candidate.unit == .gram)
     }
 
-    /// The commonest tag in the aisle: a big price with a small `/lb` tucked under it.
     @Test func pairsABigPriceWithThePerPoundLineBelowIt() throws {
         let lines = [
             ShelfTagLine("CHICKEN THIGHS", prominence: 0.04),
@@ -97,7 +96,6 @@ struct ShelfTagParserTests {
         #expect(candidate.unit == .gram)
     }
 
-    /// No unit price anywhere — just a price and a net weight. That pair is a unit price.
     @Test func infersTheUnitPriceFromAPriceAndANetWeight() throws {
         let candidate = try #require(
             ShelfTagParser.candidate(from: ["CHICKEN THIGHS", "$5.45", "455 g"]))
@@ -127,9 +125,6 @@ struct ShelfTagParserTests {
         #expect(candidate.unit == nil)
     }
 
-    /// A real Loblaws random-weight meat label, transcribed from device OCR with its misreads
-    /// intact: the `g` of `$/kg` came back as `ị`, and the `3` of `11.03` as `]`. The net weight is
-    /// the only thing left that pairs with the total, and 16.81 / 1.528 kg is the right answer.
     @Test func readsARandomWeightMeatLabel() throws {
         let lines = [
             "PC FE CHCKEN THCH BONELESS SKNLESS",
@@ -147,8 +142,6 @@ struct ShelfTagParserTests {
         #expect(abs(normalized.canonical - 1.10) < 0.01)
     }
 
-    /// A real Butcher's Choice club-pack label. Its net weight prints with no space before the
-    /// unit, and the `$/kg` header is four observations away from its own value.
     @Test func readsAClubPackLabelWithTheUnitAttachedToTheWeight() throws {
         let lines = [
             "EXTRA LEAN GROUND BEEF", "CLUB PACK", "BOEUF HACHÉ EXTRA MAIGRE",
@@ -174,7 +167,6 @@ struct ShelfTagParserTests {
         #expect(candidate.unit == .gram)
     }
 
-    /// "peach" ends in `each` and "big" ends in `g`; neither is a unit.
     @Test func doesNotReadAUnitOutOfTheEndOfAWord() {
         #expect(ShelfTagParser.candidate(from: ["PEACH PIE", "$4.99", "BIG BAG"])?.unit == nil)
     }
@@ -211,7 +203,6 @@ struct ShelfTagParserTests {
         #expect(candidate.unit == .millilitre)
     }
 
-    /// The printed unit price beats the shelf price, as it does for mass.
     @Test func prefersTheVolumeUnitPriceOverTheShelfPrice() throws {
         let candidate = try #require(ShelfTagParser.candidate(from: ["$3.99", "$1.17 /100 ml"]))
         #expect(candidate.price == 1.17)

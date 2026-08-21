@@ -22,9 +22,8 @@ struct ScanModeView: View {
             model.start()
         }
         .onDisappear { model.stop() }
-        // Only `.background` stops the session. `.inactive` also fires for the camera permission
-        // alert, Control Centre and the notification shade — tearing the session down and rebuilding
-        // it on the way back churns the capture pipeline for no reason.
+        // Only `.background` stops the session. `.inactive` also fires for the permission alert,
+        // Control Centre and the notification shade, none of which are worth a teardown.
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active: model.start()
@@ -117,8 +116,8 @@ struct ScanModeView: View {
     }
 }
 
-/// The square every camera app draws where you tapped. It is the only confirmation that the tap
-/// registered, since a focus pull is often invisible on a flat shelf tag.
+/// The only confirmation that a tap registered, since a focus pull is often invisible on a flat
+/// shelf tag.
 private struct FocusIndicator: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 6)
@@ -128,7 +127,6 @@ private struct FocusIndicator: View {
     }
 }
 
-/// Four corner brackets — enough to say "aim here" without boxing the picture in.
 private struct Reticle: Shape {
     func path(in rect: CGRect) -> Path {
         let length = min(rect.width, rect.height) * 0.14

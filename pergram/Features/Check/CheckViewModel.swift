@@ -3,8 +3,7 @@ import OSLog
 import SwiftData
 
 /// Owns keypad entry state and the verdict-settle debounce. Numeral output stays live on every
-/// keystroke; only the word/color/haptic wait out the settle pause, per the design doc's "no
-/// stale verdicts, ever" rule.
+/// keystroke; only the word, colour and haptic wait out the settle pause.
 @MainActor
 @Observable
 final class CheckViewModel {
@@ -28,9 +27,8 @@ final class CheckViewModel {
             scheduleSettle()
         }
     }
-    /// Selection is held by identity, not by a live object: SwiftData object references do not react
-    /// to deletion, so the Check view resolves the item from its `@Query` (the reactive source of
-    /// truth) and a deleted row simply resolves to `nil`. The view model keeps only the id.
+    /// Held by identity rather than as a live object: SwiftData object references do not react to
+    /// deletion, so the view resolves the item from its `@Query` and a deleted row resolves to `nil`.
     var selectedItemID: PersistentIdentifier? {
         didSet { scheduleSettle() }
     }
@@ -121,9 +119,8 @@ final class CheckViewModel {
         }
     }
 
-    /// Bookmarking pins the current price into the "last" chip. It is deliberately independent of
-    /// the good-price baseline — a bookmark is a throwaway reference for comparison shopping, not a
-    /// commitment — and needs no selected item.
+    /// A throwaway reference for comparison shopping, deliberately independent of the good-price
+    /// baseline and needing no selected item.
     func bookmarkCurrentPrice() {
         guard let normalizedPrice else { return }
         lastBookmarked = normalizedPrice
@@ -158,13 +155,12 @@ final class CheckViewModel {
         settle()
     }
 
-    /// Fills the fields from a scanned shelf tag and lets the normal settle run, so a scan reaches
-    /// the verdict through the exact same path as a typed price. A tag that only yielded a price
-    /// leaves the amount and unit alone for the user to finish.
+    /// Fills the fields and lets the normal settle run, so a scan reaches the verdict by the same
+    /// path as a typed price. A tag that yielded only a price leaves the amount and unit alone.
     func applyScannedEntry(_ candidate: ScanCandidate) {
-        priceText = Self.fieldText(candidate.price)
+        priceText = Self.priceText(candidate.price)
         if let amount = candidate.amount, let unit = candidate.unit {
-            amountText = Self.fieldText(amount)
+            amountText = Self.amountText(amount)
             amountUnit = unit
         }
         focusedField = .price
@@ -175,8 +171,17 @@ final class CheckViewModel {
         )
     }
 
-    private static func fieldText(_ value: Double) -> String {
+    private static func priceText(_ value: Double) -> String {
         value == value.rounded() ? String(Int(value)) : String(format: "%.2f", value)
+    }
+
+    /// A net weight carries three decimals — `1.528 kg` — and rounding it to two moves the unit
+    /// price it produces.
+    private static func amountText(_ value: Double) -> String {
+        guard value != value.rounded() else { return String(Int(value)) }
+        var text = String(format: "%.3f", value)
+        while text.hasSuffix("0") { text.removeLast() }
+        return text
     }
 
     private var focusedText: String {
@@ -235,11 +240,8 @@ final class CheckViewModel {
         settleTick &+= 1
     }
 
-    /// Records the settled check against its item so a future per-item trend has history. The Check
-    /// view supplies the item it resolved from its `@Query` (the view model holds no reference), and
-    /// passes `nil` when nothing is selected. Only matched, same-dimension checks are recorded, and
-    /// identical consecutive settles are skipped. Silent: the "last" chip is driven only by an
-    /// explicit bookmark, never by settling.
+    /// Records the settled check against its item so a future per-item trend has history. The view
+    /// supplies the item it resolved from its `@Query`, or `nil` when nothing is selected.
     func recordSettledObservation(for item: GroceryItem?) {
         guard let settledPrice, let item, let modelContext,
             !item.isDeleted, item.dimension == settledPrice.dimension

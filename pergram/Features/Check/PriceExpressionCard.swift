@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The "$price per amount unit" entry card, shared by the Check screen and the Items add/edit sheet
-/// so both drive the same `CheckViewModel` fields through one keypad.
+/// so both drive one `CheckViewModel` through one keypad.
 struct PriceExpressionCard: View {
     @Bindable var viewModel: CheckViewModel
 

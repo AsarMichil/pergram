@@ -3,8 +3,6 @@ import SwiftUI
 
 struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession
-    /// Reports the tap twice over: once in the device's coordinate space for the focus call, once
-    /// in the view's for the indicator drawn on top.
     var onFocusTap: (_ devicePoint: CGPoint, _ viewPoint: CGPoint) -> Void = { _, _ in }
     var onZoomBegan: () -> Void = {}
     var onZoomChanged: (CGFloat) -> Void = { _ in }
@@ -25,8 +23,8 @@ struct CameraPreview: UIViewRepresentable {
 }
 
 /// Gestures live here rather than in SwiftUI because the tap has to be converted through
-/// `AVCaptureVideoPreviewLayer` — it is the only thing that knows how `.resizeAspectFill` cropped
-/// the frame, and getting that wrong focuses on the wrong part of the shelf.
+/// `AVCaptureVideoPreviewLayer`, the only thing that knows how `.resizeAspectFill` cropped the
+/// frame.
 final class CameraPreviewView: UIView {
     override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
 
@@ -50,8 +48,7 @@ final class CameraPreviewView: UIView {
     }
 
     /// The app is locked to portrait, so the preview is pinned rather than tracked with a rotation
-    /// coordinator — following gravity would tilt the picture inside a UI that never rotates. The
-    /// connection only exists once the session has an input, hence setting it on every update.
+    /// coordinator. The connection only exists once the session has an input, hence every update.
     func pinToPortrait() {
         guard let connection = previewLayer.connection,
             connection.isVideoRotationAngleSupported(90)

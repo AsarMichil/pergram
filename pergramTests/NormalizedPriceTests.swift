@@ -34,9 +34,29 @@ struct NormalizedPriceTests {
         #expect(MeasureUnit.canonicalUnit(for: .count) == .each)
     }
 
-    /// Count carries no mass, so it must never resolve a conversion into the mass graph.
     @Test func countDoesNotConvertIntoMass() {
         #expect(UnitGraph.standard.conversionFactor(from: .each, to: .gram) == nil)
         #expect(UnitGraph.standard.conversionFactor(from: .gram, to: .each) == nil)
+    }
+}
+
+@MainActor
+struct ScannedEntryTests {
+    @Test(arguments: [
+        (amount: 1.528, text: "1.528"), (amount: 1.716, text: "1.716"),
+        (amount: 455.0, text: "455"), (amount: 1.89, text: "1.89"), (amount: 1.5, text: "1.5"),
+    ])
+    func aScannedWeightKeepsItsPrecision(_ expected: (amount: Double, text: String)) {
+        let viewModel = CheckViewModel()
+        viewModel.applyScannedEntry(
+            ScanCandidate(price: 16.81, amount: expected.amount, unit: .kilogram))
+        #expect(viewModel.amountText == expected.text)
+        #expect(viewModel.amountValue == expected.amount)
+    }
+
+    @Test func aScannedPriceKeepsTwoDecimals() {
+        let viewModel = CheckViewModel()
+        viewModel.applyScannedEntry(ScanCandidate(price: 1.10, amount: 100, unit: .gram))
+        #expect(viewModel.priceText == "1.10")
     }
 }

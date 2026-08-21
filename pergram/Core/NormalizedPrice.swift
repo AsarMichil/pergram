@@ -2,8 +2,7 @@ import Foundation
 
 /// A price reduced to its dimension's canonical unit: `$/100g` for mass, `$/100mL` for volume,
 /// `$/each` for count.
-/// This is the single normalization path — every screen and the verdict engine speak `canonical`,
-/// and comparisons are only meaningful between two values of the same `dimension`.
+/// Comparisons are only meaningful between two values of the same `dimension`.
 nonisolated struct NormalizedPrice: Equatable, Sendable {
     let dimension: PriceDimension
     let canonical: Double

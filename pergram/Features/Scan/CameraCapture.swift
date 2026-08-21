@@ -4,10 +4,9 @@ import OSLog
 
 /// Owns the capture session that feeds `ShelfTagRecognizer`.
 ///
-/// `nonisolated` because session configuration blocks and must stay off the main actor. The
-/// `@unchecked Sendable` is what `sessionQueue` buys: every mutable property is touched only
-/// there. `session` is the one shared reference, and reading it from the main thread is exactly
-/// what `AVCaptureVideoPreviewLayer` is designed for.
+/// `nonisolated` because session configuration blocks and must stay off the main actor;
+/// `@unchecked Sendable` because every mutable property is touched only on `sessionQueue`. The one
+/// shared reference is `session`, which `AVCaptureVideoPreviewLayer` is designed to read.
 nonisolated final class CameraCapture: @unchecked Sendable {
     static var isAvailable: Bool { backCamera != nil }
 
@@ -26,9 +25,8 @@ nonisolated final class CameraCapture: @unchecked Sendable {
     private var zoomAtGestureStart: CGFloat = 1
     private var observers: [any NSObjectProtocol] = []
 
-    /// `onRunning` reports whether frames are actually flowing. Starting the session takes long
-    /// enough to see, and a preview shown before then is a black rectangle the user reads as a
-    /// hang — so the screen waits for this rather than for the call to `start()`.
+    /// `onRunning` reports whether frames are actually flowing. Starting takes long enough to see,
+    /// and a preview shown before then is a black rectangle the user reads as a hang.
     init(
         onReading: @escaping @Sendable (ShelfTagReading) -> Void,
         onRunning: @escaping @Sendable (Bool) -> Void
@@ -75,8 +73,8 @@ nonisolated final class CameraCapture: @unchecked Sendable {
         }
     }
 
-    /// `point` is in the device's coordinate space — `AVCaptureVideoPreviewLayer` converts a tap
-    /// into it, which is the only thing that gets the `.resizeAspectFill` crop right.
+    /// `point` is in the device's coordinate space, which only `AVCaptureVideoPreviewLayer` can
+    /// convert a tap into.
     func focus(at point: CGPoint) {
         sessionQueue.async { [self] in
             guard let device else { return }
@@ -93,8 +91,7 @@ nonisolated final class CameraCapture: @unchecked Sendable {
                     device.exposurePointOfInterest = point
                     device.exposureMode = .continuousAutoExposure
                 }
-                // Without this a tap pins focus to that spot for the rest of the session; the
-                // subject-area notification is what hands control back to continuous autofocus.
+                // Without this a tap pins focus to that spot for the rest of the session.
                 device.isSubjectAreaChangeMonitoringEnabled = true
             }
             Log.camera.debug(
@@ -164,8 +161,7 @@ nonisolated final class CameraCapture: @unchecked Sendable {
     }
 
     /// Shelf tags are read at arm's length, so restricting the focus range stops the lens hunting
-    /// out to the far end of the aisle between frames. This is also where a tapped focus point is
-    /// handed back once the scene moves on.
+    /// out to the far end of the aisle between frames.
     private func focusForShelfTags(_ device: AVCaptureDevice) {
         configure(device) { device in
             if device.isFocusModeSupported(.continuousAutoFocus) {
@@ -192,8 +188,8 @@ nonisolated final class CameraCapture: @unchecked Sendable {
         device.unlockForConfiguration()
     }
 
-    /// Fires when what the camera is pointed at changes materially, which is the cue that a tapped
-    /// focus point has gone stale.
+    /// A material change in what the camera is pointed at is the cue that a tapped focus point has
+    /// gone stale.
     private func observeSubjectAreaChanges(_ device: AVCaptureDevice) {
         observers.append(
             NotificationCenter.default.addObserver(
@@ -208,11 +204,11 @@ nonisolated final class CameraCapture: @unchecked Sendable {
             })
     }
 
-    /// AVFoundation reports these out of band. Without them a session that dies mid-scan just goes
-    /// quiet, and the only trace is unattributed `Fig` noise in the device console.
+    /// AVFoundation reports these out of band; without them a session that dies mid-scan just goes
+    /// quiet.
     private func observeSessionProblems() {
         let center = NotificationCenter.default
-        observers = [
+        observers += [
             center.addObserver(
                 forName: AVCaptureSession.runtimeErrorNotification, object: session, queue: nil
             ) { notification in
