@@ -1,12 +1,21 @@
-PerGram Go — a unit-price sanity checker for Canadian grocery shopping. Type a shelf price, get an instant good / meh / bad verdict in $/100g.
+PerGram Go — a unit-price sanity checker for Canadian grocery shopping. Get a price into it any way you like, and it answers one question: good, meh, or bad, in $/100g.
+
+New in this build: Scan. Point the camera at a shelf tag instead of typing.
 
 What to try:
+• Scan a shelf tag. Aim so the tag fills the frame — pinch to zoom, tap to focus. It fills the fields on its own; no button to press.
+• Scan the awkward ones: a big price with a tiny "/lb", a random-weight meat label, a French tag, "2 for $5".
+• Swipe to Type to correct anything it got wrong, then read the verdict.
 • Type a price and an amount (g, kg, lb, oz), then read the verdict.
 • Cycle the display unit ($/100g ↔ $/lb) and confirm the big number and the "last" chip update together.
 • Tap the bookmark key (right of the 0) to pin a price, then tap the "last" chip to pop it away.
 • Set or update your "good price" for an item, then re-check to watch the verdict change.
 
+Most useful feedback: a photo of a tag it read wrong, or refused to read, with what it should have said. A wrong number matters far more than a blank one.
+
 Known limits:
-• Scan mode is still a work in progress.
+• Liquids are not supported yet. Anything priced per 100 mL or per litre — milk, juice, oil — will not read.
+• Scanning has been tested against photos of tags rather than real shelves, so glare, curved shelf strips and aisle lighting are unknowns.
+• Camera frames are processed on your device and never stored or sent anywhere.
 
 Please send feedback with the TestFlight "Send Feedback" button — screenshots welcome.
