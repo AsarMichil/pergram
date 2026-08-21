@@ -108,10 +108,8 @@ struct CheckView: View {
             }
             .transition(.move(edge: .leading).combined(with: .opacity))
         case .scan:
-            VStack {
-                ScanModeView()
-                    .transition(.move(edge: .trailing).combined(with: .opacity))
-            }
+            ScanModeView(onCandidate: viewModel.applyScannedEntry)
+                .transition(.move(edge: .trailing).combined(with: .opacity))
         }
     }
 

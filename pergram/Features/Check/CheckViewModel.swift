@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 
 /// Owns keypad entry state and the verdict-settle debounce. Numeral output stays live on every
@@ -153,6 +154,27 @@ final class CheckViewModel {
         try? modelContext.save()
         selectedItemID = item.persistentModelID
         settle()
+    }
+
+    /// Fills the fields from a scanned shelf tag and lets the normal settle run, so a scan reaches
+    /// the verdict through the exact same path as a typed price. A tag that only yielded a price
+    /// leaves the amount and unit alone for the user to finish.
+    func applyScannedEntry(_ candidate: ScanCandidate) {
+        priceText = Self.fieldText(candidate.price)
+        if let amount = candidate.amount, let unit = candidate.unit {
+            amountText = Self.fieldText(amount)
+            amountUnit = unit
+        }
+        focusedField = .price
+        isEditingFresh = true
+        scheduleSettle()
+        Log.check.info(
+            "scanned entry: \(self.priceText, privacy: .public) per \(self.amountText, privacy: .public) \(self.amountUnit.rawValue, privacy: .public)"
+        )
+    }
+
+    private static func fieldText(_ value: Double) -> String {
+        value == value.rounded() ? String(Int(value)) : String(format: "%.2f", value)
     }
 
     private var focusedText: String {
