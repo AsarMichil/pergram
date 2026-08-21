@@ -13,7 +13,9 @@ final class CheckViewModel {
         case amount
     }
 
-    static let amountUnits: [MeasureUnit] = [.gram, .kilogram, .pound, .ounce, .each]
+    static let amountUnits: [MeasureUnit] = [
+        .gram, .kilogram, .pound, .ounce, .millilitre, .litre, .each,
+    ]
 
     private static let amountUnitDefaultsKey = "checkAmountUnit"
     private static let settleDelayNanoseconds: UInt64 = 350_000_000

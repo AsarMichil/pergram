@@ -204,14 +204,18 @@ struct ShelfTagParserTests {
         #expect(ShelfTagParser.candidate(from: ["ORANGE JUICE", "LEAN GROUND BEEF"]) == nil)
     }
 
-    @Test func dropsVolumeUnitPricesRatherThanMisreadingThem() {
-        #expect(ShelfTagParser.candidate(from: ["$1.17 /100 ml"]) == nil)
+    @Test func readsAPerHundredMillilitreUnitPrice() throws {
+        let candidate = try #require(ShelfTagParser.candidate(from: ["$1.17 /100 ml"]))
+        #expect(candidate.price == 1.17)
+        #expect(candidate.amount == 100)
+        #expect(candidate.unit == .millilitre)
     }
 
-    @Test func keepsShelfPriceWhenTheVolumeUnitPriceIsAlsoPrinted() throws {
+    /// The printed unit price beats the shelf price, as it does for mass.
+    @Test func prefersTheVolumeUnitPriceOverTheShelfPrice() throws {
         let candidate = try #require(ShelfTagParser.candidate(from: ["$3.99", "$1.17 /100 ml"]))
-        #expect(candidate.price == 3.99)
-        #expect(candidate.unit == nil)
+        #expect(candidate.price == 1.17)
+        #expect(candidate.unit == .millilitre)
     }
 
     @Test func picksTheMostProminentLineWhenTwoPricesCompete() throws {

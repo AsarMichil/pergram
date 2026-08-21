@@ -74,6 +74,8 @@ struct PriceExpressionCard: View {
         case .kilogram: return "kg"
         case .pound: return "lb"
         case .ounce: return "oz"
+        case .millilitre: return "mL"
+        case .litre: return "L"
         case .each: return "ea"
         default: return unit.rawValue
         }

@@ -18,14 +18,18 @@ nonisolated struct UnitGraph: Sendable {
 
     init() {
         var adjacency: [MeasureUnit: [Edge]] = [:]
-        func link(_ a: MeasureUnit, _ b: MeasureUnit, gramsPerA factor: Double) {
+        func link(_ a: MeasureUnit, _ b: MeasureUnit, perA factor: Double) {
             adjacency[a, default: []].append(Edge(target: b, factor: factor))
             adjacency[b, default: []].append(Edge(target: a, factor: 1 / factor))
         }
-        link(.kilogram, .gram, gramsPerA: 1000)
-        link(.pound, .gram, gramsPerA: 453.592)
-        link(.ounce, .gram, gramsPerA: 28.3495)
-        link(.per100Grams, .gram, gramsPerA: 100)
+        link(.kilogram, .gram, perA: 1000)
+        link(.pound, .gram, perA: 453.592)
+        link(.ounce, .gram, perA: 28.3495)
+        link(.per100Grams, .gram, perA: 100)
+        // A second component, anchored on millilitres. Nothing links it to grams, so a search
+        // across the two returns nil — which is the guard against comparing volume to mass.
+        link(.litre, .millilitre, perA: 1000)
+        link(.per100Millilitres, .millilitre, perA: 100)
         self.adjacency = adjacency
     }
 

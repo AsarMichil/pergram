@@ -52,8 +52,10 @@ struct AddEditItemSheet: View {
         }
         .onAppear {
             viewModel.attach(modelContext: modelContext)
-            if item?.dimension == .count {
-                viewModel.amountUnit = .each
+            switch item?.dimension {
+            case .count: viewModel.amountUnit = .each
+            case .volume: viewModel.amountUnit = .millilitre
+            default: break
             }
         }
     }

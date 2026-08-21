@@ -4,7 +4,7 @@ New in this build: Scan. Point the camera at a shelf tag instead of typing.
 
 What to try:
 • Scan a shelf tag. Aim so the tag fills the frame — pinch to zoom, tap to focus. It fills the fields on its own; no button to press.
-• Scan the awkward ones: a big price with a tiny "/lb", a random-weight meat label, a French tag, "2 for $5".
+• Scan the awkward ones: a big price with a tiny "/lb", a random-weight meat label, a French tag, "2 for $5", a bottle priced per 100 mL.
 • Swipe to Type to correct anything it got wrong, then read the verdict.
 • Type a price and an amount (g, kg, lb, oz), then read the verdict.
 • Cycle the display unit ($/100g ↔ $/lb) and confirm the big number and the "last" chip update together.
@@ -14,7 +14,6 @@ What to try:
 Most useful feedback: a photo of a tag it read wrong, or refused to read, with what it should have said. A wrong number matters far more than a blank one.
 
 Known limits:
-• Liquids are not supported yet. Anything priced per 100 mL or per litre — milk, juice, oil — will not read.
 • Scanning has been tested against photos of tags rather than real shelves, so glare, curved shelf strips and aisle lighting are unknowns.
 • Camera frames are processed on your device and never stored or sent anywhere.
 

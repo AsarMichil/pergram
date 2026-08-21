@@ -240,25 +240,25 @@ nonisolated enum ShelfTagParser {
     /// An unpunctuated digit run needs the separator specifically: `545` beside `per kg` is a unit
     /// price, but `907` beside `g` is a net weight, and nothing in the digits tells them apart.
     private static func isUnitPrice(_ money: MoneyMatch, _ phrase: UnitPhrase) -> Bool {
-        // `g` is a suffix of `kg`, so dropping a character turns one real unit into another — the
-        // only misread that swaps a valid reading for a different valid reading rather than for
-        // nonsense. No tag prices by the single gram; they print `/100 g` or `/kg`. So a per-gram
-        // reading with no quantity is a truncated per-kilogram one, and `$6.57 /G` is not $657 per
-        // 100 g.
-        if phrase.unit == .gram, !phrase.hasExplicitQuantity { return false }
+        // `g` is a suffix of `kg` and `l` of `ml`, so dropping a character turns one real unit into
+        // another — the only misreads that swap a valid reading for a different valid reading rather
+        // than for nonsense. No tag prices by the single gram or millilitre; they print `/100 g`,
+        // `/kg`, `/100 mL`, `/L`. So a base-unit reading with no quantity is a truncated one, and
+        // `$6.57 /G` is not $657 per 100 g.
+        if Self.baseUnits.contains(phrase.unit), !phrase.hasExplicitQuantity { return false }
         if money.isImplicitCents { return phrase.hasSeparator }
         return phrase.hasSeparator || (money.isCurrencyFormatted && !phrase.hasExplicitQuantity)
     }
 
-    /// `nil` for a unit PerGram cannot price yet — volume. The pairing is still consumed by the
-    /// caller, which is the point: a per-millilitre unit price must not resurface as the item's
-    /// own price.
+    /// The units a tag counts in but never prices by on their own.
+    private static let baseUnits: Set<MeasureUnit> = [.gram, .millilitre]
+
     private static func rank(
         _ money: MoneyMatch, _ phrase: UnitPhrase, prominence: Double
-    ) -> Ranked? {
-        guard let unit = phrase.unit else { return nil }
-        return Ranked(
-            candidate: ScanCandidate(price: money.value, amount: phrase.amount, unit: unit),
+    ) -> Ranked {
+        Ranked(
+            candidate: ScanCandidate(
+                price: money.value, amount: phrase.amount, unit: phrase.unit),
             isUnitPrice: true,
             isCurrencyFormatted: money.isCurrencyFormatted,
             prominence: prominence,
@@ -313,8 +313,7 @@ private nonisolated struct UnitPhrase {
     let amount: Double
     let hasExplicitQuantity: Bool
     let hasSeparator: Bool
-    /// `nil` for volume, which has no dimension in `MeasureUnit` yet.
-    let unit: MeasureUnit?
+    let unit: MeasureUnit
 }
 
 private nonisolated struct ParsedLine {
@@ -349,8 +348,8 @@ private nonisolated struct ParsedLine {
     /// The first per-unit token on the line, whether or not any price could be attached to it.
     var separatorPhrase: ScanUnit? {
         for phrase in ParsedLine.phrases(in: text) {
-            guard phrase.hasSeparator, let unit = phrase.unit else { continue }
-            return ScanUnit(amount: phrase.amount, unit: unit)
+            guard phrase.hasSeparator else { continue }
+            return ScanUnit(amount: phrase.amount, unit: phrase.unit)
         }
         return nil
     }
@@ -360,14 +359,16 @@ private nonisolated struct ParsedLine {
     /// quantity.
     var packSize: (amount: Double, unit: MeasureUnit)? {
         for phrase in ParsedLine.phrases(in: text) {
-            // Only a real price blocks a pack size. A superscript-cents reading must not: the `528`
-            // of `1.528 kg` is one, and it would cancel the very weight it sits inside.
-            guard phrase.hasExplicitQuantity, !phrase.hasSeparator, let unit = phrase.unit,
+            // Only a *currency-formatted* price blocks a pack size, because the currency symbol is
+            // the one thing that distinguishes a price from a quantity. `$5.45 g` has to be stopped
+            // from reading 5.45 as a weight; `1.89 L` is a bottle whose size is spelled exactly like
+            // a price, and blocking on that cancelled the very size it sits inside.
+            guard phrase.hasExplicitQuantity, !phrase.hasSeparator,
                 !money.contains(where: {
-                    !$0.isImplicitCents && $0.range.overlaps(phrase.range)
+                    $0.isCurrencyFormatted && $0.range.overlaps(phrase.range)
                 })
             else { continue }
-            return (phrase.amount, unit)
+            return (phrase.amount, phrase.unit)
         }
         return nil
     }
@@ -443,7 +444,11 @@ private nonisolated struct ParsedLine {
     >.Match
 
     private static func phrase(from match: PhraseMatch) -> UnitPhrase? {
-        guard isNounFreestanding(match.output.noun) else { return nil }
+        // The quantity needs the same guard as the noun, and volume is what made it matter: with
+        // `l` a live unit, the postal code `K1L` reads as "1 litre" and becomes a pack size.
+        guard isFreestanding(match.output.noun),
+            match.output.quantity.map(isFreestanding) ?? true
+        else { return nil }
         // A French label writes the same weight `1,528 kg`, and `Double` only parses a dot.
         let quantity = match.output.quantity
             .map { $0.replacingOccurrences(of: ",", with: ".") }
@@ -457,15 +462,16 @@ private nonisolated struct ParsedLine {
         )
     }
 
-    /// The lookbehind Swift Regex will not do: a unit noun may follow a digit, a space or a slash,
-    /// but never a letter. Without this, "peach" ends in `each` and "big" ends in `g`.
-    private static func isNounFreestanding(_ noun: Substring) -> Bool {
-        let line = noun.base
-        guard noun.startIndex > line.startIndex else { return true }
-        return !line[line.index(before: noun.startIndex)].isLetter
+    /// The lookbehind Swift Regex will not do: a unit noun or its quantity may follow a digit, a
+    /// space or a slash, but never a letter. Without it "peach" ends in `each`, "big" ends in `g`,
+    /// and the postal code `K1L` is a litre of something.
+    private static func isFreestanding(_ token: Substring) -> Bool {
+        let line = token.base
+        guard token.startIndex > line.startIndex else { return true }
+        return !line[line.index(before: token.startIndex)].isLetter
     }
 
-    private static func unit(forNoun noun: String) -> MeasureUnit? {
+    private static func unit(forNoun noun: String) -> MeasureUnit {
         if noun.hasPrefix("kg") || noun.hasPrefix("kilo") { return .kilogram }
         // `ib` and `1b` are the same two strokes as `lb`; the pattern accepts them, so the mapping
         // has to as well.
@@ -475,7 +481,8 @@ private nonisolated struct ParsedLine {
             return .pound
         }
         if noun.hasPrefix("oz") || noun.hasPrefix("once") { return .ounce }
-        if noun.hasPrefix("m") || noun.hasPrefix("lit") || noun == "l" { return nil }
+        if noun.hasPrefix("m") { return .millilitre }
+        if noun.hasPrefix("lit") || noun.hasPrefix("liter") || noun == "l" { return .litre }
         if noun.hasPrefix("g") { return .gram }
         return .each
     }
