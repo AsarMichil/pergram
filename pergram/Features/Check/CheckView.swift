@@ -40,48 +40,22 @@ struct CheckView: View {
 
     var body: some View {
         // The system safe area already clears the Dynamic Island / status bar (adapting per device)
-        // and reserves room for the floating Liquid Glass tab bar, so this fixed keypad screen just
-        // lives inside it — no manual clearances or edge-to-edge overrides needed.
-        VStack {
-            ModeBubble(mode: $mode)
-
-            Spacer(minLength: 0)
-
-            VerdictPanelView(
-                entered: viewModel.normalizedPrice,
-                baseline: baseline,
-                settledVerdict: settledVerdict,
-                isSettled: viewModel.isSettled,
-                hasEnoughInput: viewModel.hasEnoughInput,
-                settleTick: viewModel.settleTick,
-                onSaveAsGoodPrice: {
-                    if let selectedItem {
-                        viewModel.updateGoodPrice(for: selectedItem)
-                    } else {
-                        isShowingSaveSheet = true
-                    }
-                }
-            ) {
-                if let lastBookmarked = viewModel.lastBookmarked {
-                    LastPriceChip(price: lastBookmarked) {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            viewModel.clearBookmark()
-                        }
-                    }
-                }
-            }
-
-            Spacer(minLength: 0)
-
-            inputZone.padding()
+        // and reserves room for the floating Liquid Glass tab bar. Fitting inside it is the part the
+        // system cannot do: this screen does not scroll, so on a short device the roomy layout would
+        // overflow and clip at both ends. ViewThatFits picks the most generous one that fits.
+        ViewThatFits(in: .vertical) {
+            content(metrics: .spacious)
+            content(metrics: .roomy)
+            content(metrics: .compact)
         }
+        // A keypad is a fixed canvas: past this size the keys and the hero grow faster than the
+        // screen can give, and the bottom row is what falls off. Digits gain nothing from the
+        // accessibility sizes anyway, which is why the system keypads bound themselves the same way.
+        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
         .onAppear { viewModel.attach(modelContext: modelContext) }
-        .onChange(of: viewModel.settleTick) {
-            viewModel.recordSettledObservation(for: selectedItem)
-        }
         .sheet(isPresented: $isShowingItemPicker) {
             ItemPickerSheet(selectedItemID: $viewModel.selectedItemID)
         }
@@ -94,22 +68,71 @@ struct CheckView: View {
         }
     }
 
+    private func content(metrics: CheckMetrics) -> some View {
+        VStack(spacing: metrics.stackSpacing) {
+            ModeBubble(mode: $mode)
+
+            Spacer(minLength: 0)
+
+            VerdictPanelView(
+                entered: viewModel.normalizedPrice,
+                baseline: baseline,
+                bookmarked: viewModel.lastBookmarked,
+                settledVerdict: settledVerdict,
+                isSettled: viewModel.isSettled,
+                hasEnoughInput: viewModel.hasEnoughInput,
+                settleTick: viewModel.settleTick,
+                metrics: metrics,
+                onClearBookmark: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        viewModel.clearBookmark()
+                    }
+                }
+            )
+
+            Spacer(minLength: 0)
+
+            inputZone(metrics: metrics)
+                .padding(metrics.contentPadding)
+        }
+    }
+
     @ViewBuilder
-    private var inputZone: some View {
+    private func inputZone(metrics: CheckMetrics) -> some View {
         switch mode {
         case .type:
-            VStack {
+            VStack(spacing: 0) {
                 CheckFieldsView(
                     viewModel: viewModel,
                     selectedItemName: selectedItem?.name,
-                    isShowingItemPicker: $isShowingItemPicker
+                    baseline: baseline,
+                    onChooseItem: { isShowingItemPicker = true },
+                    onSetGoodPrice: setGoodPrice,
+                    onClearItem: { viewModel.selectedItemID = nil },
+                    metrics: metrics
                 )
-                KeypadView(viewModel: viewModel, onBookmark: viewModel.bookmarkCurrentPrice)
+
+                Spacer()
+                    .frame(minHeight: metrics.itemRowGap, maxHeight: metrics.itemRowGapMax)
+
+                KeypadView(
+                    viewModel: viewModel,
+                    onBookmark: { viewModel.bookmarkCurrentPrice(for: selectedItem) },
+                    metrics: metrics
+                )
             }
             .transition(.move(edge: .leading).combined(with: .opacity))
         case .scan:
             ScanModeView(onCandidate: viewModel.applyScannedEntry)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
+        }
+    }
+
+    private func setGoodPrice() {
+        if let selectedItem {
+            viewModel.updateGoodPrice(for: selectedItem)
+        } else {
+            isShowingSaveSheet = true
         }
     }
 
@@ -127,7 +150,8 @@ struct CheckView: View {
     }
 }
 
-#Preview {
+@MainActor
+private func previewContainer() -> ModelContainer {
     let container = try! ModelContainer(
         for: GroceryItem.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
@@ -141,6 +165,22 @@ struct CheckView: View {
             goodPriceCanonical: 1.10
         )
     )
-    return CheckView()
-        .modelContainer(container)
+    return container
+}
+
+#Preview("Check") {
+    CheckView()
+        .modelContainer(previewContainer())
+}
+
+/// The shortest supported iPhone, and the size the fixed layout has to survive.
+#Preview("Check · iPhone SE (375×667)", traits: .fixedLayout(width: 375, height: 667)) {
+    CheckView()
+        .modelContainer(previewContainer())
+}
+
+#Preview("Check · SE + AX5 type", traits: .fixedLayout(width: 375, height: 667)) {
+    CheckView()
+        .modelContainer(previewContainer())
+        .environment(\.dynamicTypeSize, .accessibility5)
 }

@@ -6,8 +6,9 @@ nonisolated enum CheckSource: String, Codable, Sendable {
     case scan
 }
 
-/// Written by every check so a trend feature has history from a user's first day, not the
-/// feature's. v1 records these and builds no UI on them.
+/// Written when the user bookmarks a price, so a trend feature has history from a user's first day,
+/// not the feature's. Bookmarking is the gate because a scan or a typed entry can be wrong, and an
+/// unreviewed reading is not worth keeping. v1 records these and builds no UI on them.
 @Model
 final class PriceObservation {
     /// The observed price in its item's canonical unit (`$/100g` for mass, `$/each` for count).

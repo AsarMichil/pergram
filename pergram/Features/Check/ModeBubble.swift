@@ -31,16 +31,20 @@ struct ModeBubble: View {
             .buttonStyle(.glass)
             .allowsHitTesting(false)
         } else {
+            // The 44pt minimum governs the touch target, not the artwork, so the hit region is
+            // widened past the glass rather than inflating it — the collapsed glyph is the design.
             Button {
                 withAnimation(reduceMotion ? nil : switchAnimation) { mode = target }
             } label: {
-                Text(" ")
-                    .font(.subheadline.weight(.semibold))
-                    .frame(width: 10, height: 10)
+                Image(systemName: target.symbolName)
+                    .font(.caption.weight(.semibold))
+                    .frame(width: 26, height: 26)
+                    .glassEffect(.regular.interactive(), in: .circle)
+                    .frame(width: 44, height: 44)
+                    .contentShape(.circle)
             }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
-            .controlSize(.small)
+            .buttonStyle(.plain)
+            .accessibilityLabel("Switch to \(target.title)")
         }
     }
 }

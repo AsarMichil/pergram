@@ -91,11 +91,6 @@ final class CheckViewModel {
         setFocusedText(text)
     }
 
-    func clearFocusedField() {
-        isEditingFresh = false
-        setFocusedText("")
-    }
-
     private func consumeFreshBase() -> String {
         guard isEditingFresh else { return focusedText }
         isEditingFresh = false
@@ -121,9 +116,13 @@ final class CheckViewModel {
 
     /// A throwaway reference for comparison shopping, deliberately independent of the good-price
     /// baseline and needing no selected item.
-    func bookmarkCurrentPrice() {
+    ///
+    /// Parking a price is also what commits it to history. A scan or a typed entry can be wrong, so
+    /// only a reading the user has vouched for is worth recording against the item.
+    func bookmarkCurrentPrice(for item: GroceryItem?) {
         guard let normalizedPrice else { return }
         lastBookmarked = normalizedPrice
+        recordObservation(normalizedPrice, for: item)
     }
 
     func clearBookmark() {
@@ -240,18 +239,15 @@ final class CheckViewModel {
         settleTick &+= 1
     }
 
-    /// Records the settled check against its item so a future per-item trend has history. The view
-    /// supplies the item it resolved from its `@Query`, or `nil` when nothing is selected.
-    func recordSettledObservation(for item: GroceryItem?) {
-        guard let settledPrice, let item, let modelContext,
-            !item.isDeleted, item.dimension == settledPrice.dimension
+    private func recordObservation(_ price: NormalizedPrice, for item: GroceryItem?) {
+        guard let item, let modelContext, !item.isDeleted, item.dimension == price.dimension
         else { return }
-        let cents = Int((settledPrice.canonical * 100).rounded())
+        let cents = Int((price.canonical * 100).rounded())
         let signature = "\(ObjectIdentifier(item))-\(cents)"
         guard signature != lastRecordedSignature else { return }
         lastRecordedSignature = signature
         let observation = PriceObservation(
-            priceCanonical: settledPrice.canonical,
+            priceCanonical: price.canonical,
             date: .now,
             source: .keypad,
             item: item

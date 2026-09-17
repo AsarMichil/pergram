@@ -1,14 +1,15 @@
 import SwiftUI
 
-struct VerdictPanelView<UnitRowLeading: View>: View {
+struct VerdictPanelView: View {
     let entered: NormalizedPrice?
     let baseline: NormalizedPrice?
+    var bookmarked: NormalizedPrice?
     let settledVerdict: Verdict?
     let isSettled: Bool
     let hasEnoughInput: Bool
     let settleTick: Int
-    var onSaveAsGoodPrice: () -> Void
-    @ViewBuilder var unitRowLeading: UnitRowLeading
+    var metrics: CheckMetrics = .roomy
+    var onClearBookmark: () -> Void = {}
 
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -18,10 +19,6 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
 
     private var displayUnit: MeasureUnit {
         PriceDisplay.displayUnit(for: enteredDimension, preferred: storedUnit)
-    }
-
-    private var baselineUnit: MeasureUnit {
-        PriceDisplay.displayUnit(for: baseline?.dimension ?? .mass, preferred: storedUnit)
     }
 
     private var canCycleUnit: Bool { PriceDisplay.units(for: enteredDimension).count > 1 }
@@ -36,31 +33,18 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
         return entered.dimension != baseline.dimension
     }
 
-    private var neutralColor: Color {
-        .secondary
+    private var settleAnimation: Animation {
+        reduceMotion ? .easeInOut(duration: 0.2) : .spring(response: 0.35, dampingFraction: 0.8)
     }
 
     var body: some View {
-        VStack {
+        VStack(spacing: 4) {
             verdictWordRow
-                .frame(height: 34)
-            Text(displayValue, format: .currency(code: "CAD"))
-                .font(.system(size: 64, weight: .black, design: .rounded))
-                .monospacedDigit()
-                .foregroundStyle(.primary)
-                .contentTransition(.numericText())
-                .animation(
-                    reduceMotion
-                        ? .easeInOut(duration: 0.2) : .spring(response: 0.35, dampingFraction: 0.8),
-                    value: displayValue
-                )
-                .minimumScaleFactor(0.2)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity)
-                .frame(height: 78, alignment: .top)
-                .padding(.horizontal)
-            unitRow
-            contextSlot
+                .frame(height: metrics.wordHeight)
+            heroRow
+                .frame(height: metrics.heroHeight)
+            comparisonRow
+                .frame(height: metrics.comparisonHeight)
         }
         .frame(maxWidth: .infinity)
         .sensoryFeedback(trigger: settleTick) { _, _ in
@@ -69,140 +53,137 @@ struct VerdictPanelView<UnitRowLeading: View>: View {
         }
     }
 
+    /// Empty rather than instructional before the first digit — but the row still holds its height,
+    /// so the readout does not jump when the verdict arrives.
     @ViewBuilder
     private var verdictWordRow: some View {
         if !hasEnoughInput {
-            Label("ENTER A PRICE", systemImage: "circle.dashed")
-                .font(.title3.bold())
-                .tracking(2)
-                .foregroundStyle(neutralColor)
+            Color.clear
         } else if !isSettled {
-            Label("CHECKING", systemImage: "circle.dashed")
-                .font(.title2.bold())
-                .tracking(2)
-                .foregroundStyle(neutralColor)
+            verdictLabel("CHECKING", systemImage: "circle.dashed", color: .secondary)
                 .transition(.opacity)
         } else if let settledVerdict {
-            Label(settledVerdict.word, systemImage: settledVerdict.symbolName)
-                .font(.title2.bold())
-                .tracking(2)
-                .foregroundStyle(settledVerdict.color)
-                .scaleEffect(isSettled ? 1 : 1.03)
-                .animation(
-                    reduceMotion
-                        ? .easeInOut(duration: 0.2)
-                        : .spring(response: 0.35, dampingFraction: 0.55), value: settleTick
-                )
-                .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale))
+            verdictLabel(
+                settledVerdict.word, systemImage: settledVerdict.symbolName,
+                color: settledVerdict.color
+            )
+            .scaleEffect(isSettled ? 1 : 1.03)
+            .animation(
+                reduceMotion
+                    ? .easeInOut(duration: 0.2) : .spring(response: 0.35, dampingFraction: 0.55),
+                value: settleTick
+            )
+            .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale))
         } else if dimensionMismatch {
-            Label("DIFFERENT UNIT", systemImage: "exclamationmark.triangle")
-                .font(.title2.bold())
-                .tracking(2)
-                .foregroundStyle(neutralColor)
-                .transition(.opacity)
+            verdictLabel(
+                "DIFFERENT UNIT", systemImage: "exclamationmark.triangle", color: .secondary
+            )
+            .transition(.opacity)
         } else {
-            Label("NO BASELINE", systemImage: "questionmark.circle")
-                .font(.title2.bold())
-                .tracking(2)
-                .foregroundStyle(neutralColor)
+            verdictLabel("NO BASELINE", systemImage: "questionmark.circle", color: .secondary)
                 .transition(.opacity)
         }
     }
 
-    private var unitRow: some View {
-        HStack {
-            unitRowLeading
-            Spacer()
+    private func verdictLabel(_ text: String, systemImage: String, color: Color) -> some View {
+        Label(text, systemImage: systemImage)
+            .font(.title2.bold())
+            .tracking(2)
+            .foregroundStyle(color)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+    }
+
+    private var heroRow: some View {
+        HStack(alignment: .lastTextBaseline, spacing: 0) {
+            Text(PriceDisplay.money(displayValue))
+                .font(.system(size: metrics.heroFontSize, weight: .black, design: .rounded))
+                .monospacedDigit()
+                .contentTransition(.numericText())
+                .animation(settleAnimation, value: displayValue)
+                .lineLimit(1)
+                .minimumScaleFactor(0.3)
             unitCycleButton
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal)
     }
 
-    @ViewBuilder
     private var unitCycleButton: some View {
         Button {
-            withAnimation(
-                reduceMotion
-                    ? .easeInOut(duration: 0.2) : .spring(response: 0.35, dampingFraction: 0.8)
-            ) {
+            withAnimation(settleAnimation) {
                 displayUnitRaw =
-                    PriceDisplay.next(after: displayUnit, in: enteredDimension).rawValue
+                    PriceDisplay.next(after: displayUnit, in: enteredDimension)
+                    .rawValue
             }
         } label: {
             Text(PriceDisplay.suffix(for: displayUnit))
-                .font(.subheadline.weight(.semibold))
+                .font(.title3.weight(.bold))
                 .contentTransition(reduceMotion ? .opacity : .numericText())
+                .padding(.vertical, 11)
+                .padding(.horizontal, 8)
+                .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .foregroundStyle(.secondary)
         .disabled(!canCycleUnit)
+        .accessibilityLabel("Display unit \(PriceDisplay.suffix(for: displayUnit)), tap to change")
         .sensoryFeedback(.selection, trigger: displayUnitRaw)
     }
 
-    private var contextSlot: some View {
-        VStack(spacing: 4) {
-            if !hasEnoughInput {
-                EmptyView()
-            } else if let baseline {
-                Text(
-                    "your good price: \(PriceDisplay.value(baseline, in: baselineUnit), format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: baselineUnit))"
-                )
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                saveLink("Update good price")
-            } else {
-                saveLink("Set as my good price")
-            }
+    /// The slot holds its height whether or not a price is parked. Collapsing it would shift the
+    /// card, the item row and the keypad down the instant you bookmark — and because the screen
+    /// picks its metrics from this layout's ideal height, it could also flip roomy to compact in the
+    /// same frame.
+    @ViewBuilder
+    private var comparisonRow: some View {
+        if let bookmarked {
+            LastPriceChip(price: bookmarked, current: entered, onDelete: onClearBookmark)
         }
-        .frame(height: 40)
-    }
-
-    private func saveLink(_ title: String) -> some View {
-        Button(title, action: onSaveAsGoodPrice)
-            .font(.footnote.weight(.semibold))
-            .buttonStyle(.plain)
-            .foregroundStyle(.tint)
     }
 }
 
-#Preview("Good") {
+private func verdictPreview(
+    _ canonical: Double?,
+    baseline: Double? = 1.10,
+    bookmarked: Double? = nil,
+    verdict: Verdict? = nil,
+    isSettled: Bool = true,
+    metrics: CheckMetrics = .roomy
+) -> some View {
     VerdictPanelView(
-        entered: NormalizedPrice(dimension: .mass, canonical: 1.05),
-        baseline: NormalizedPrice(dimension: .mass, canonical: 1.10),
-        settledVerdict: .good,
-        isSettled: true,
-        hasEnoughInput: true,
+        entered: canonical.map { NormalizedPrice(dimension: .mass, canonical: $0) },
+        baseline: baseline.map { NormalizedPrice(dimension: .mass, canonical: $0) },
+        bookmarked: bookmarked.map { NormalizedPrice(dimension: .mass, canonical: $0) },
+        settledVerdict: verdict,
+        isSettled: isSettled,
+        hasEnoughInput: canonical != nil,
         settleTick: 1,
-        onSaveAsGoodPrice: {}
-    ) {
-        Text("leading slot").font(.caption).foregroundStyle(.secondary)
-    }
+        metrics: metrics
+    )
 }
 
-#Preview("Count") {
+#Preview("Good") { verdictPreview(1.05, verdict: .good) }
+#Preview("Meh") { verdictPreview(1.30, verdict: .meh) }
+#Preview("Bad") { verdictPreview(2.40, verdict: .bad) }
+#Preview("Checking") { verdictPreview(1.05, verdict: .good, isSettled: false) }
+#Preview("No baseline") { verdictPreview(1.05, baseline: nil) }
+
+/// The entered price is a count, the baseline a mass — nothing comparable between them.
+#Preview("Different unit") {
     VerdictPanelView(
         entered: NormalizedPrice(dimension: .count, canonical: 0.42),
-        baseline: NormalizedPrice(dimension: .count, canonical: 0.50),
-        settledVerdict: .good,
-        isSettled: true,
-        hasEnoughInput: true,
-        settleTick: 1,
-        onSaveAsGoodPrice: {}
-    ) {
-        EmptyView()
-    }
-}
-
-#Preview("Empty") {
-    VerdictPanelView(
-        entered: nil,
-        baseline: nil,
+        baseline: NormalizedPrice(dimension: .mass, canonical: 1.10),
         settledVerdict: nil,
         isSettled: true,
-        hasEnoughInput: false,
-        settleTick: 0,
-        onSaveAsGoodPrice: {}
-    ) {
-        EmptyView()
-    }
+        hasEnoughInput: true,
+        settleTick: 1
+    )
 }
+
+/// The word row must hold its height here, or the readout jumps on the first digit.
+#Preview("Empty") { verdictPreview(nil, baseline: nil) }
+
+#Preview("Cheaper than parked") { verdictPreview(1.05, bookmarked: 1.23, verdict: .good) }
+#Preview("Pricier than parked") { verdictPreview(1.40, bookmarked: 1.23, verdict: .meh) }
+#Preview("Compact") { verdictPreview(1.05, bookmarked: 1.23, verdict: .good, metrics: .compact) }

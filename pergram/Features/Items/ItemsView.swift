@@ -57,6 +57,8 @@ struct ItemsView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel("Add item")
+                    .accessibilityIdentifier("addItem")
                 }
             }
             .overlay { emptyState }
@@ -121,8 +123,7 @@ struct ItemsView: View {
     private func priceString(_ item: GroceryItem) -> String {
         let price = NormalizedPrice(dimension: item.dimension, canonical: item.goodPriceCanonical)
         let unit = PriceDisplay.displayUnit(for: item.dimension, preferred: storedUnit)
-        let value = PriceDisplay.value(price, in: unit)
-        return value.formatted(.currency(code: "CAD")) + PriceDisplay.suffix(for: unit)
+        return PriceDisplay.formatted(price, in: unit)
     }
 
     private func filter(_ items: [GroceryItem]) -> [GroceryItem] {

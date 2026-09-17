@@ -17,6 +17,13 @@ Both sets show the same four states, in upload order:
 | `03-bad.png` | Cheddar cheese well over |
 | `04-items.png` | The seeded item list with saved good prices |
 
+`ScreenshotTests` also captures `05-compare.png` — a parked price with the difference against the
+one being checked. It is not in either uploaded set; it exists so the comparison chip is verifiable
+without driving the app by hand, and is a candidate if a fifth slot is ever wanted.
+
+> **The committed PNGs predate the short-screen rework** (the merged item row, the hero's inline
+> unit, the reworked mode toggle). They must be regenerated before the next submission.
+
 ## Regenerating
 
 `pergramUITests/ScreenshotTests.swift` drives the app into each state and attaches a screenshot.

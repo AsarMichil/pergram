@@ -38,6 +38,25 @@ nonisolated enum PriceDisplay {
         }
     }
 
+    /// Every shelf price in this app is Canadian, so the symbol is always "$". Formatting with
+    /// `.currency(code: "CAD")` alone resolves the symbol against the *device* locale, which renders
+    /// "CA$" on any device outside Canada.
+    static let currency = FloatingPointFormatStyle<Double>.Currency(
+        code: "CAD",
+        locale: Locale(identifier: "en_CA")
+    )
+
+    /// Always format through this rather than `Text(value, format:)`. SwiftUI resolves a format
+    /// style against the *environment* locale, which discards the currency's own locale and brings
+    /// "CA$" back on a device outside Canada; `Double.formatted(_:)` keeps it.
+    static func money(_ value: Double) -> String {
+        value.formatted(currency)
+    }
+
+    static func formatted(_ price: NormalizedPrice, in unit: MeasureUnit) -> String {
+        money(value(price, in: unit)) + suffix(for: unit)
+    }
+
     static func next(after unit: MeasureUnit, in dimension: PriceDimension) -> MeasureUnit {
         let order = units(for: dimension)
         guard let index = order.firstIndex(of: unit) else { return order[0] }

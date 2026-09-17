@@ -27,16 +27,11 @@ struct AddEditItemSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                if !isEditing {
-                    nameField
-                }
-                hero
-                PriceExpressionCard(viewModel: viewModel)
-                Spacer(minLength: 0)
-                KeypadView(viewModel: viewModel, onBookmark: nil)
+            ViewThatFits(in: .vertical) {
+                content(metrics: .roomy)
+                content(metrics: .compact)
             }
-            .padding()
+            .dynamicTypeSize(...DynamicTypeSize.accessibility1)
             .navigationTitle(isEditing ? (item?.name ?? "Edit price") : "New item")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -60,19 +55,34 @@ struct AddEditItemSheet: View {
         }
     }
 
-    private var nameField: some View {
+    /// The sheet carries the same calculator as the Check screen, so it inherits the same problem:
+    /// a fixed column with a keypad at the bottom has to fit the shortest screen.
+    private func content(metrics: CheckMetrics) -> some View {
+        VStack(spacing: metrics.stackSpacing * 2) {
+            if !isEditing {
+                nameField(metrics: metrics)
+            }
+            hero(metrics: metrics)
+            PriceExpressionCard(viewModel: viewModel, metrics: metrics)
+            Spacer(minLength: 0)
+            KeypadView(viewModel: viewModel, onBookmark: nil, metrics: metrics)
+        }
+        .padding(metrics.contentPadding)
+    }
+
+    private func nameField(metrics: CheckMetrics) -> some View {
         TextField("Item name (e.g. Eggs)", text: $name)
             .textFieldStyle(.plain)
             .font(.title3.weight(.medium))
             .padding(.horizontal, 14)
-            .padding(.vertical, 12)
+            .padding(.vertical, metrics.fieldPadding + 2)
             .background {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(.quaternary.opacity(0.25))
             }
     }
 
-    private var hero: some View {
+    private func hero(metrics: CheckMetrics) -> some View {
         VStack(spacing: 2) {
             Text("good price")
                 .font(.caption.weight(.semibold))
@@ -80,8 +90,10 @@ struct AddEditItemSheet: View {
                 .textCase(.uppercase)
                 .foregroundStyle(.tertiary)
             HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(viewModel.normalizedPrice?.canonical ?? 0, format: .currency(code: "CAD"))
-                    .font(.system(size: 44, weight: .black, design: .rounded))
+                Text(PriceDisplay.money(viewModel.normalizedPrice?.canonical ?? 0))
+                    .font(
+                        .system(size: metrics.sheetHeroFontSize, weight: .black, design: .rounded)
+                    )
                     .monospacedDigit()
                     .contentTransition(.numericText())
                 Text(PriceDisplay.suffix(for: canonicalUnit))
@@ -97,7 +109,7 @@ struct AddEditItemSheet: View {
             )
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 64)
+        .frame(height: metrics.sheetHeroHeight)
     }
 
     private func save() {

@@ -15,7 +15,7 @@ struct SetGoodPriceSheet: View {
                 Section {
                     LabeledContent("Good price") {
                         Text(
-                            "\(price.canonical, format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: canonicalUnit))"
+                            "\(PriceDisplay.money(price.canonical))\(PriceDisplay.suffix(for: canonicalUnit))"
                         )
                         .monospacedDigit()
                     }

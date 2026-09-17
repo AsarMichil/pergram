@@ -4,9 +4,10 @@ import SwiftUI
 /// so both drive one `CheckViewModel` through one keypad.
 struct PriceExpressionCard: View {
     @Bindable var viewModel: CheckViewModel
+    var metrics: CheckMetrics = .roomy
 
     var body: some View {
-        VStack {
+        VStack(spacing: metrics.stackSpacing) {
             priceField
             Divider()
             HStack(spacing: 8) {
@@ -16,7 +17,7 @@ struct PriceExpressionCard: View {
                 unitMenu
             }
         }
-        .padding(16)
+        .padding(metrics.cardPadding)
         .background {
             RoundedRectangle(cornerRadius: 20)
                 .fill(.quaternary.opacity(0.25))
@@ -30,10 +31,12 @@ struct PriceExpressionCard: View {
             placeholder: "0.00",
             isFocused: viewModel.focusedField == .price,
             isSelected: viewModel.focusedField == .price && viewModel.isEditingFresh,
-            emphasized: true,
+            font: metrics.emphasizedFieldFont,
+            verticalPadding: metrics.fieldPadding,
             alignment: .leading
         )
         .onTapGesture { viewModel.focus(.price) }
+        .accessibilityIdentifier("priceField")
     }
 
     private var amountField: some View {
@@ -43,10 +46,12 @@ struct PriceExpressionCard: View {
             placeholder: "0",
             isFocused: viewModel.focusedField == .amount,
             isSelected: viewModel.focusedField == .amount && viewModel.isEditingFresh,
-            emphasized: false,
+            font: metrics.fieldFont,
+            verticalPadding: metrics.fieldPadding,
             alignment: .leading
         )
         .onTapGesture { viewModel.focus(.amount) }
+        .accessibilityIdentifier("amountField")
     }
 
     private var unitMenu: some View {
@@ -61,7 +66,7 @@ struct PriceExpressionCard: View {
                 Image(systemName: "chevron.down")
                     .font(.caption2.weight(.semibold))
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, metrics.fieldPadding)
             .padding(.horizontal, 12)
         }
         .buttonStyle(.glass)
@@ -88,7 +93,8 @@ private struct FieldBox: View {
     let placeholder: String
     let isFocused: Bool
     let isSelected: Bool
-    var emphasized = false
+    var font: Font
+    var verticalPadding: CGFloat
     var alignment: HorizontalAlignment = .leading
 
     var body: some View {
@@ -113,11 +119,11 @@ private struct FieldBox: View {
                 }
             }
         }
-        .font(emphasized ? .title2.weight(.bold) : .title3.weight(.semibold))
+        .font(font)
         .monospacedDigit()
         .frame(maxWidth: .infinity, alignment: Alignment(horizontal: alignment, vertical: .center))
         .padding(.horizontal, 12)
-        .padding(.vertical, 10)
+        .padding(.vertical, verticalPadding)
         .background {
             RoundedRectangle(cornerRadius: 12)
                 .fill(.quaternary.opacity(isFocused ? 0.5 : 0.25))
@@ -127,12 +133,18 @@ private struct FieldBox: View {
                 .strokeBorder(isFocused ? Color.accentColor : .clear, lineWidth: 2)
         }
         .contentShape(RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
         .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isFocused)
         .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
 }
 
-#Preview {
+#Preview("Roomy") {
     PriceExpressionCard(viewModel: CheckViewModel())
+        .padding()
+}
+
+#Preview("Compact") {
+    PriceExpressionCard(viewModel: CheckViewModel(), metrics: .compact)
         .padding()
 }

@@ -1,7 +1,11 @@
 import SwiftUI
 
+/// The parked price, and how the price being checked compares against it. Bookmarking is explicit
+/// because a scan or a typed entry can be wrong — parking one is the user vouching for the reading,
+/// so only vouched prices become a reference to compare against.
 struct LastPriceChip: View {
     let price: NormalizedPrice
+    var current: NormalizedPrice?
     var onDelete: () -> Void
 
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
@@ -10,6 +14,12 @@ struct LastPriceChip: View {
     private var displayUnit: MeasureUnit {
         PriceDisplay.displayUnit(
             for: price.dimension, preferred: MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams)
+    }
+
+    private var difference: Double? {
+        guard let current, current.dimension == price.dimension else { return nil }
+        return PriceDisplay.value(current, in: displayUnit)
+            - PriceDisplay.value(price, in: displayUnit)
     }
 
     private var popTransition: AnyTransition {
@@ -23,25 +33,70 @@ struct LastPriceChip: View {
 
     var body: some View {
         HStack(spacing: 5) {
-            Image(systemName: "clock.arrow.circlepath")
-            Text("last")
-            Text(
-                "\(PriceDisplay.value(price, in: displayUnit), format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: displayUnit))"
-            )
-            .fontWeight(.semibold)
-            .monospacedDigit()
+            Image(systemName: "bookmark.fill")
+            Text(PriceDisplay.formatted(price, in: displayUnit))
+                .fontWeight(.semibold)
+                .monospacedDigit()
+            if let difference {
+                Text("·").foregroundStyle(.tertiary)
+                comparison(difference)
+            }
+            clearButton
         }
         .font(.caption)
         .foregroundStyle(.secondary)
-        .padding(.horizontal, 11)
-        .padding(.vertical, 7)
+        .padding(.leading, 11)
+        .padding(.trailing, 2)
+        .padding(.vertical, 3)
         .glassEffect(.regular, in: .capsule)
-        .contentShape(.capsule)
-        .onTapGesture(perform: onDelete)
         .transition(popTransition)
+    }
+
+    @ViewBuilder
+    private func comparison(_ difference: Double) -> some View {
+        if abs(difference) < 0.005 {
+            Text("same price")
+        } else {
+            Text(
+                "\(abs(difference).formatted(PriceDisplay.currency)) \(difference < 0 ? "cheaper" : "pricier")"
+            )
+            .fontWeight(.semibold)
+            .monospacedDigit()
+            .foregroundStyle((difference < 0 ? Verdict.good : Verdict.bad).color)
+            .contentTransition(reduceMotion ? .opacity : .numericText())
+        }
+    }
+
+    private var clearButton: some View {
+        Button(action: onDelete) {
+            Image(systemName: "xmark")
+                .font(.caption2.weight(.bold))
+                .frame(width: 22, height: 22)
+                .contentShape(.circle)
+                .padding(6)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.tertiary)
+        .accessibilityLabel("Clear parked price")
     }
 }
 
-#Preview {
+#Preview("Cheaper") {
+    LastPriceChip(
+        price: NormalizedPrice(dimension: .mass, canonical: 1.23),
+        current: NormalizedPrice(dimension: .mass, canonical: 1.05),
+        onDelete: {}
+    )
+}
+
+#Preview("Pricier") {
+    LastPriceChip(
+        price: NormalizedPrice(dimension: .mass, canonical: 1.05),
+        current: NormalizedPrice(dimension: .mass, canonical: 1.23),
+        onDelete: {}
+    )
+}
+
+#Preview("No comparison yet") {
     LastPriceChip(price: NormalizedPrice(dimension: .mass, canonical: 1.05), onDelete: {})
 }

@@ -19,6 +19,34 @@ final class ScreenshotTests: XCTestCase {
         captureVerdict(item: "Bananas", price: "1", named: "01-good")
         captureVerdict(item: "Ground beef (lean)", price: "15", named: "02-meh")
         captureVerdict(item: "Cheddar cheese", price: "30", named: "03-bad")
+        captureComparison(named: "05-compare")
+    }
+
+    /// Parks one price and checks a second against it, which is the state the comparison chip and
+    /// its difference exist for.
+    private func captureComparison(named name: String) {
+        let app = launch()
+
+        app.buttons["itemRow"].firstMatch.tap()
+        let chooseItem = app.buttons["chooseItem"].firstMatch
+        XCTAssertTrue(chooseItem.waitForExistence(timeout: 5), "item row menu did not open")
+        chooseItem.tap()
+        let row = app.staticTexts["Bananas"].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "no picker row for Bananas")
+        row.tap()
+
+        app.buttons["2"].firstMatch.tap()
+        app.descendants(matching: .any).matching(identifier: "amountField").firstMatch.tap()
+        app.buttons["1"].firstMatch.tap()
+
+        let bookmark = app.buttons["bookmarkKey"].firstMatch
+        XCTAssertTrue(bookmark.waitForExistence(timeout: 5), "no bookmark key")
+        bookmark.tap()
+
+        app.descendants(matching: .any).matching(identifier: "priceField").firstMatch.tap()
+        app.buttons["1"].firstMatch.tap()
+
+        capture(name)
     }
 
     private func launch() -> XCUIApplication {
@@ -31,7 +59,11 @@ final class ScreenshotTests: XCTestCase {
     private func captureVerdict(item: String, price: String, named name: String) {
         let app = launch()
 
-        app.buttons["No item selected"].firstMatch.tap()
+        app.buttons["itemRow"].firstMatch.tap()
+        let chooseItem = app.buttons["chooseItem"].firstMatch
+        XCTAssertTrue(chooseItem.waitForExistence(timeout: 5), "item row menu did not open")
+        chooseItem.tap()
+
         let row = app.staticTexts[item].firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5), "no picker row for \(item)")
         row.tap()

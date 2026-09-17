@@ -32,7 +32,7 @@ struct ItemPickerSheet: View {
                     } label: {
                         LabeledContent {
                             Text(
-                                "\(item.goodPriceCanonical, format: .currency(code: "CAD"))\(PriceDisplay.suffix(for: MeasureUnit.canonicalUnit(for: item.dimension)))"
+                                "\(PriceDisplay.money(item.goodPriceCanonical))\(PriceDisplay.suffix(for: MeasureUnit.canonicalUnit(for: item.dimension)))"
                             )
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
