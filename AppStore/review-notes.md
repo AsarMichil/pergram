@@ -35,14 +35,19 @@ offline from first launch.
 
 - **Check (Type).** Opens on this tab. Enter a price on the keypad, tap the amount field, enter an
   amount, and choose a unit. The verdict appears above.
-- **Selecting an item.** Tap the tag row under the keypad to pick from a list of common groceries.
-  Each carries a starting good price, and "Update good price" replaces it with whatever is on screen.
+- **Selecting an item.** Tap the item row between the price card and the keypad to open its menu.
+  "Choose item…" picks from a list of common groceries, each carrying a starting good price shown on
+  the row itself. "Set good price to …" replaces that baseline with whatever is currently on screen.
+- **Display unit.** Tap the unit beside the large price (for example `/kg`) to cycle it.
+- **Comparing two products.** The bookmark key parks the price on screen; check a second product and
+  the chip under the price shows the difference between them.
 - **Check (Scan).** Tap "Scan" at the top of the Check screen, or swipe left. iOS asks for camera
   permission the first time. Point the camera at any printed price tag and the fields fill on their
   own; there is no button to press. Pinch to zoom and tap to focus for small print.
   A printed grocery shelf tag works, and so does a photograph of one shown on another screen.
 - **Items.** The saved list, searchable, with prices editable via + or by swiping a row.
-- **Settings.** Display unit, links to the support page and privacy policy, and a feedback email.
+- **Settings.** How the app works, a feedback email, links to the support page and privacy policy,
+  and the version number.
 
 ## 4. External services, tools and platforms
 
@@ -94,12 +99,59 @@ One continuous take, on a physical device, roughly 60–90 seconds. Start with t
 
 1. Launch from the Home Screen so the recording starts cold.
 2. Type a price and an amount on the keypad. Let the verdict settle.
-3. Tap the item row, pick an item, show the verdict change against that item's good price.
-4. Tap "Update good price" to show the baseline being set by the user.
+3. Tap the item row, choose "Choose item…", pick an item, and show the verdict change against that
+   item's good price.
+4. Open the item row menu again and choose "Set good price to …" to show the baseline being set by
+   the user.
 5. Tap "Scan". Allow camera access when iOS asks — leave the permission prompt in the recording.
 6. Point at a printed price tag until the fields fill on their own. Pinch to zoom once.
 7. Swipe to "Type" to show the scanned values can be corrected by hand.
 8. Open Items, scroll, use the search field.
-9. Open Settings, cycle the display unit, and open the privacy policy link.
+9. Back on Check, tap the unit beside the large price to cycle it.
+10. Open Settings and open the privacy policy link.
 
 Include audio narration or on-screen captions if convenient; neither is required.
+
+
+---
+
+# App Review reply — Guideline 4, Design
+
+Submission 064c76af-9fb5-46ce-b88d-a13b85d397aa, reviewed on iPad Air 11-inch.
+
+---
+
+Thank you for the detail in the report — it was accurate, and it led us to a real bug.
+
+PerGram Go is an iPhone-only app, so on the review iPad it ran in iPhone compatibility mode. That
+window is shorter than a modern iPhone's screen, and the Check screen was a fixed, non-scrolling
+layout that assumed a tall one. It did not fit, and the overflow was resolved by clipping at both
+ends: the Type/Scan control was pushed off the top of the screen, and the bottom row of the keypad —
+including the button that saves a price — sat behind the tab bar where it could not be tapped.
+
+This was not confined to iPad. The same layout also failed on iPhone SE, which has a 375 × 667 point
+screen, so the problem affected iPhone users directly. We are grateful it was caught.
+
+What has changed:
+
+- **The Check screen now adapts to the height available**, choosing between three sets of
+  proportions instead of assuming one. Verified from 375 × 667 (iPhone SE) to 440 × 956
+  (iPhone 17 Pro Max), and in iPhone compatibility mode on iPad Air 11-inch. Nothing is clipped at
+  either end, and every control is reachable at every size.
+- **Every control meets the 44 × 44 point minimum touch target.** Some are drawn smaller than their
+  target — the touch area is deliberately larger than the artwork, so the interface stays light
+  without becoming hard to hit.
+- **The mode control's inactive state was an unlabelled circle** that read as a rendering artifact.
+  It is now a camera button with a full-size target and an accessibility label.
+- **The display-unit control was loose text pinned to the screen edge** with no affordance. It is now
+  part of the price it modifies, and is a full-size target.
+- **The screen was reduced from nine stacked rows to six**, by merging rows that described the same
+  thing and removing a key that duplicated an existing gesture. The result is less crowded, not
+  merely smaller.
+- **Larger text sizes are supported** up to the accessibility range; the keypad bounds its own growth
+  so that increasing text size cannot push controls off-screen.
+
+We also added automated interface tests that assert each control is genuinely hittable — not merely
+present — at the smallest supported screen size, so this class of problem cannot return unnoticed.
+
+Updated screenshots reflecting the revised design have been uploaded with this build.
