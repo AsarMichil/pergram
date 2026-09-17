@@ -21,8 +21,6 @@ Both sets show the same four states, in upload order:
 one being checked. It is not in either uploaded set; it exists so the comparison chip is verifiable
 without driving the app by hand, and is a candidate if a fifth slot is ever wanted.
 
-> **The committed PNGs predate the short-screen rework** (the merged item row, the hero's inline
-> unit, the reworked mode toggle). They must be regenerated before the next submission.
 
 ## Regenerating
 
@@ -39,7 +37,10 @@ xcodebuild test -scheme pergram -destination 'id=<id>' \
 xcrun xcresulttool export attachments --path build/shots.xcresult --output-path <dir>
 ```
 
-Device types: `iPhone-16-Pro` for 6.3", `iPhone-13-Pro-Max` for 6.5".
+Device types: `iPhone-16-Pro` for 6.3", `iPhone-13-Pro-Max` for 6.5". Neither ships as a
+ready-made simulator any more — create them against the current runtime with `simctl create`
+first. Restore the scheme's `skipped` flag from git rather than from a copy afterwards; a
+backup taken mid-session can capture the already-flipped value.
 
 ## Scan
 
