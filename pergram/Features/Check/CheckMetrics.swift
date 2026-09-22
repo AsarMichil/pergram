@@ -1,5 +1,24 @@
 import SwiftUI
 
+/// The candidates a keypad layout is allowed to settle on, tallest first. Sampled from
+/// `CheckMetrics.fitting(height:)` so there is still one source of truth for the numbers.
+///
+/// Discrete on purpose: `ViewThatFits` picking between these is what *guarantees* the column fits,
+/// which interpolating from the available height only ever assumed.
+enum CheckTier: CaseIterable {
+    case spacious
+    case roomy
+    case compact
+
+    var metrics: CheckMetrics {
+        switch self {
+        case .spacious: return .spacious
+        case .roomy: return .roomy
+        case .compact: return .compact
+        }
+    }
+}
+
 /// Vertical sizing for the price-entry screens, which are fixed, non-scrolling columns with a keypad
 /// pinned at the bottom.
 ///

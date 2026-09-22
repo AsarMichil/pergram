@@ -27,9 +27,12 @@ struct AddEditItemSheet: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { proxy in
-                content(metrics: CheckMetrics.fitting(height: proxy.size.height))
-                    .frame(width: proxy.size.width, height: proxy.size.height)
+            // Listed rather than looped: ViewThatFits treats a ForEach as one child, which would
+            // leave it with a single candidate and no fallback at all.
+            ViewThatFits(in: .vertical) {
+                content(metrics: .spacious)
+                content(metrics: .roomy)
+                content(metrics: .compact)
             }
             .dynamicTypeSize(...DynamicTypeSize.accessibility1)
             .navigationTitle(isEditing ? (item?.name ?? "Edit price") : "New item")
@@ -55,8 +58,9 @@ struct AddEditItemSheet: View {
         }
     }
 
-    /// The sheet carries the same calculator as the Check screen, so it sizes the same way: a fixed
-    /// column with a keypad at the bottom, proportioned to the height it is actually given.
+    /// The sheet carries the same calculator as the Check screen, so it settles the same way: a
+    /// fixed column with a keypad at the bottom, on the most generous layout that fits. Safe to
+    /// measure by candidate here — nothing in this one holds a system resource.
     private func content(metrics: CheckMetrics) -> some View {
         VStack(spacing: 0) {
             if !isEditing {
