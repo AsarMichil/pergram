@@ -78,7 +78,11 @@ struct CheckView: View {
             scanModel.onCandidate = viewModel.applyScannedEntry
         }
         .onChange(of: mode) { _, newMode in
-            if newMode == .scan { scanModel.start() } else { scanModel.stop() }
+            // Outside the animation transaction: starting a session re-renders, and doing that
+            // inside the swipe's animation makes the transition stutter.
+            Task { @MainActor in
+                if newMode == .scan { scanModel.start() } else { scanModel.stop() }
+            }
         }
         // Only `.background` stops the session. `.inactive` also fires for the permission alert,
         // Control Centre and the notification shade, none of which are worth a teardown.
@@ -108,7 +112,10 @@ struct CheckView: View {
         @ViewBuilder input: () -> Input
     ) -> some View {
         VStack(spacing: metrics.stackSpacing) {
+            // The mode branch replaces this whole column, so without these the toggle and the
+            // readout crossfade on every swipe even though they render identically either side.
             ModeBubble(mode: $mode)
+                .transition(.identity)
 
             Spacer(minLength: 0)
 
@@ -127,6 +134,7 @@ struct CheckView: View {
                     }
                 }
             )
+            .transition(.identity)
 
             Spacer(minLength: 0)
 
@@ -140,7 +148,9 @@ struct CheckView: View {
             typeInput(metrics: candidate.metrics)
                 .transition(.move(edge: .leading).combined(with: .opacity))
         }
-        .onAppear { tier = candidate }
+        .onAppear {
+            if tier != candidate { tier = candidate }
+        }
     }
 
     private func typeInput(metrics: CheckMetrics) -> some View {
@@ -164,7 +174,6 @@ struct CheckView: View {
                 metrics: metrics
             )
         }
-        .transition(.move(edge: .leading).combined(with: .opacity))
     }
 
     private func setGoodPrice() {

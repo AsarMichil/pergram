@@ -5,7 +5,7 @@ import SwiftUI
 ///
 /// Discrete on purpose: `ViewThatFits` picking between these is what *guarantees* the column fits,
 /// which interpolating from the available height only ever assumed.
-enum CheckTier: CaseIterable {
+enum CheckTier: CaseIterable, Equatable {
     case spacious
     case roomy
     case compact
