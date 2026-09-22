@@ -27,9 +27,9 @@ struct AddEditItemSheet: View {
 
     var body: some View {
         NavigationStack {
-            ViewThatFits(in: .vertical) {
-                content(metrics: .roomy)
-                content(metrics: .compact)
+            GeometryReader { proxy in
+                content(metrics: CheckMetrics.fitting(height: proxy.size.height))
+                    .frame(width: proxy.size.width, height: proxy.size.height)
             }
             .dynamicTypeSize(...DynamicTypeSize.accessibility1)
             .navigationTitle(isEditing ? (item?.name ?? "Edit price") : "New item")
@@ -55,16 +55,25 @@ struct AddEditItemSheet: View {
         }
     }
 
-    /// The sheet carries the same calculator as the Check screen, so it inherits the same problem:
-    /// a fixed column with a keypad at the bottom has to fit the shortest screen.
+    /// The sheet carries the same calculator as the Check screen, so it sizes the same way: a fixed
+    /// column with a keypad at the bottom, proportioned to the height it is actually given.
     private func content(metrics: CheckMetrics) -> some View {
-        VStack(spacing: metrics.stackSpacing * 2) {
+        VStack(spacing: 0) {
             if !isEditing {
                 nameField(metrics: metrics)
+                    .padding(.bottom, metrics.stackSpacing * 2)
             }
             hero(metrics: metrics)
+
+            // The card belongs with the keypad you type into it with, so the slack goes above them
+            // and the good price gets the room instead.
+            Spacer(minLength: metrics.stackSpacing)
+
             PriceExpressionCard(viewModel: viewModel, metrics: metrics)
-            Spacer(minLength: 0)
+
+            Spacer()
+                .frame(minHeight: metrics.itemRowGap, maxHeight: metrics.itemRowGapMax)
+
             KeypadView(viewModel: viewModel, onBookmark: nil, metrics: metrics)
         }
         .padding(metrics.contentPadding)

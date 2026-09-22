@@ -16,7 +16,7 @@ struct CheckView: View {
     @Query private var items: [GroceryItem]
     @State private var viewModel = CheckViewModel()
     /// Owned here, not by `ScanModeView`, so the session's lifetime follows the selected mode rather
-    /// than the appearance of a view that `ViewThatFits` instantiates once per candidate.
+    /// than the appearance of a view the layout may build more than once.
     @State private var scanModel = ScanModel()
     @State private var mode: CheckInputMode = .type
     @State private var isShowingItemPicker = false
@@ -43,20 +43,47 @@ struct CheckView: View {
     }
 
     var body: some View {
-        // The system safe area already clears the Dynamic Island / status bar (adapting per device)
-        // and reserves room for the floating Liquid Glass tab bar. Fitting inside it is the part the
-        // system cannot do: this screen does not scroll, so on a short device the roomy layout would
-        // overflow and clip at both ends. ViewThatFits picks the most generous one that fits.
-        ViewThatFits(in: .vertical) {
-            content(metrics: .spacious)
-            content(metrics: .roomy)
-            content(metrics: .compact)
+        // The system safe area already clears the Dynamic Island / status bar and reserves room for
+        // the floating tab bar. What it cannot do is fit a non-scrolling column into what is left,
+        // so the proportions come from the height this reader is actually handed.
+        //
+        // Proportioned rather than chosen from candidates on purpose: choosing requires building
+        // each candidate to size it, and one of them holds a live camera preview.
+        GeometryReader { proxy in
+            let metrics = CheckMetrics.fitting(height: proxy.size.height)
+
+            VStack(spacing: metrics.stackSpacing) {
+                ModeBubble(mode: $mode)
+
+                Spacer(minLength: 0)
+
+                VerdictPanelView(
+                    entered: viewModel.normalizedPrice,
+                    baseline: baseline,
+                    bookmarked: viewModel.lastBookmarked,
+                    settledVerdict: settledVerdict,
+                    isSettled: viewModel.isSettled,
+                    hasEnoughInput: viewModel.hasEnoughInput,
+                    settleTick: viewModel.settleTick,
+                    metrics: metrics,
+                    onClearBookmark: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            viewModel.clearBookmark()
+                        }
+                    }
+                )
+
+                Spacer(minLength: 0)
+
+                inputZone(metrics: metrics)
+                    .padding(metrics.contentPadding)
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         // A keypad is a fixed canvas: past this size the keys and the hero grow faster than the
         // screen can give, and the bottom row is what falls off. Digits gain nothing from the
         // accessibility sizes anyway, which is why the system keypads bound themselves the same way.
         .dynamicTypeSize(...DynamicTypeSize.accessibility1)
-        .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
         .onAppear {
@@ -88,64 +115,39 @@ struct CheckView: View {
         }
     }
 
-    private func content(metrics: CheckMetrics) -> some View {
-        VStack(spacing: metrics.stackSpacing) {
-            ModeBubble(mode: $mode)
-
-            Spacer(minLength: 0)
-
-            VerdictPanelView(
-                entered: viewModel.normalizedPrice,
-                baseline: baseline,
-                bookmarked: viewModel.lastBookmarked,
-                settledVerdict: settledVerdict,
-                isSettled: viewModel.isSettled,
-                hasEnoughInput: viewModel.hasEnoughInput,
-                settleTick: viewModel.settleTick,
-                metrics: metrics,
-                onClearBookmark: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        viewModel.clearBookmark()
-                    }
-                }
-            )
-
-            Spacer(minLength: 0)
-
-            inputZone(metrics: metrics)
-                .padding(metrics.contentPadding)
-        }
-    }
-
     @ViewBuilder
     private func inputZone(metrics: CheckMetrics) -> some View {
         switch mode {
         case .type:
-            VStack(spacing: 0) {
-                CheckFieldsView(
-                    viewModel: viewModel,
-                    selectedItemName: selectedItem?.name,
-                    baseline: baseline,
-                    onChooseItem: { isShowingItemPicker = true },
-                    onSetGoodPrice: setGoodPrice,
-                    onClearItem: { viewModel.selectedItemID = nil },
-                    metrics: metrics
-                )
-
-                Spacer()
-                    .frame(minHeight: metrics.itemRowGap, maxHeight: metrics.itemRowGapMax)
-
-                KeypadView(
-                    viewModel: viewModel,
-                    onBookmark: { viewModel.bookmarkCurrentPrice(for: selectedItem) },
-                    metrics: metrics
-                )
-            }
-            .transition(.move(edge: .leading).combined(with: .opacity))
+            typeInput(metrics: metrics)
         case .scan:
             ScanModeView(model: scanModel)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
         }
+    }
+
+    private func typeInput(metrics: CheckMetrics) -> some View {
+        VStack(spacing: 0) {
+            CheckFieldsView(
+                viewModel: viewModel,
+                selectedItemName: selectedItem?.name,
+                baseline: baseline,
+                onChooseItem: { isShowingItemPicker = true },
+                onSetGoodPrice: setGoodPrice,
+                onClearItem: { viewModel.selectedItemID = nil },
+                metrics: metrics
+            )
+
+            Spacer()
+                .frame(minHeight: metrics.itemRowGap, maxHeight: metrics.itemRowGapMax)
+
+            KeypadView(
+                viewModel: viewModel,
+                onBookmark: { viewModel.bookmarkCurrentPrice(for: selectedItem) },
+                metrics: metrics
+            )
+        }
+        .transition(.move(edge: .leading).combined(with: .opacity))
     }
 
     private func setGoodPrice() {

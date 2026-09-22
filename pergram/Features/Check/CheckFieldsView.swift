@@ -52,7 +52,7 @@ struct CheckFieldsView: View {
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
-            .frame(maxWidth: .infinity, minHeight: CheckMetrics.smallerMinimumKeyHeight)
+            .frame(maxWidth: .infinity, minHeight: metrics.itemRowHeight)
         }
         .buttonStyle(.glass)
         // Unlike the keypad there is no gap here to borrow — the card above and the keys below sit

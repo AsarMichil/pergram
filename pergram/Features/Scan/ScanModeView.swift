@@ -1,9 +1,9 @@
 import SwiftUI
 
 /// Renders the scan surface but does not own the camera. `CheckView` holds the `ScanModel` and
-/// drives it from the selected mode, because this view sits inside a `ViewThatFits` that builds
-/// every candidate in order to measure it — a capture session must not be started, stopped or
-/// duplicated as a side effect of layout.
+/// drives it from the selected mode, so the session's lifetime follows what the user picked rather
+/// than when a view happened to appear. A capture session is far too costly to start, stop or
+/// duplicate as a side effect of layout.
 struct ScanModeView: View {
     let model: ScanModel
 
@@ -68,7 +68,13 @@ struct ScanModeView: View {
             unavailablePanel("No camera on this device", systemImage: "camera.badge.ellipsis") {
                 EmptyView()
             }
-        case .idle, .starting:
+        case .starting:
+            // A bare panel here is indistinguishable from a hang, which is exactly the confusion to
+            // avoid while the session spins up.
+            RoundedRectangle(cornerRadius: 28)
+                .fill(.quaternary.opacity(0.25))
+                .overlay { ProgressView() }
+        case .idle:
             RoundedRectangle(cornerRadius: 28).fill(.quaternary.opacity(0.25))
         }
     }
