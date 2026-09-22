@@ -28,7 +28,8 @@ struct KeypadView: View {
                 if let onBookmark {
                     bookmarkKey(onBookmark)
                 } else {
-                    Color.clear
+                    // Bounded: a bare Color.clear is greedy in both axes and stretches the row.
+                    Color.clear.frame(height: metrics.keyHeight)
                 }
             }
             GridRow {

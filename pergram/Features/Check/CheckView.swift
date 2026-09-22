@@ -12,8 +12,12 @@ nonisolated enum CheckInputMode: CaseIterable, Hashable, Sendable {
 
 struct CheckView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Query private var items: [GroceryItem]
     @State private var viewModel = CheckViewModel()
+    /// Owned here, not by `ScanModeView`, so the session's lifetime follows the selected mode rather
+    /// than the appearance of a view that `ViewThatFits` instantiates once per candidate.
+    @State private var scanModel = ScanModel()
     @State private var mode: CheckInputMode = .type
     @State private var isShowingItemPicker = false
     @State private var isShowingSaveSheet = false
@@ -55,7 +59,23 @@ struct CheckView: View {
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
-        .onAppear { viewModel.attach(modelContext: modelContext) }
+        .onAppear {
+            viewModel.attach(modelContext: modelContext)
+            scanModel.onCandidate = viewModel.applyScannedEntry
+        }
+        .onChange(of: mode) { _, newMode in
+            if newMode == .scan { scanModel.start() } else { scanModel.stop() }
+        }
+        // Only `.background` stops the session. `.inactive` also fires for the permission alert,
+        // Control Centre and the notification shade, none of which are worth a teardown.
+        .onChange(of: scenePhase) { _, phase in
+            guard mode == .scan else { return }
+            switch phase {
+            case .active: scanModel.start()
+            case .background: scanModel.stop()
+            default: break
+            }
+        }
         .sheet(isPresented: $isShowingItemPicker) {
             ItemPickerSheet(selectedItemID: $viewModel.selectedItemID)
         }
@@ -123,7 +143,7 @@ struct CheckView: View {
             }
             .transition(.move(edge: .leading).combined(with: .opacity))
         case .scan:
-            ScanModeView(onCandidate: viewModel.applyScannedEntry)
+            ScanModeView(model: scanModel)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
         }
     }

@@ -1,12 +1,14 @@
 import SwiftUI
 
+/// Renders the scan surface but does not own the camera. `CheckView` holds the `ScanModel` and
+/// drives it from the selected mode, because this view sits inside a `ViewThatFits` that builds
+/// every candidate in order to measure it — a capture session must not be started, stopped or
+/// duplicated as a side effect of layout.
 struct ScanModeView: View {
-    var onCandidate: (ScanCandidate) -> Void
+    let model: ScanModel
 
-    @State private var model = ScanModel()
     @State private var focusPoint: CGPoint?
     @State private var focusTick = 0
-    @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -16,20 +18,6 @@ struct ScanModeView: View {
                 .frame(maxWidth: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: 28))
             caption
-        }
-        .onAppear {
-            model.onCandidate = onCandidate
-            model.start()
-        }
-        .onDisappear { model.stop() }
-        // Only `.background` stops the session. `.inactive` also fires for the permission alert,
-        // Control Centre and the notification shade, none of which are worth a teardown.
-        .onChange(of: scenePhase) { _, phase in
-            switch phase {
-            case .active: model.start()
-            case .background: model.stop()
-            default: break
-            }
         }
         .sensoryFeedback(.impact(weight: .light), trigger: model.filledTick)
     }
@@ -147,6 +135,6 @@ private struct Reticle: Shape {
 }
 
 #Preview {
-    ScanModeView { _ in }
+    ScanModeView(model: ScanModel())
         .padding()
 }
