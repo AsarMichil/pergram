@@ -14,17 +14,15 @@ struct ScanModeView: View {
 
     var body: some View {
         VStack {
-            // The outer frame is what fixes the height: it hands the aspect ratio a proposal that
-            // does not depend on what is inside it, so the card is the same size before and after
-            // the session starts.
+            // A fixed height and the full width it is given: the card takes the space rather than a
+            // ratio, and its height cannot depend on what is inside it, so it is the same size
+            // before and after the session starts. `CheckView` tells the recognizer what shape this
+            // came out as, because the crop Vision reads has to match what is on screen.
             viewfinder
-                .aspectRatio(ShelfTagRecognizer.previewAspectRatio, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 28))
                 .frame(
-                    maxWidth: .infinity,
-                    minHeight: viewfinderHeight,
-                    maxHeight: viewfinderHeight
+                    maxWidth: .infinity, minHeight: viewfinderHeight, maxHeight: viewfinderHeight
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 28))
             caption
         }
         .sensoryFeedback(.impact(weight: .light), trigger: model.filledTick)
@@ -161,6 +159,6 @@ private struct Reticle: Shape {
 }
 
 #Preview {
-    ScanModeView(model: ScanModel(), viewfinderHeight: CheckMetrics.roomy.viewfinderHeight)
+    ScanModeView(model: ScanModel(), viewfinderHeight: 360)
         .padding()
 }

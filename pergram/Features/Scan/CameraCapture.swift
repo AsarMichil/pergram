@@ -59,6 +59,10 @@ nonisolated final class CameraCapture: @unchecked Sendable {
         }
     }
 
+    func setPreviewAspectRatio(_ ratio: CGFloat) {
+        recognizer.setPreviewAspectRatio(ratio)
+    }
+
     func stop() {
         sessionQueue.async { [self] in
             guard session.isRunning else {

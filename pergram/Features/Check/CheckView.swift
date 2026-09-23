@@ -52,6 +52,11 @@ struct CheckView: View {
         // built the camera preview speculatively.
         GeometryReader { proxy in
             let metrics = CheckMetrics.tier(forCanvas: proxy.size.height).metrics
+            let viewfinderHeight = metrics.viewfinderHeight(inCanvas: proxy.size.height)
+            // The card fills the width it is given, so its shape varies by device. Vision crops to
+            // whatever the card does not show, so it has to be told the shape it came out as.
+            let viewfinderRatio =
+                (proxy.size.width - metrics.contentPadding * 2) / viewfinderHeight
 
             VStack(spacing: metrics.stackSpacing) {
                 ModeBubble(mode: $mode)
@@ -76,10 +81,13 @@ struct CheckView: View {
 
                 Spacer(minLength: 0)
 
-                inputZone(metrics: metrics)
+                inputZone(metrics: metrics, viewfinderHeight: viewfinderHeight)
                     .padding(metrics.contentPadding)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
+            .onChange(of: viewfinderRatio, initial: true) { _, ratio in
+                scanModel.setPreviewAspectRatio(ratio)
+            }
         }
         // A keypad is a fixed canvas: past this size the keys and the hero grow faster than the
         // screen can give, and the bottom row is what falls off. Digits gain nothing from the
@@ -123,13 +131,13 @@ struct CheckView: View {
     /// Only this swaps between modes, so the toggle and the readout above it keep their identity and
     /// nothing animates that the user did not ask to change.
     @ViewBuilder
-    private func inputZone(metrics: CheckMetrics) -> some View {
+    private func inputZone(metrics: CheckMetrics, viewfinderHeight: CGFloat) -> some View {
         switch mode {
         case .type:
             typeInput(metrics: metrics)
                 .transition(.move(edge: .leading).combined(with: .opacity))
         case .scan:
-            ScanModeView(model: scanModel, viewfinderHeight: metrics.viewfinderHeight)
+            ScanModeView(model: scanModel, viewfinderHeight: viewfinderHeight)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
         }
     }

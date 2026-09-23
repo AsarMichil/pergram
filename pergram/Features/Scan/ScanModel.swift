@@ -29,6 +29,9 @@ final class ScanModel {
     var onCandidate: ((ScanCandidate) -> Void)?
 
     private var capture: CameraCapture?
+    /// Held even before there is a session to tell, because the card is laid out before the camera
+    /// is asked for.
+    private var previewAspectRatio = ShelfTagRecognizer.defaultPreviewAspectRatio
     private var recent: [ShelfTagReading] = []
     private var filled: ScanCandidate?
 
@@ -70,6 +73,14 @@ final class ScanModel {
         if status == .scanning || status == .starting { status = .idle }
     }
 
+    /// The crop Vision reads has to match what the card shows, and the card is sized from the
+    /// screen rather than from a fixed ratio.
+    func setPreviewAspectRatio(_ ratio: CGFloat) {
+        guard ratio.isFinite, ratio > 0, ratio != previewAspectRatio else { return }
+        previewAspectRatio = ratio
+        capture?.setPreviewAspectRatio(ratio)
+    }
+
     func focus(at devicePoint: CGPoint) {
         capture?.focus(at: devicePoint)
     }
@@ -96,6 +107,7 @@ final class ScanModel {
                 }
             )
         self.capture = capture
+        capture.setPreviewAspectRatio(previewAspectRatio)
         capture.start()
         status = .starting
     }

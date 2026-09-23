@@ -53,19 +53,26 @@ struct CheckMetricsTests {
     /// Scan is never measured by `ViewThatFits` — the viewfinder is sized from the canvas instead,
     /// so nothing checks at runtime that its column fits. Heights below the shortest canvas the
     /// layout is drawn for clamp to the same metrics, so they are held to that floor.
-    @Test func theScanColumnFitsTheCanvasItWasSizedFor() {
-        let modeBubbleHeight: CGFloat = 44
-        let verdictRowSpacing: CGFloat = 4
-        let captionAllowance: CGFloat = 44
+    @Test func theViewfinderNeverPushesTheScanColumnPastTheCanvas() {
         for height in Self.heights {
-            let metrics = CheckMetrics.fitting(height: height)
+            let metrics = CheckMetrics.tier(forCanvas: height).metrics
+            let viewfinder = metrics.viewfinderHeight(inCanvas: height)
             let readout =
                 metrics.wordHeight + metrics.heroHeight + metrics.comparisonHeight
-                + verdictRowSpacing * 2
-            let column =
-                modeBubbleHeight + readout + metrics.stackSpacing * 4
-                + metrics.contentPadding * 2 + metrics.viewfinderHeight + captionAllowance
+                + metrics.readoutRowGap * 2
+            let chrome = CheckMetrics.modeBubbleHeight + readout
+            let spacing = metrics.stackSpacing * 4 + metrics.contentPadding * 2
+            let column = chrome + spacing + viewfinder + CheckMetrics.captionAllowance
+            // Below the shortest canvas the viewfinder holds its floor instead of vanishing, so the
+            // column is allowed to exceed a height the layout was never drawn for.
             #expect(column <= max(height, 560), "scan column \(column)pt at height \(height)")
+        }
+    }
+
+    @Test func theViewfinderKeepsAUsableFloorOnAnyCanvas() {
+        for height in Self.heights {
+            let metrics = CheckMetrics.tier(forCanvas: height).metrics
+            #expect(metrics.viewfinderHeight(inCanvas: height) >= 220)
         }
     }
 

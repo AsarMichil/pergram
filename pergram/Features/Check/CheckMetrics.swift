@@ -41,10 +41,6 @@ struct CheckMetrics {
     /// What the item row draws. It keeps a full-size target regardless — unlike the keypad it has no
     /// neighbouring gap to borrow from, so drawing smaller buys a lighter look, not height.
     let itemRowHeight: CGFloat
-    /// The scan viewfinder, sized from the canvas rather than from the space left inside it. A
-    /// capture preview has no intrinsic size, so a frame that resolved against its content would
-    /// change height the moment the session replaced the placeholder.
-    let viewfinderHeight: CGFloat
     let cardPadding: CGFloat
     let fieldPadding: CGFloat
     let fieldFont: Font
@@ -82,6 +78,26 @@ struct CheckMetrics {
         let input =
             card + itemRowGap * 2 + Self.minimumKeyHeight + keypad + contentPadding * 2
         return Self.modeBubbleHeight + readout + input + stackSpacing * 4 + Self.fitMargin
+    }
+
+    /// What the caption below the viewfinder reserves, whether or not it has anything to say.
+    static let captionAllowance: CGFloat = 44
+
+    /// Never shrink the viewfinder past this, even on a canvas that cannot really spare the room —
+    /// below it there is not enough of a shelf tag in frame to read.
+    private static let minimumViewfinderHeight: CGFloat = 220
+
+    /// The tallest viewfinder the canvas can hold once the rest of the scan column is paid for.
+    ///
+    /// Taken from the canvas rather than from the space left inside the layout: a capture preview
+    /// has no intrinsic size, so a height that resolved against its content would change the moment
+    /// the session replaced the placeholder.
+    func viewfinderHeight(inCanvas height: CGFloat) -> CGFloat {
+        guard height.isFinite, height > 0 else { return Self.minimumViewfinderHeight }
+        let rest =
+            Self.modeBubbleHeight + wordHeight + heroHeight + comparisonHeight + readoutRowGap * 2
+            + Self.captionAllowance + contentPadding * 2 + stackSpacing * 4 + Self.fitMargin
+        return max(Self.minimumViewfinderHeight, height - rest)
     }
 
     /// The most generous tier the canvas can hold.
@@ -124,7 +140,6 @@ struct CheckMetrics {
             itemRowGapMax: lerp(12, 24, t),
             keyHeight: keyHeight,
             itemRowHeight: lerp(32, 44, t),
-            viewfinderHeight: lerp(320, 430, t),
             cardPadding: lerp(9, 18, t),
             fieldPadding: lerp(6, 12, t),
             // Stepped, not interpolated: these are Dynamic Type styles, and a fixed point size would

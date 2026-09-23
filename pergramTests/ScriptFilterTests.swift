@@ -82,6 +82,28 @@ struct VisibleRegionTests {
         #expect(abs(region.height - 1) < 1e-9)
     }
 
+    /// The card is sized from the screen now, so its shape varies by device and these two must
+    /// agree at any of them: crop to a different shape than the card draws and Vision reads text
+    /// the user cannot see, with the reticle pointing at the wrong place.
+    @Test(arguments: [0.45, 0.5625, 0.6, 0.75, 1.0, 1.4, 2.0])
+    func theCropIsTheShapeTheCardIsDrawnAt(_ preview: Double) {
+        let frame = 720.0 / 1280.0
+        let region = ShelfTagRecognizer.visibleRegion(
+            frameAspectRatio: frame, previewAspectRatio: preview
+        ).cgRect
+        let cropped = (region.width / region.height) * frame
+        #expect(abs(cropped - preview) < 1e-9, "card \(preview), crop \(cropped)")
+    }
+
+    /// One axis always shows whole; cropping both would discard frame for nothing.
+    @Test(arguments: [0.45, 0.75, 1.0, 2.0])
+    func oneAxisIsAlwaysWhole(_ preview: Double) {
+        let region = ShelfTagRecognizer.visibleRegion(
+            frameAspectRatio: 0.5625, previewAspectRatio: preview
+        ).cgRect
+        #expect(abs(region.width - 1) < 1e-9 || abs(region.height - 1) < 1e-9)
+    }
+
     /// Centred on both axes is what makes Vision's bottom-left origin and the preview layer's
     /// top-left origin cancel out.
     @Test(arguments: [0.4, 0.5625, 0.75, 1.0, 1.5])

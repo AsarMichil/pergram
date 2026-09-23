@@ -24,9 +24,9 @@ nonisolated final class ShelfTagRecognizer: NSObject, AVCaptureVideoDataOutputSa
     /// How far down Vision's ranked readings to look for one in an alphabet a tag can be printed in.
     private static let candidateDepth = 5
 
-    /// The shape of the preview card. `ScanModeView` takes its aspect ratio from here rather than
-    /// declaring its own, because the region of interest is derived from it.
-    static let previewAspectRatio: CGFloat = 3.0 / 4.0
+    /// The card's shape when nothing has reported one yet. The card is sized from the screen, so
+    /// its real ratio varies by device and arrives via `setPreviewAspectRatio`.
+    static let defaultPreviewAspectRatio: CGFloat = 3.0 / 4.0
     /// `.hd1280x720` delivered portrait.
     private static let frameAspectRatio: CGFloat = 720.0 / 1280.0
 
@@ -46,6 +46,13 @@ nonisolated final class ShelfTagRecognizer: NSObject, AVCaptureVideoDataOutputSa
     /// session queue during teardown, and a `sync` hop between the two while the session is being
     /// dismantled is the kind of thing that deadlocks.
     private let isPaused = Atomic<Bool>(false)
+    /// The shape the preview is actually drawn at. Read on whatever executor Vision runs the
+    /// request on and written from the main actor, so it is behind a lock rather than confined to
+    /// `queue` like the rest.
+    ///
+    /// It has to track the card: `.resizeAspectFill` crops whatever the card does not show, and
+    /// reading outside that crop means recognizing text the user cannot see.
+    private let previewAspectRatio = Mutex<CGFloat>(ShelfTagRecognizer.defaultPreviewAspectRatio)
     private var isRecognizing = false
     private var lastRun: ContinuousClock.Instant?
 
@@ -61,6 +68,11 @@ nonisolated final class ShelfTagRecognizer: NSObject, AVCaptureVideoDataOutputSa
 
     func resume() {
         isPaused.store(false, ordering: .sequentiallyConsistent)
+    }
+
+    func setPreviewAspectRatio(_ ratio: CGFloat) {
+        guard ratio.isFinite, ratio > 0 else { return }
+        previewAspectRatio.withLock { $0 = ratio }
     }
 
     func captureOutput(
@@ -88,6 +100,9 @@ nonisolated final class ShelfTagRecognizer: NSObject, AVCaptureVideoDataOutputSa
     private func reading(in pixelBuffer: CVPixelBuffer) async -> ShelfTagReading? {
         let started = ContinuousClock.now
         let observations: [RecognizedTextObservation]
+        var request = self.request
+        request.regionOfInterest = Self.visibleRegion(
+            previewAspectRatio: previewAspectRatio.withLock { $0 })
         do {
             observations = try await request.perform(on: pixelBuffer, orientation: .right)
         } catch {
@@ -163,7 +178,7 @@ nonisolated final class ShelfTagRecognizer: NSObject, AVCaptureVideoDataOutputSa
     /// getting the axis wrong would produce the same numbers.
     static func visibleRegion(
         frameAspectRatio frame: CGFloat = ShelfTagRecognizer.frameAspectRatio,
-        previewAspectRatio preview: CGFloat = ShelfTagRecognizer.previewAspectRatio
+        previewAspectRatio preview: CGFloat = ShelfTagRecognizer.defaultPreviewAspectRatio
     ) -> NormalizedRect {
         let width = preview > frame ? 1 : preview / frame
         let height = preview > frame ? frame / preview : 1
@@ -208,7 +223,6 @@ nonisolated final class ShelfTagRecognizer: NSObject, AVCaptureVideoDataOutputSa
         // The `/lb` beside a big price is tiny: on a tag filling half the frame it falls under the
         // 1/32 default and Vision never reports it at all.
         request.minimumTextHeightFraction = 0.01
-        request.regionOfInterest = visibleRegion()
 
         // An identifier Vision does not support is ignored rather than rejected, which would let
         // any alphabet back in — so log what was asked for against what this revision supports.
@@ -220,19 +234,6 @@ nonisolated final class ShelfTagRecognizer: NSObject, AVCaptureVideoDataOutputSa
             (unsupported: \(requested.filter { !supported.contains($0) }.joined(separator: " "), privacy: .public)), \
             auto-detect \(request.automaticallyDetectsLanguage, privacy: .public), \
             correction \(request.usesLanguageCorrection, privacy: .public)
-            """
-        )
-        // Printed so a bad crop is diagnosable from the log alone: text visible in the preview with
-        // no observations logged means these numbers are wrong.
-        let region = request.regionOfInterest.cgRect
-        Log.vision.info(
-            """
-            region of interest x \(region.minX, format: .fixed(precision: 2), privacy: .public) \
-            y \(region.minY, format: .fixed(precision: 2), privacy: .public) \
-            w \(region.width, format: .fixed(precision: 2), privacy: .public) \
-            h \(region.height, format: .fixed(precision: 2), privacy: .public) \
-            (frame \(Self.frameAspectRatio, format: .fixed(precision: 3), privacy: .public), \
-            preview \(Self.previewAspectRatio, format: .fixed(precision: 3), privacy: .public))
             """
         )
         return request
