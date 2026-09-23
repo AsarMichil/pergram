@@ -50,6 +50,63 @@ struct CheckMetricsTests {
         #expect(tall.contentPadding > short.contentPadding)
     }
 
+    /// Scan is never measured by `ViewThatFits` — the viewfinder is sized from the canvas instead,
+    /// so nothing checks at runtime that its column fits. Heights below the shortest canvas the
+    /// layout is drawn for clamp to the same metrics, so they are held to that floor.
+    @Test func theScanColumnFitsTheCanvasItWasSizedFor() {
+        let modeBubbleHeight: CGFloat = 44
+        let verdictRowSpacing: CGFloat = 4
+        let captionAllowance: CGFloat = 44
+        for height in Self.heights {
+            let metrics = CheckMetrics.fitting(height: height)
+            let readout =
+                metrics.wordHeight + metrics.heroHeight + metrics.comparisonHeight
+                + verdictRowSpacing * 2
+            let column =
+                modeBubbleHeight + readout + metrics.stackSpacing * 4
+                + metrics.contentPadding * 2 + metrics.viewfinderHeight + captionAllowance
+            #expect(column <= max(height, 560), "scan column \(column)pt at height \(height)")
+        }
+    }
+
+    /// Layout no longer measures, so nothing at runtime will notice a tier that outgrew the canvas
+    /// it was sampled for. This is the check that would.
+    @Test func everyTierFitsTheCanvasItWasSampledFor() {
+        let designs: [(CheckTier, CGFloat)] = [(.compact, 560), (.roomy, 685), (.spacious, 810)]
+        for (tier, canvas) in designs {
+            #expect(
+                tier.metrics.requiredHeight <= canvas,
+                "\(tier) needs \(tier.metrics.requiredHeight)pt of \(canvas)pt"
+            )
+        }
+    }
+
+    @Test func aCanvasTakesTheMostGenerousTierItCanHold() {
+        #expect(CheckMetrics.tier(forCanvas: 810) == .spacious)
+        #expect(CheckMetrics.tier(forCanvas: 685) == .roomy)
+        #expect(CheckMetrics.tier(forCanvas: 560) == .compact)
+    }
+
+    /// Below the shortest canvas there is nothing smaller to fall back to, so compact has to hold.
+    @Test func animpossiblyShortCanvasStillResolves() {
+        for height in [CGFloat(0), 100, 300, .nan] {
+            #expect(CheckMetrics.tier(forCanvas: height) == .compact)
+        }
+    }
+
+    @Test func aTallerCanvasNeverPicksASmallerTier() {
+        var previous = CheckTier.compact
+        for height in stride(from: 400.0, through: 1000.0, by: 5.0) {
+            let tier = CheckMetrics.tier(forCanvas: CGFloat(height))
+            let order: [CheckTier] = [.compact, .roomy, .spacious]
+            #expect(
+                order.firstIndex(of: tier)! >= order.firstIndex(of: previous)!,
+                "went backwards at \(height)"
+            )
+            previous = tier
+        }
+    }
+
     /// A degenerate proposal must not produce a NaN that propagates into every frame.
     @Test func degenerateHeightsStayFinite() {
         for height in [CGFloat(0), -100, .infinity, .nan] {

@@ -22,10 +22,9 @@ enum CheckTier: CaseIterable, Equatable {
 /// Vertical sizing for the price-entry screens, which are fixed, non-scrolling columns with a keypad
 /// pinned at the bottom.
 ///
-/// Derived from the height actually available rather than picked from a set of candidates. Choosing
-/// between candidates means building each one to size it, which is harmless for a keypad and not at
-/// all harmless for a camera preview. Scaling continuously also avoids the visible step that a
-/// screen sitting near a threshold would otherwise land on.
+/// `fitting(height:)` generates a set for any canvas, but layout does not call it directly: it picks
+/// between the three sampled tiers so the column is *guaranteed* to fit rather than assumed to.
+/// Scan is the exception — it cannot be measured, so it reuses the tier typing settled on.
 struct CheckMetrics {
     let wordHeight: CGFloat
     let heroFontSize: CGFloat
@@ -42,13 +41,53 @@ struct CheckMetrics {
     /// What the item row draws. It keeps a full-size target regardless — unlike the keypad it has no
     /// neighbouring gap to borrow from, so drawing smaller buys a lighter look, not height.
     let itemRowHeight: CGFloat
+    /// The scan viewfinder, sized from the canvas rather than from the space left inside it. A
+    /// capture preview has no intrinsic size, so a frame that resolved against its content would
+    /// change height the moment the session replaced the placeholder.
+    let viewfinderHeight: CGFloat
     let cardPadding: CGFloat
     let fieldPadding: CGFloat
     let fieldFont: Font
     let emphasizedFieldFont: Font
+    /// Gap between the three readout rows.
+    let readoutRowGap: CGFloat
+    /// Roughly what `fieldFont` and `emphasizedFieldFont` occupy on a line. Approximate by nature —
+    /// only `requiredHeight` uses them, and it carries a margin for exactly this reason.
+    let fieldLineHeight: CGFloat
+    let emphasizedFieldLineHeight: CGFloat
 
     /// The HIG minimum touch *target*. Everything else scales; this never does.
     static let minimumKeyHeight: CGFloat = 44
+
+    /// `ModeBubble` draws a small glyph inside a full-size target, so its row is a fixed 44.
+    static let modeBubbleHeight: CGFloat = 44
+
+    /// Slack against the estimate below. Font line heights and the padding a glass button adds are
+    /// decided by the system, so the sum is close rather than exact.
+    private static let fitMargin: CGFloat = 24
+
+    /// What the typing column needs, summed from its parts rather than measured.
+    ///
+    /// Summed, because measuring meant `ViewThatFits` building each candidate — which duplicated the
+    /// shared chrome and made every mode switch recreate the readout mid-animation. Arithmetic costs
+    /// exactness; `ShortScreenTests` asserts every control is still reachable, which is what catches
+    /// drift if a font or a glass inset moves.
+    var requiredHeight: CGFloat {
+        let readout = wordHeight + heroHeight + comparisonHeight + readoutRowGap * 2
+        let card =
+            cardPadding * 2 + emphasizedFieldLineHeight + fieldLineHeight + fieldPadding * 4
+            + stackSpacing + 1
+        let keypad = keyHeight * 4 + keySpacing * 3
+        // The item row draws smaller but always reserves a full target.
+        let input =
+            card + itemRowGap * 2 + Self.minimumKeyHeight + keypad + contentPadding * 2
+        return Self.modeBubbleHeight + readout + input + stackSpacing * 4 + Self.fitMargin
+    }
+
+    /// The most generous tier the canvas can hold.
+    static func tier(forCanvas height: CGFloat) -> CheckTier {
+        CheckTier.allCases.first { $0.metrics.requiredHeight <= height } ?? .compact
+    }
 
     /// The heights the two ends of the scale were drawn against: roughly what an iPhone SE and an
     /// iPhone Pro Max leave once the status bar and the floating tab bar are taken out.
@@ -85,12 +124,16 @@ struct CheckMetrics {
             itemRowGapMax: lerp(12, 24, t),
             keyHeight: keyHeight,
             itemRowHeight: lerp(32, 44, t),
+            viewfinderHeight: lerp(320, 430, t),
             cardPadding: lerp(9, 18, t),
             fieldPadding: lerp(6, 12, t),
             // Stepped, not interpolated: these are Dynamic Type styles, and a fixed point size would
             // stop them responding to the user's text size at all.
             fieldFont: t < 0.4 ? .body.weight(.semibold) : .title3.weight(.semibold),
-            emphasizedFieldFont: t < 0.4 ? .title3.weight(.bold) : .title2.weight(.bold)
+            emphasizedFieldFont: t < 0.4 ? .title3.weight(.bold) : .title2.weight(.bold),
+            readoutRowGap: lerp(4, 8, t),
+            fieldLineHeight: t < 0.4 ? 22 : 25,
+            emphasizedFieldLineHeight: t < 0.4 ? 25 : 28
         )
     }
 

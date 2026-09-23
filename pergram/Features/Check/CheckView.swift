@@ -19,9 +19,6 @@ struct CheckView: View {
     /// than the appearance of a view the layout may build more than once.
     @State private var scanModel = ScanModel()
     @State private var mode: CheckInputMode = .type
-    /// Recorded by whichever candidate actually renders, so scan matches the typing layout's
-    /// proportions exactly rather than arriving at its own and jumping on the way in.
-    @State private var tier: CheckTier = .roomy
     @State private var isShowingItemPicker = false
     @State private var isShowingSaveSheet = false
 
@@ -46,31 +43,48 @@ struct CheckView: View {
     }
 
     var body: some View {
-        // Only the typing layout is measured. It is the one with a fixed-height keypad, so it is the
-        // one that needs a guarantee that it fits rather than an assumption that it will.
+        // The column is written once and only its input swaps. When the mode branch sat above the
+        // shared chrome the two modes were separate identities, so every swipe destroyed and rebuilt
+        // the readout — and rebuilding it inside the swipe's animation is what made the verdict jump.
         //
-        // Scan is a sibling, never a candidate: choosing between candidates means building each of
-        // them, and a capture session must not be constructed or torn down as part of layout.
-        Group {
-            switch mode {
-            case .type:
-                ViewThatFits(in: .vertical) {
-                    typeLayout(.spacious)
-                    typeLayout(.roomy)
-                    typeLayout(.compact)
-                }
-            case .scan:
-                content(metrics: tier.metrics) {
-                    ScanModeView(model: scanModel)
-                        .transition(.move(edge: .trailing).combined(with: .opacity))
-                }
+        // The tier is computed from the canvas rather than measured. Measuring meant building each
+        // candidate, which is what duplicated the chrome in the first place, and would also have
+        // built the camera preview speculatively.
+        GeometryReader { proxy in
+            let metrics = CheckMetrics.tier(forCanvas: proxy.size.height).metrics
+
+            VStack(spacing: metrics.stackSpacing) {
+                ModeBubble(mode: $mode)
+
+                Spacer(minLength: 0)
+
+                VerdictPanelView(
+                    entered: viewModel.normalizedPrice,
+                    baseline: baseline,
+                    bookmarked: viewModel.lastBookmarked,
+                    settledVerdict: settledVerdict,
+                    isSettled: viewModel.isSettled,
+                    hasEnoughInput: viewModel.hasEnoughInput,
+                    settleTick: viewModel.settleTick,
+                    metrics: metrics,
+                    onClearBookmark: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            viewModel.clearBookmark()
+                        }
+                    }
+                )
+
+                Spacer(minLength: 0)
+
+                inputZone(metrics: metrics)
+                    .padding(metrics.contentPadding)
             }
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         // A keypad is a fixed canvas: past this size the keys and the hero grow faster than the
         // screen can give, and the bottom row is what falls off. Digits gain nothing from the
         // accessibility sizes anyway, which is why the system keypads bound themselves the same way.
         .dynamicTypeSize(...DynamicTypeSize.accessibility1)
-        .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
         .onAppear {
@@ -106,50 +120,17 @@ struct CheckView: View {
         }
     }
 
-    /// The chrome both modes share: the toggle, the readout, and whatever the mode puts below it.
-    private func content<Input: View>(
-        metrics: CheckMetrics,
-        @ViewBuilder input: () -> Input
-    ) -> some View {
-        VStack(spacing: metrics.stackSpacing) {
-            // The mode branch replaces this whole column, so without these the toggle and the
-            // readout crossfade on every swipe even though they render identically either side.
-            ModeBubble(mode: $mode)
-                .transition(.identity)
-
-            Spacer(minLength: 0)
-
-            VerdictPanelView(
-                entered: viewModel.normalizedPrice,
-                baseline: baseline,
-                bookmarked: viewModel.lastBookmarked,
-                settledVerdict: settledVerdict,
-                isSettled: viewModel.isSettled,
-                hasEnoughInput: viewModel.hasEnoughInput,
-                settleTick: viewModel.settleTick,
-                metrics: metrics,
-                onClearBookmark: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        viewModel.clearBookmark()
-                    }
-                }
-            )
-            .transition(.identity)
-
-            Spacer(minLength: 0)
-
-            input()
-                .padding(metrics.contentPadding)
-        }
-    }
-
-    private func typeLayout(_ candidate: CheckTier) -> some View {
-        content(metrics: candidate.metrics) {
-            typeInput(metrics: candidate.metrics)
+    /// Only this swaps between modes, so the toggle and the readout above it keep their identity and
+    /// nothing animates that the user did not ask to change.
+    @ViewBuilder
+    private func inputZone(metrics: CheckMetrics) -> some View {
+        switch mode {
+        case .type:
+            typeInput(metrics: metrics)
                 .transition(.move(edge: .leading).combined(with: .opacity))
-        }
-        .onAppear {
-            if tier != candidate { tier = candidate }
+        case .scan:
+            ScanModeView(model: scanModel, viewfinderHeight: metrics.viewfinderHeight)
+                .transition(.move(edge: .trailing).combined(with: .opacity))
         }
     }
 

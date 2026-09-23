@@ -38,7 +38,7 @@ struct VerdictPanelView: View {
     }
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: metrics.readoutRowGap) {
             verdictWordRow
                 .frame(height: metrics.wordHeight)
             heroRow

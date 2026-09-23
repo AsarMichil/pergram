@@ -6,6 +6,7 @@ import SwiftUI
 /// duplicate as a side effect of layout.
 struct ScanModeView: View {
     let model: ScanModel
+    let viewfinderHeight: CGFloat
 
     @State private var focusPoint: CGPoint?
     @State private var focusTick = 0
@@ -13,10 +14,17 @@ struct ScanModeView: View {
 
     var body: some View {
         VStack {
+            // The outer frame is what fixes the height: it hands the aspect ratio a proposal that
+            // does not depend on what is inside it, so the card is the same size before and after
+            // the session starts.
             viewfinder
                 .aspectRatio(ShelfTagRecognizer.previewAspectRatio, contentMode: .fit)
-                .frame(maxWidth: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: 28))
+                .frame(
+                    maxWidth: .infinity,
+                    minHeight: viewfinderHeight,
+                    maxHeight: viewfinderHeight
+                )
             caption
         }
         .sensoryFeedback(.impact(weight: .light), trigger: model.filledTick)
@@ -79,15 +87,27 @@ struct ScanModeView: View {
         }
     }
 
-    @ViewBuilder
+    /// The slot is held open by the longer of the two captions whether or not there is anything to
+    /// say, so neither the session starting nor a change of wording can move the viewfinder.
     private var caption: some View {
-        if model.status == .scanning {
-            Text(model.hasFilled ? "Swipe to Type to adjust" : "Aim at the shelf tag")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .contentTransition(.opacity)
-                .animation(.easeInOut(duration: 0.2), value: model.hasFilled)
-        }
+        Text(Self.adjustCaption)
+            .hidden()
+            .overlay {
+                Text(captionText)
+                    .contentTransition(.opacity)
+                    .animation(.easeInOut(duration: 0.2), value: captionText)
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+    }
+
+    private static let aimCaption = "Aim at the shelf tag"
+    private static let adjustCaption = "Swipe to Type to adjust"
+
+    private var captionText: String {
+        guard model.status == .scanning else { return "" }
+        return model.hasFilled ? Self.adjustCaption : Self.aimCaption
     }
 
     private func unavailablePanel<Action: View>(
@@ -141,6 +161,6 @@ private struct Reticle: Shape {
 }
 
 #Preview {
-    ScanModeView(model: ScanModel())
+    ScanModeView(model: ScanModel(), viewfinderHeight: CheckMetrics.roomy.viewfinderHeight)
         .padding()
 }
