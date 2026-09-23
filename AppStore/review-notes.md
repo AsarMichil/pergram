@@ -115,7 +115,27 @@ Include audio narration or on-screen captions if convenient; neither is required
 
 ---
 
-# App Review reply — Guideline 4, Design
+# 1.0.1 — hotfix for scan
+
+**1.0 is live with scan broken.** The Guideline 4 layout work fixed the short-screen overflow but
+regressed the camera: the scan view sat inside a `ViewThatFits`, which builds every candidate in
+order to measure it, so the capture session was being constructed and torn down as part of layout.
+It showed as a grey, frozen viewfinder. Review approved it because reading a real shelf tag is not
+something a reviewer exercises.
+
+Ship 1.0.1 as soon as scan is confirmed working on a physical device — not before, since an
+unverified fix for the one broken feature is worse than waiting.
+
+## What to Test / release notes
+
+> Fixes a bug where the camera scanner could show a blank viewfinder and fail to read shelf tags.
+> The scanner is also larger on every screen, and the Check screen now fits smaller iPhones.
+
+Worth requesting **expedited review**: a released app whose core feature does not work is the case
+Apple's expedited process exists for. Say plainly that 1.0 shipped with the scanner inoperative and
+that 1.0.1 is the fix.
+
+## Archived — Guideline 4 reply (submission 064c76af, resolved; 1.0 approved and released)
 
 Submission 064c76af-9fb5-46ce-b88d-a13b85d397aa, reviewed on iPad Air 11-inch.
 
