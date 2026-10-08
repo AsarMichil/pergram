@@ -48,24 +48,30 @@ struct ShopView: View {
                         .foregroundStyle(.secondary)
                 }
                 ForEach(trip.orderedEntries) { entry in
-                    CartRow(entry: entry, label: trip.label(for: entry))
-                        .contentShape(.rect)
-                        .onTapGesture { editingEntry = entry }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                Shopping.remove(entry, in: modelContext)
-                            } label: {
-                                Label("Remove", systemImage: "trash")
-                            }
-                            if trip.list != nil, entry.listEntryID == nil {
-                                Button {
-                                    matchingEntry = entry
-                                } label: {
-                                    Label("Match to list", systemImage: "checklist")
-                                }
-                                .tint(.indigo)
-                            }
+                    Button {
+                        editingEntry = entry
+                    } label: {
+                        CartRow(entry: entry, label: trip.label(for: entry))
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    // Leading only: Shop is the leftmost mode, so a swipe left anywhere on
+                    // this page belongs to the mode swipe, back to Type.
+                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            Shopping.remove(entry, in: modelContext)
+                        } label: {
+                            Label("Remove", systemImage: "trash")
                         }
+                        if trip.list != nil, entry.listEntryID == nil {
+                            Button {
+                                matchingEntry = entry
+                            } label: {
+                                Label("Match to list", systemImage: "checklist")
+                            }
+                            .tint(.indigo)
+                        }
+                    }
                 }
             }
 

@@ -114,8 +114,7 @@ struct CheckView: View {
         // accessibility sizes anyway, which is why the system keypads bound themselves the same way.
         .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         .contentShape(Rectangle())
-        // Off on the Shop page, whose rows own horizontal swipes.
-        .simultaneousGesture(modeSwipe, isEnabled: mode != .shop)
+        .simultaneousGesture(modeSwipe)
         .sensoryFeedback(.success, trigger: viewModel.cartTick)
         .onAppear {
             viewModel.attach(modelContext: modelContext)

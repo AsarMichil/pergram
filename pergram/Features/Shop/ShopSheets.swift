@@ -33,6 +33,11 @@ struct QuantitySheet: View {
                     .font(.subheadline)
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
+                Button("Remove from cart", role: .destructive) {
+                    Shopping.remove(entry, in: modelContext)
+                    dismiss()
+                }
+                .accessibilityIdentifier("removeFromCart")
             }
             .padding()
             .navigationTitle(label)
@@ -47,7 +52,7 @@ struct QuantitySheet: View {
                 }
             }
         }
-        .presentationDetents([.height(240)])
+        .presentationDetents([.height(280)])
         .onAppear { text = Self.format(entry.quantity) }
     }
 
