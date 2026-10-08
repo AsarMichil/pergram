@@ -3,21 +3,30 @@ import SwiftUI
 
 struct AppTabView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppRouter.self) private var router
 
     var body: some View {
-        TabView {
-            Tab("Check", systemImage: "checkmark.circle") {
+        @Bindable var router = router
+        TabView(selection: $router.tab) {
+            Tab("Check", systemImage: "checkmark.circle", value: AppTab.check) {
                 CheckView()
             }
-            Tab("Items", systemImage: "cart") {
+            Tab("Lists", systemImage: "checklist", value: AppTab.lists) {
+                ListsView()
+            }
+            // `tag`, not `cart`: the cart is the Shop page's.
+            Tab("Items", systemImage: "tag", value: AppTab.items) {
                 ItemsView()
             }
-            Tab("Settings", systemImage: "gearshape") {
+            Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
                 SettingsView()
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
         .task { importSeedIfNeeded() }
+        .sheet(item: $router.incomingList) { incoming in
+            ImportListSheet(incoming: incoming) { _ in router.tab = .lists }
+        }
     }
 
     private func importSeedIfNeeded() {
@@ -41,7 +50,7 @@ struct AppTabView: View {
 
 #Preview {
     let container = try! ModelContainer(
-        for: GroceryItem.self,
+        for: AppSchema.schema,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     container.mainContext.insert(
@@ -55,4 +64,5 @@ struct AppTabView: View {
     )
     return AppTabView()
         .modelContainer(container)
+        .environment(AppRouter())
 }

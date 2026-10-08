@@ -1,13 +1,35 @@
 import SwiftData
 import SwiftUI
 
+/// Ordered as the swipe moves through them: Shop ← Type → Scan.
 nonisolated enum CheckInputMode: CaseIterable, Hashable, Sendable {
+    case shop
     case type
     case scan
 
-    var toggled: CheckInputMode { self == .type ? .scan : .type }
-    var title: String { self == .type ? "Type" : "Scan" }
-    var symbolName: String { self == .type ? "keyboard" : "camera.viewfinder" }
+    var title: String {
+        switch self {
+        case .shop: return "Shop"
+        case .type: return "Type"
+        case .scan: return "Scan"
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .shop: return "cart"
+        case .type: return "keyboard"
+        case .scan: return "camera.viewfinder"
+        }
+    }
+
+    /// The neighbour a swipe lands on, or `nil` at either end.
+    func swiped(forward: Bool) -> CheckInputMode? {
+        let all = Self.allCases
+        guard let index = all.firstIndex(of: self) else { return nil }
+        let target = forward ? index + 1 : index - 1
+        return all.indices.contains(target) ? all[target] : nil
+    }
 }
 
 struct CheckView: View {
@@ -18,12 +40,22 @@ struct CheckView: View {
     /// Owned here, not by `ScanModeView`, so the session's lifetime follows the selected mode rather
     /// than the appearance of a view the layout may build more than once.
     @State private var scanModel = ScanModel()
-    @State private var mode: CheckInputMode = .type
+    @Environment(AppRouter.self) private var router
+    @Query(filter: #Predicate<Trip> { !$0.isFinished }, sort: \Trip.startedAt, order: .reverse)
+    private var activeTrips: [Trip]
     @State private var isShowingItemPicker = false
     @State private var isShowingSaveSheet = false
 
     /// Resolved from the live `@Query`, so a deleted row becomes `nil` reactively — the fix for a
     /// stale selection is that the query, not a held reference, is the source of truth.
+    private var mode: CheckInputMode { router.checkMode }
+    private var activeTrip: Trip? { activeTrips.first }
+
+    private var selectedListEntry: ListEntry? {
+        guard let id = viewModel.selectedListEntryID else { return nil }
+        return activeTrip?.list?.entries?.first { $0.id == id }
+    }
+
     private var selectedItem: GroceryItem? {
         guard let id = viewModel.selectedItemID else { return nil }
         return items.first { $0.persistentModelID == id }
@@ -59,30 +91,18 @@ struct CheckView: View {
                 (proxy.size.width - metrics.contentPadding * 2) / viewfinderHeight
 
             VStack(spacing: metrics.stackSpacing) {
-                ModeBubble(mode: $mode)
-
-                Spacer(minLength: 0)
-
-                VerdictPanelView(
-                    entered: viewModel.normalizedPrice,
-                    baseline: baseline,
-                    bookmarked: viewModel.lastBookmarked,
-                    settledVerdict: settledVerdict,
-                    isSettled: viewModel.isSettled,
-                    hasEnoughInput: viewModel.hasEnoughInput,
-                    settleTick: viewModel.settleTick,
-                    metrics: metrics,
-                    onClearBookmark: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            viewModel.clearBookmark()
-                        }
-                    }
+                ModeBubble(
+                    mode: Binding(get: { router.checkMode }, set: { router.checkMode = $0 }),
+                    cartTotal: activeTrip?.tally.total
                 )
 
-                Spacer(minLength: 0)
-
-                inputZone(metrics: metrics, viewfinderHeight: viewfinderHeight)
-                    .padding(metrics.contentPadding)
+                if mode == .shop {
+                    ShopView(trip: activeTrip)
+                        .transition(.move(edge: .leading).combined(with: .opacity))
+                } else {
+                    priceColumn(
+                        metrics: metrics, viewfinderHeight: viewfinderHeight)
+                }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .onChange(of: viewfinderRatio, initial: true) { _, ratio in
@@ -94,7 +114,9 @@ struct CheckView: View {
         // accessibility sizes anyway, which is why the system keypads bound themselves the same way.
         .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         .contentShape(Rectangle())
-        .simultaneousGesture(modeSwipe)
+        // Off on the Shop page, whose rows own horizontal swipes.
+        .simultaneousGesture(modeSwipe, isEnabled: mode != .shop)
+        .sensoryFeedback(.success, trigger: viewModel.cartTick)
         .onAppear {
             viewModel.attach(modelContext: modelContext)
             scanModel.onCandidate = viewModel.applyScannedEntry
@@ -117,7 +139,11 @@ struct CheckView: View {
             }
         }
         .sheet(isPresented: $isShowingItemPicker) {
-            ItemPickerSheet(selectedItemID: $viewModel.selectedItemID)
+            ItemPickerSheet(
+                selectedItemID: $viewModel.selectedItemID,
+                selectedListEntryID: $viewModel.selectedListEntryID,
+                listEntries: pickableListEntries
+            )
         }
         .sheet(isPresented: $isShowingSaveSheet) {
             if let normalizedPrice = viewModel.normalizedPrice {
@@ -126,6 +152,34 @@ struct CheckView: View {
                 }
             }
         }
+    }
+
+    /// Type and Scan share this column, so switching between them keeps the readout's identity and
+    /// only the input zone swaps.
+    @ViewBuilder
+    private func priceColumn(metrics: CheckMetrics, viewfinderHeight: CGFloat) -> some View {
+        Spacer(minLength: 0)
+
+        VerdictPanelView(
+            entered: viewModel.normalizedPrice,
+            baseline: baseline,
+            bookmarked: viewModel.lastBookmarked,
+            settledVerdict: settledVerdict,
+            isSettled: viewModel.isSettled,
+            hasEnoughInput: viewModel.hasEnoughInput,
+            settleTick: viewModel.settleTick,
+            metrics: metrics,
+            onClearBookmark: {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    viewModel.clearBookmark()
+                }
+            }
+        )
+
+        Spacer(minLength: 0)
+
+        inputZone(metrics: metrics, viewfinderHeight: viewfinderHeight)
+            .padding(metrics.contentPadding)
     }
 
     /// Only this swaps between modes, so the toggle and the readout above it keep their identity and
@@ -137,8 +191,17 @@ struct CheckView: View {
             typeInput(metrics: metrics)
                 .transition(.move(edge: .leading).combined(with: .opacity))
         case .scan:
-            ScanModeView(model: scanModel, viewfinderHeight: viewfinderHeight)
-                .transition(.move(edge: .trailing).combined(with: .opacity))
+            ScanModeView(
+                model: scanModel,
+                viewfinderHeight: viewfinderHeight,
+                canBookmark: viewModel.hasEnoughInput,
+                canAddToCart: viewModel.canAddToCart,
+                onBookmark: bookmark,
+                onAddToCart: addToCart
+            )
+            .transition(.move(edge: .trailing).combined(with: .opacity))
+        case .shop:
+            EmptyView()
         }
     }
 
@@ -146,11 +209,14 @@ struct CheckView: View {
         VStack(spacing: 0) {
             CheckFieldsView(
                 viewModel: viewModel,
-                selectedItemName: selectedItem?.name,
+                selectedItemName: selectedItem?.name ?? selectedListEntry?.text,
                 baseline: baseline,
                 onChooseItem: { isShowingItemPicker = true },
                 onSetGoodPrice: setGoodPrice,
-                onClearItem: { viewModel.selectedItemID = nil },
+                onClearItem: {
+                    viewModel.selectedItemID = nil
+                    viewModel.selectedListEntryID = nil
+                },
                 metrics: metrics
             )
 
@@ -159,10 +225,26 @@ struct CheckView: View {
 
             KeypadView(
                 viewModel: viewModel,
-                onBookmark: { viewModel.bookmarkCurrentPrice(for: selectedItem) },
+                onBookmark: bookmark,
+                onAddToCart: addToCart,
                 metrics: metrics
             )
         }
+    }
+
+    private func bookmark() {
+        viewModel.bookmarkCurrentPrice(for: selectedItem)
+    }
+
+    private func addToCart() {
+        viewModel.addToCart(item: selectedItem, listEntry: selectedListEntry)
+    }
+
+    /// While a list is being shopped, its uncrossed entries lead the picker, so naming the item and
+    /// claiming the list entry are one tap.
+    private var pickableListEntries: [ListEntry] {
+        guard let trip = activeTrip, let list = trip.list else { return [] }
+        return list.orderedEntries.filter { !trip.isCrossed($0) }
     }
 
     private func setGoodPrice() {
@@ -180,8 +262,9 @@ struct CheckView: View {
                 guard abs(horizontal) > abs(value.translation.height) * 1.5,
                     abs(horizontal) > 60
                 else { return }
+                guard let target = mode.swiped(forward: horizontal < 0) else { return }
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                    mode = horizontal < 0 ? .scan : .type
+                    router.checkMode = target
                 }
             }
     }
@@ -190,34 +273,41 @@ struct CheckView: View {
 @MainActor
 private func previewContainer() -> ModelContainer {
     let container = try! ModelContainer(
-        for: GroceryItem.self,
+        for: AppSchema.schema,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-    container.mainContext.insert(
-        GroceryItem(
-            seedID: "chicken-thigh-boneless",
-            name: "Chicken thigh (boneless)",
-            aliases: ["thighs"],
-            category: "meat",
-            goodPriceCanonical: 1.10
-        )
+    let chicken = GroceryItem(
+        seedID: "chicken-thigh-boneless",
+        name: "Chicken thigh (boneless)",
+        aliases: ["thighs"],
+        category: "meat",
+        goodPriceCanonical: 1.10
     )
+    container.mainContext.insert(chicken)
+    let list = GroceryList(name: "Weekly")
+    container.mainContext.insert(list)
+    list.append("Milk")
+    list.append("Thighs", item: chicken)
+    list.append("Paper towels").isSkipped = true
     return container
 }
 
 #Preview("Check") {
     CheckView()
         .modelContainer(previewContainer())
+        .environment(AppRouter())
 }
 
 /// The shortest supported iPhone, and the size the fixed layout has to survive.
 #Preview("Check · iPhone SE (375×667)", traits: .fixedLayout(width: 375, height: 667)) {
     CheckView()
         .modelContainer(previewContainer())
+        .environment(AppRouter())
 }
 
 #Preview("Check · SE + AX5 type", traits: .fixedLayout(width: 375, height: 667)) {
     CheckView()
         .modelContainer(previewContainer())
+        .environment(AppRouter())
         .environment(\.dynamicTypeSize, .accessibility5)
 }

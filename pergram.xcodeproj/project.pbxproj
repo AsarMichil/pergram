@@ -440,6 +440,7 @@
 				DEVELOPMENT_TEAM = C5255FXZG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "pergram-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "PerGram Go";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "PerGram Go reads shelf prices with the camera. Frames are processed on your device and never stored or sent anywhere.";
@@ -475,6 +476,7 @@
 				DEVELOPMENT_TEAM = C5255FXZG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "pergram-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "PerGram Go";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "PerGram Go reads shelf prices with the camera. Frames are processed on your device and never stored or sent anywhere.";

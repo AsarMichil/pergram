@@ -3,9 +3,11 @@ import SwiftUI
 struct KeypadView: View {
     @Bindable var viewModel: CheckViewModel
     var onBookmark: (() -> Void)?
+    var onAddToCart: (() -> Void)?
     var metrics: CheckMetrics = .roomy
 
     private var canBookmark: Bool { viewModel.hasEnoughInput }
+    private var canAddToCart: Bool { viewModel.canAddToCart }
 
     var body: some View {
         Grid(horizontalSpacing: metrics.keySpacing, verticalSpacing: metrics.keySpacing) {
@@ -33,11 +35,18 @@ struct KeypadView: View {
                 }
             }
             GridRow {
-                digitKey("0")
-                    .gridCellColumns(4)
+                if let onAddToCart {
+                    digitKey("0")
+                        .gridCellColumns(3)
+                    addToCartKey(onAddToCart)
+                } else {
+                    digitKey("0")
+                        .gridCellColumns(4)
+                }
             }
         }
         .animation(.easeInOut(duration: 0.45), value: canBookmark)
+        .animation(.easeInOut(duration: 0.45), value: canAddToCart)
     }
 
     private func digitKey(_ digit: String) -> some View {
@@ -68,6 +77,18 @@ struct KeypadView: View {
         .disabled(!canBookmark)
         .accessibilityLabel("Park this price to compare against")
         .accessibilityIdentifier("bookmarkKey")
+    }
+
+    private func addToCartKey(_ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            KeyFace(metrics: metrics, tint: canAddToCart ? .accentColor : Color(.systemGray4)) {
+                Image(systemName: "cart.badge.plus")
+            }
+        }
+        .buttonStyle(.plain)
+        .disabled(!canAddToCart)
+        .accessibilityLabel("Add to cart")
+        .accessibilityIdentifier("addToCartKey")
     }
 }
 
@@ -122,12 +143,12 @@ private struct DeleteKey: View {
 }
 
 #Preview("Roomy") {
-    KeypadView(viewModel: CheckViewModel(), onBookmark: {})
+    KeypadView(viewModel: CheckViewModel(), onBookmark: {}, onAddToCart: {})
         .padding()
 }
 
 #Preview("Compact") {
-    KeypadView(viewModel: CheckViewModel(), onBookmark: {}, metrics: .compact)
+    KeypadView(viewModel: CheckViewModel(), onBookmark: {}, onAddToCart: {}, metrics: .compact)
         .padding()
 }
 

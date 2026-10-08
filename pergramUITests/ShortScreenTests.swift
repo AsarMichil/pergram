@@ -114,4 +114,46 @@ final class ShortScreenTests: XCTestCase {
         XCTAssertTrue(zeroKey.isHittable, "sheet keypad is clipped")
         XCTAssertTrue(app.buttons["Save"].firstMatch.isHittable, "sheet Save is not reachable")
     }
+
+    func testAddToCartKeyIsReachableAndCarriesTheTotalToShop() {
+        let app = launch()
+
+        app.buttons["4"].firstMatch.tap()
+        let addToCart = app.buttons["addToCartKey"].firstMatch
+        XCTAssertTrue(addToCart.isHittable, "add-to-cart key is behind the tab bar")
+        addToCart.tap()
+
+        let shopChip = app.buttons
+            .matching(NSPredicate(format: "label BEGINSWITH 'Switch to Shop, cart'"))
+            .firstMatch
+        XCTAssertTrue(shopChip.waitForExistence(timeout: 5), "the Shop chip shows no total")
+        XCTAssertTrue(shopChip.isHittable, "the Shop chip is clipped")
+        XCTAssertTrue(app.buttons["0"].firstMatch.isHittable, "keypad shifted under the tab bar")
+
+        shopChip.tap()
+        XCTAssertTrue(app.staticTexts["cartTotal"].waitForExistence(timeout: 5), "no cart total")
+
+        let finish = app.buttons["finishTrip"].firstMatch
+        if !finish.isHittable { app.swipeUp() }
+        XCTAssertTrue(finish.isHittable, "Finish trip is not reachable")
+        finish.tap()
+        let confirm = app.buttons["confirmFinishTrip"].firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5), "no trip summary")
+        confirm.tap()
+
+        XCTAssertTrue(app.buttons["Switch to Type"].firstMatch.isHittable, "Shop has no way back")
+    }
+
+    func testScanActionsFitBesideTheCaption() {
+        let app = launch()
+
+        app.buttons["Switch to Scan"].firstMatch.tap()
+
+        for identifier in ["scanBookmark", "scanAddToCart"] {
+            let button = app.buttons[identifier].firstMatch
+            XCTAssertTrue(button.waitForExistence(timeout: 5), "no \(identifier)")
+            XCTAssertTrue(button.isHittable, "\(identifier) is clipped or covered")
+        }
+        XCTAssertTrue(app.buttons["Switch to Type"].firstMatch.isHittable)
+    }
 }

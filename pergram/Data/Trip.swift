@@ -46,6 +46,15 @@ final class Trip {
         }
     }
 
+    func listEntry(for entry: CartEntry) -> ListEntry? {
+        guard let id = entry.listEntryID else { return nil }
+        return list?.entries?.first { $0.id == id }
+    }
+
+    func label(for entry: CartEntry) -> String {
+        entry.label(listEntry: listEntry(for: entry))
+    }
+
     var nextUnnamedOrdinal: Int {
         (entries ?? []).map(\.unnamedOrdinal).max().map { $0 + 1 } ?? 1
     }
