@@ -26,6 +26,12 @@ final class GroceryItem {
     @Relationship(deleteRule: .cascade, inverse: \PriceObservation.item)
     var observations: [PriceObservation]? = []
 
+    @Relationship(deleteRule: .nullify, inverse: \ListEntry.item)
+    var listEntries: [ListEntry]? = []
+
+    @Relationship(deleteRule: .nullify, inverse: \CartEntry.item)
+    var cartEntries: [CartEntry]? = []
+
     var dimension: PriceDimension {
         get { PriceDimension(rawValue: dimensionRaw) ?? .mass }
         set { dimensionRaw = newValue.rawValue }

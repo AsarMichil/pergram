@@ -4,7 +4,7 @@ import SwiftUI
 @main
 struct PergramApp: App {
     let modelContainer: ModelContainer = {
-        let schema = Schema([GroceryItem.self, PriceObservation.self])
+        let schema = AppSchema.schema
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
             return try ModelContainer(for: schema, configurations: [configuration])
