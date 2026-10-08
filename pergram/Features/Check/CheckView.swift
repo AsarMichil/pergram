@@ -100,8 +100,11 @@ struct CheckView: View {
                     ShopView(trip: activeTrip)
                         .transition(.move(edge: .leading).combined(with: .opacity))
                 } else {
-                    priceColumn(
-                        metrics: metrics, viewfinderHeight: viewfinderHeight)
+                    // Shop sits left of Type, so the column always arrives from and leaves to the
+                    // trailing edge. One container, so the move is the column's and not the keypad's
+                    // own Scan-facing transition.
+                    priceColumn(metrics: metrics, viewfinderHeight: viewfinderHeight)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
@@ -155,30 +158,31 @@ struct CheckView: View {
 
     /// Type and Scan share this column, so switching between them keeps the readout's identity and
     /// only the input zone swaps.
-    @ViewBuilder
     private func priceColumn(metrics: CheckMetrics, viewfinderHeight: CGFloat) -> some View {
-        Spacer(minLength: 0)
+        VStack(spacing: metrics.stackSpacing) {
+            Spacer(minLength: 0)
 
-        VerdictPanelView(
-            entered: viewModel.normalizedPrice,
-            baseline: baseline,
-            bookmarked: viewModel.lastBookmarked,
-            settledVerdict: settledVerdict,
-            isSettled: viewModel.isSettled,
-            hasEnoughInput: viewModel.hasEnoughInput,
-            settleTick: viewModel.settleTick,
-            metrics: metrics,
-            onClearBookmark: {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    viewModel.clearBookmark()
+            VerdictPanelView(
+                entered: viewModel.normalizedPrice,
+                baseline: baseline,
+                bookmarked: viewModel.lastBookmarked,
+                settledVerdict: settledVerdict,
+                isSettled: viewModel.isSettled,
+                hasEnoughInput: viewModel.hasEnoughInput,
+                settleTick: viewModel.settleTick,
+                metrics: metrics,
+                onClearBookmark: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        viewModel.clearBookmark()
+                    }
                 }
-            }
-        )
+            )
 
-        Spacer(minLength: 0)
+            Spacer(minLength: 0)
 
-        inputZone(metrics: metrics, viewfinderHeight: viewfinderHeight)
-            .padding(metrics.contentPadding)
+            inputZone(metrics: metrics, viewfinderHeight: viewfinderHeight)
+                .padding(metrics.contentPadding)
+        }
     }
 
     /// Only this swaps between modes, so the toggle and the readout above it keep their identity and
