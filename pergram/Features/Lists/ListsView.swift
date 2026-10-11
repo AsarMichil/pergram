@@ -74,6 +74,7 @@ struct ListDetailView: View {
     let list: GroceryList
     @Environment(\.modelContext) private var modelContext
     @Environment(AppRouter.self) private var router
+    @Query private var items: [GroceryItem]
     @State private var newEntryText = ""
     @State private var linkingEntry: ListEntry?
     @State private var editingEntry: ListEntry?
@@ -88,46 +89,33 @@ struct ListDetailView: View {
                 TextField("Add an item", text: $newEntryText)
                     .focused($isAddFieldFocused)
                     .submitLabel(.next)
-                    .onSubmit(addEntry)
+                    .onSubmit(addTypedEntry)
                     .accessibilityIdentifier("addListEntry")
+                ForEach(suggestions) { suggestion in
+                    Button {
+                        add(suggestion)
+                    } label: {
+                        Label(suggestion.name, systemImage: "plus")
+                            .foregroundStyle(.primary)
+                    }
+                }
             }
 
-            Section {
-                ForEach(list.orderedEntries) { entry in
-                    ListEntryRow(entry: entry)
-                        .contentShape(.rect)
-                        .onTapGesture { linkingEntry = entry }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                modelContext.delete(entry)
-                                save()
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                            Button {
-                                editText = entry.text
-                                editingEntry = entry
-                            } label: {
-                                Label("Rename", systemImage: "pencil")
-                            }
-                            .tint(.indigo)
-                        }
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                entry.isSkipped.toggle()
-                                save()
-                            } label: {
-                                Label(
-                                    entry.isSkipped ? "Need it" : "Not this time",
-                                    systemImage: entry.isSkipped
-                                        ? "arrow.uturn.backward" : "minus.circle")
-                            }
-                            .tint(entry.isSkipped ? .accentColor : .gray)
-                        }
+            ForEach(AisleOrder.standard.sorted(list.orderedEntries, by: \.aisle), id: \.aisle) {
+                group in
+                Section(group.aisle.title) {
+                    ForEach(group.elements) { entry in
+                        row(for: entry)
+                    }
+                    .onMove { source, destination in
+                        move(group.elements, from: source, to: destination)
+                    }
                 }
-                .onMove(perform: move)
-            } footer: {
-                if !(list.entries ?? []).isEmpty {
+            }
+
+            if !(list.entries ?? []).isEmpty {
+                Section {
+                } footer: {
                     Text("Tap to link a good price. Swipe right to sit one out this time.")
                 }
             }
@@ -173,6 +161,7 @@ struct ListDetailView: View {
                     get: { entry.item?.persistentModelID },
                     set: { id in
                         entry.item = id.flatMap { modelContext.model(for: $0) as? GroceryItem }
+                        if let aisle = entry.item?.aisle { entry.aisle = aisle }
                         save()
                     }
                 )
@@ -194,30 +183,85 @@ struct ListDetailView: View {
         }
     }
 
-    private func addEntry() {
-        let trimmed = newEntryText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        let entry = list.append(trimmed, item: catalogMatch(for: trimmed))
+    private var suggestions: [ItemSearchResult] {
+        Array(ItemSearch.results(for: newEntryText, items: items, limit: 5))
+    }
+
+    private func row(for entry: ListEntry) -> some View {
+        ListEntryRow(entry: entry)
+            .contentShape(.rect)
+            .onTapGesture { linkingEntry = entry }
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) {
+                    modelContext.delete(entry)
+                    save()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                Button {
+                    editText = entry.text
+                    editingEntry = entry
+                } label: {
+                    Label("Rename", systemImage: "pencil")
+                }
+                .tint(.indigo)
+            }
+            .swipeActions(edge: .leading) {
+                Button {
+                    entry.isSkipped.toggle()
+                    save()
+                } label: {
+                    Label(
+                        entry.isSkipped ? "Need it" : "Not this time",
+                        systemImage: entry.isSkipped
+                            ? "arrow.uturn.backward" : "minus.circle")
+                }
+                .tint(entry.isSkipped ? .accentColor : .gray)
+            }
+            .contextMenu {
+                Menu("Move to aisle", systemImage: "arrow.up.arrow.down") {
+                    ForEach(Aisle.allCases, id: \.self) { aisle in
+                        Button(aisle.title) {
+                            entry.aisle = aisle
+                            save()
+                        }
+                    }
+                }
+            }
+    }
+
+    private func addTypedEntry() {
+        let text = newEntryText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return }
+        let item = CatalogLibrary.exactItem(named: text, among: items, in: modelContext)
+        append(text, item: item)
+    }
+
+    private func add(_ suggestion: ItemSearchResult) {
+        switch suggestion {
+        case .item(let item): append(item.name, item: item)
+        case .entry(let entry):
+            append(entry.name, item: CatalogLibrary.item(for: entry, in: modelContext))
+        }
+    }
+
+    /// An exact name links itself, so "bananas" carries its good price without a trip to the picker,
+    /// and anything unlinked still lands in the aisle its words suggest.
+    private func append(_ text: String, item: GroceryItem?) {
+        let aisle = item?.aisle ?? CatalogLibrary.bundled.guessAisle(for: text)
+        let entry = list.append(text, item: item, aisle: aisle)
         modelContext.insert(entry)
         save()
         newEntryText = ""
         isAddFieldFocused = true
     }
 
-    /// An exact name or alias match links itself, so "bananas" carries its good price without a trip
-    /// to the picker. Anything looser is left for the shopper to link.
-    private func catalogMatch(for text: String) -> GroceryItem? {
-        let query = text.lowercased()
-        let items = (try? modelContext.fetch(FetchDescriptor<GroceryItem>())) ?? []
-        return items.first { item in
-            item.name.lowercased() == query || item.aliases.contains { $0.lowercased() == query }
-        }
-    }
-
-    private func move(from source: IndexSet, to destination: Int) {
-        var entries = list.orderedEntries
-        entries.move(fromOffsets: source, toOffset: destination)
-        for (position, entry) in entries.enumerated() {
+    /// Positions stay global, so a move only reorders within the aisle it happened in.
+    private func move(_ group: [ListEntry], from source: IndexSet, to destination: Int) {
+        var reordered = group
+        reordered.move(fromOffsets: source, toOffset: destination)
+        let slots = group.map(\.position).sorted()
+        for (entry, position) in zip(reordered, slots) {
             entry.position = position
         }
         save()

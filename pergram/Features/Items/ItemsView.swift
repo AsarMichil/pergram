@@ -9,8 +9,10 @@ struct ItemsView: View {
     private var suggested: [GroceryItem]
 
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
+    @Query private var allItems: [GroceryItem]
     @State private var searchText = ""
     @State private var isAdding = false
+    @State private var addingName = ""
     @State private var editingItem: GroceryItem?
     @State private var renamingItem: GroceryItem?
     @State private var isRenaming = false
@@ -23,6 +25,21 @@ struct ItemsView: View {
 
     private var filteredYours: [GroceryItem] { filter(yours) }
     private var filteredSuggested: [GroceryItem] { filter(suggested) }
+    private var query: String { searchText.trimmingCharacters(in: .whitespacesAndNewlines) }
+
+    /// Everything else the search finds — dictionary entries, and items with no good price yet — so
+    /// any grocery can be given one from here.
+    private var unpriced: [ItemSearchResult] {
+        ItemSearch.results(for: query, items: allItems).filter { result in
+            if case .item(let item) = result { return !item.hasGoodPrice }
+            return true
+        }
+    }
+
+    private var canAddQuery: Bool {
+        guard !query.isEmpty else { return false }
+        return !ItemSearch.results(for: query, items: allItems).contains { $0.isNamed(query) }
+    }
 
     var body: some View {
         NavigationStack {
@@ -35,6 +52,27 @@ struct ItemsView: View {
                 if !filteredSuggested.isEmpty {
                     Section("Suggested") {
                         ForEach(filteredSuggested, content: row)
+                    }
+                }
+                if !query.isEmpty && (!unpriced.isEmpty || canAddQuery) {
+                    Section("Give a good price") {
+                        ForEach(unpriced) { result in
+                            Button {
+                                editingItem = item(for: result)
+                            } label: {
+                                LabeledContent(result.name) {
+                                    Image(systemName: "plus.circle")
+                                }
+                            }
+                        }
+                        if canAddQuery {
+                            Button {
+                                addingName = query
+                                isAdding = true
+                            } label: {
+                                Label("Add “\(query)”", systemImage: "plus.circle")
+                            }
+                        }
                     }
                 }
             }
@@ -53,6 +91,7 @@ struct ItemsView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        addingName = ""
                         isAdding = true
                     } label: {
                         Image(systemName: "plus")
@@ -64,7 +103,7 @@ struct ItemsView: View {
             .overlay { emptyState }
         }
         .sheet(isPresented: $isAdding) {
-            AddEditItemSheet(item: nil)
+            AddEditItemSheet(item: nil, initialName: addingName)
         }
         .sheet(item: $editingItem) { item in
             AddEditItemSheet(item: item)
@@ -90,6 +129,19 @@ struct ItemsView: View {
             }
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            ForEach(item.goodPrices, id: \.dimension) { price in
+                Button(role: .destructive) {
+                    item.clearGoodPrice(for: price.dimension)
+                    item.updatedAt = .now
+                    try? modelContext.save()
+                } label: {
+                    Label(
+                        "Remove \(PriceDisplay.formatted(price, in: PriceDisplay.displayUnit(for: price.dimension, preferred: storedUnit)))",
+                        systemImage: "minus.circle")
+                }
+            }
+        }
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {
                 modelContext.delete(item)
@@ -109,13 +161,15 @@ struct ItemsView: View {
 
     @ViewBuilder
     private var emptyState: some View {
-        if yours.isEmpty && suggested.isEmpty {
+        if query.isEmpty && filteredYours.isEmpty && filteredSuggested.isEmpty {
             ContentUnavailableView(
                 "No items yet",
                 systemImage: "cart",
                 description: Text("Add one with +, or check a price and save it.")
             )
-        } else if filteredYours.isEmpty && filteredSuggested.isEmpty {
+        } else if filteredYours.isEmpty && filteredSuggested.isEmpty && unpriced.isEmpty
+            && !canAddQuery
+        {
             ContentUnavailableView.search(text: searchText)
         }
     }
@@ -124,12 +178,22 @@ struct ItemsView: View {
         item.goodPriceSummary(preferring: storedUnit) ?? "No good price"
     }
 
+    /// Only items with a good price: one used just for a list stays out of the way until it gets one.
     private func filter(_ items: [GroceryItem]) -> [GroceryItem] {
-        guard !searchText.isEmpty else { return items }
-        let query = searchText.lowercased()
-        return items.filter { item in
-            item.name.lowercased().contains(query)
-                || item.aliases.contains { $0.lowercased().contains(query) }
+        let priced = items.filter(\.hasGoodPrice)
+        guard !query.isEmpty else { return priced }
+        let normalized = SearchText.normalize(query)
+        return priced.filter { item in
+            SearchText.score(
+                query: normalized, terms: ([item.name] + item.aliases).map(SearchText.normalize))
+                != nil
+        }
+    }
+
+    private func item(for result: ItemSearchResult) -> GroceryItem {
+        switch result {
+        case .item(let item): return item
+        case .entry(let entry): return CatalogLibrary.item(for: entry, in: modelContext)
         }
     }
 

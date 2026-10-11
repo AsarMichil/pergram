@@ -63,6 +63,17 @@ enum ItemSearchResult: Identifiable {
         case .entry(let entry): return entry.name
         }
     }
+
+    /// Whether the text is this result's name or one of its aliases, ignoring case and accents.
+    func isNamed(_ text: String) -> Bool {
+        let query = SearchText.normalize(text)
+        let terms: [String]
+        switch self {
+        case .item(let item): terms = [item.name] + item.aliases
+        case .entry(let entry): terms = entry.terms
+        }
+        return terms.contains { SearchText.normalize($0) == query }
+    }
 }
 
 @MainActor

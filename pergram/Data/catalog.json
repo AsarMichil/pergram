@@ -372,8 +372,8 @@
    ],
    "aisle": "produce",
    "soldBy": [
-    "mass",
-    "count"
+    "count",
+    "mass"
    ]
   },
   {

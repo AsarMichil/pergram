@@ -13,6 +13,8 @@ nonisolated struct ListPayload: Codable, Equatable, Sendable {
         let text: String
         let isSkipped: Bool
         let item: Item?
+        /// The entry's `Aisle` raw value, so a shopper's own grouping travels with the list.
+        var aisle: String? = nil
     }
 
     /// The sender's catalog item, with their good prices, so the receiver can relink it or adopt it.

@@ -76,22 +76,26 @@ struct ShopView: View {
             }
 
             if let list = trip.list {
-                Section(list.name) {
-                    ForEach(list.orderedEntries) { entry in
-                        ShopListRow(entry: entry, isCrossed: trip.isCrossed(entry)) {
-                            Shopping.setCrossed(!trip.isCrossed(entry), for: entry, in: trip)
-                        }
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                entry.isSkipped.toggle()
-                                try? modelContext.save()
-                            } label: {
-                                Label(
-                                    entry.isSkipped ? "Need it" : "Not this time",
-                                    systemImage: entry.isSkipped
-                                        ? "arrow.uturn.backward" : "minus.circle")
+                // In store order, so the list reads in the order the aisles are walked.
+                ForEach(AisleOrder.standard.sorted(list.orderedEntries, by: \.aisle), id: \.aisle) {
+                    group in
+                    Section(group.aisle.title) {
+                        ForEach(group.elements) { entry in
+                            ShopListRow(entry: entry, isCrossed: trip.isCrossed(entry)) {
+                                Shopping.setCrossed(!trip.isCrossed(entry), for: entry, in: trip)
                             }
-                            .tint(entry.isSkipped ? .accentColor : .gray)
+                            .swipeActions(edge: .leading) {
+                                Button {
+                                    entry.isSkipped.toggle()
+                                    try? modelContext.save()
+                                } label: {
+                                    Label(
+                                        entry.isSkipped ? "Need it" : "Not this time",
+                                        systemImage: entry.isSkipped
+                                            ? "arrow.uturn.backward" : "minus.circle")
+                                }
+                                .tint(entry.isSkipped ? .accentColor : .gray)
+                            }
                         }
                     }
                 }
@@ -126,7 +130,7 @@ struct ShopView: View {
                     .contentTransition(.numericText())
                     .animation(.snappy, value: tally.total)
                     .accessibilityIdentifier("cartTotal")
-                Text(tally.count == 1 ? "1 item" : "\(tally.count) items")
+                Text(subtitle(trip, tally: tally))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -143,6 +147,12 @@ struct ShopView: View {
             }
             .accessibilityLabel("Trip options")
         }
+    }
+
+    private func subtitle(_ trip: Trip, tally: CartTally) -> String {
+        let count = tally.count == 1 ? "1 item" : "\(tally.count) items"
+        guard let list = trip.list else { return count }
+        return "\(count) · \(list.name)"
     }
 
     private func listMenu(title: String) -> some View {

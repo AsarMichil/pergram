@@ -196,4 +196,30 @@ struct ListSharingTests {
         #expect(chicken.goodPricePerMass == 1.10)
         #expect(chicken.goodPricePerEach == 2.50)
     }
+
+    @Test func anEntrysAisleTravelsWithTheList() throws {
+        let context = try makeContext()
+        let list = GroceryList(name: "Weekly")
+        context.insert(list)
+        list.append("Birthday candles", aisle: .bakery)
+
+        let payload = ListSharing.payload(for: list)
+        let receiver = try makeContext()
+        let imported = ListSharing.apply(
+            ListSharing.plan(payload, in: receiver), accepting: [], in: receiver)
+
+        #expect(imported.orderedEntries.first?.aisle == .bakery)
+    }
+
+    @Test func anEntryWithNoAisleIsGuessedOnImport() throws {
+        let context = try makeContext()
+        let payload = ListPayload(
+            id: UUID(), name: "L",
+            entries: [.init(id: UUID(), text: "paper towels", isSkipped: false, item: nil)])
+
+        let list = ListSharing.apply(
+            ListSharing.plan(payload, in: context), accepting: [], in: context)
+
+        #expect(list.orderedEntries.first?.aisle == .household)
+    }
 }

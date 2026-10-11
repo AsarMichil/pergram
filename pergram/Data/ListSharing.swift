@@ -22,7 +22,8 @@ enum ListSharing {
                                     dimension: $0.dimension, canonical: $0.canonical)
                             }
                         )
-                    }
+                    },
+                    aisle: entry.aisleRaw
                 )
             }
         )
@@ -106,6 +107,9 @@ enum ListSharing {
             entry.isSkipped = incoming.isSkipped
             entry.position = position
             entry.item = incoming.item.map { resolve($0, in: &catalog, context: context) }
+            entry.aisleRaw =
+                incoming.aisle ?? entry.item?.aisle?.rawValue
+                ?? CatalogLibrary.bundled.guessAisle(for: incoming.text)?.rawValue
         }
         for orphan in existing.values {
             context.delete(orphan)
