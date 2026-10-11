@@ -257,8 +257,8 @@ private struct ListEntryRow: View {
                 Text("not this time")
                     .font(.footnote)
                     .foregroundStyle(.tertiary)
-            } else if let item = entry.item {
-                Text(goodPrice(item))
+            } else if let summary = entry.item?.goodPriceSummary(preferring: storedUnit) {
+                Text(summary)
                     .font(.footnote)
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
@@ -266,8 +266,6 @@ private struct ListEntryRow: View {
         }
     }
 
-    private func goodPrice(_ item: GroceryItem) -> String {
-        let price = NormalizedPrice(dimension: item.dimension, canonical: item.goodPriceCanonical)
-        return PriceDisplay.formatted(price, in: MeasureUnit.canonicalUnit(for: item.dimension))
-    }
+    @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
+    private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
 }

@@ -121,9 +121,7 @@ struct ItemsView: View {
     }
 
     private func priceString(_ item: GroceryItem) -> String {
-        let price = NormalizedPrice(dimension: item.dimension, canonical: item.goodPriceCanonical)
-        let unit = PriceDisplay.displayUnit(for: item.dimension, preferred: storedUnit)
-        return PriceDisplay.formatted(price, in: unit)
+        item.goodPriceSummary(preferring: storedUnit) ?? "No good price"
     }
 
     private func filter(_ items: [GroceryItem]) -> [GroceryItem] {
@@ -156,7 +154,7 @@ struct ItemsView: View {
 
 #Preview {
     let container = try! ModelContainer(
-        for: GroceryItem.self,
+        for: AppSchema.schema,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     container.mainContext.insert(
@@ -164,8 +162,8 @@ struct ItemsView: View {
             seedID: "chicken-thigh-boneless",
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
-            category: "meat",
-            goodPriceCanonical: 1.10,
+            aisle: .meat,
+            goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10),
             userModified: true
         )
     )
@@ -174,9 +172,8 @@ struct ItemsView: View {
             seedID: "eggs-large",
             name: "Eggs (large)",
             aliases: ["egg"],
-            category: "dairy",
-            goodPriceCanonical: 0.42,
-            dimension: .count
+            aisle: .dairy,
+            goodPrice: NormalizedPrice(dimension: .count, canonical: 0.42)
         )
     )
     return ItemsView()

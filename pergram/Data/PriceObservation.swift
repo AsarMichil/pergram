@@ -17,6 +17,9 @@ final class PriceObservation {
     var priceCanonical: Double = 0
     var date: Date = Date.distantPast
     var sourceRawValue: String = CheckSource.keypad.rawValue
+    /// Which of the item's good prices this is comparable with, now that an item can have one per
+    /// dimension. Defaults to mass, which every observation recorded before this was.
+    var dimensionRaw: String = PriceDimension.mass.rawValue
     var item: GroceryItem?
 
     var source: CheckSource {
@@ -25,10 +28,11 @@ final class PriceObservation {
     }
 
     init(
-        priceCanonical: Double = 0, date: Date = .now, source: CheckSource = .keypad,
+        price: NormalizedPrice, date: Date = .now, source: CheckSource = .keypad,
         item: GroceryItem? = nil
     ) {
-        self.priceCanonical = priceCanonical
+        self.priceCanonical = price.canonical
+        self.dimensionRaw = price.dimension.rawValue
         self.date = date
         self.sourceRawValue = source.rawValue
         self.item = item

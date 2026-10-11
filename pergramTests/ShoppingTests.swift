@@ -17,7 +17,8 @@ struct ShoppingTests {
             schema: AppSchema.schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: AppSchema.schema, configurations: [configuration])
         context = ModelContext(container)
-        chicken = GroceryItem(name: "Chicken thigh", goodPriceCanonical: 1.10)
+        chicken = GroceryItem(
+            name: "Chicken thigh", goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10))
         context.insert(chicken)
         list = GroceryList(name: "Weekly")
         context.insert(list)
@@ -60,7 +61,7 @@ struct ShoppingTests {
     @Test func entryKeepsTheVerdictItWasAddedWith() {
         let entry = Shopping.addToCart(
             price: 5, unitPrice: perHundredGrams, item: chicken, in: context)
-        chicken.goodPriceCanonical = 0.5
+        chicken.setGoodPrice(NormalizedPrice(dimension: .mass, canonical: 0.5))
 
         #expect(entry.verdict == .good)
     }

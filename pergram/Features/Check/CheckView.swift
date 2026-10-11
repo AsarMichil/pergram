@@ -61,10 +61,12 @@ struct CheckView: View {
         return items.first { $0.persistentModelID == id }
     }
 
+    /// The good price in the dimension being typed. An item with good prices only in another
+    /// dimension still shows one, so the panel can say they do not compare rather than go blank.
     private var baseline: NormalizedPrice? {
-        selectedItem.map {
-            NormalizedPrice(dimension: $0.dimension, canonical: $0.goodPriceCanonical)
-        }
+        guard let selectedItem else { return nil }
+        let dimension = viewModel.normalizedPrice?.dimension ?? viewModel.amountUnit.dimension
+        return selectedItem.goodPrice(for: dimension) ?? selectedItem.goodPrices.first
     }
 
     private var settledVerdict: Verdict? {
@@ -283,8 +285,8 @@ private func previewContainer() -> ModelContainer {
         seedID: "chicken-thigh-boneless",
         name: "Chicken thigh (boneless)",
         aliases: ["thighs"],
-        category: "meat",
-        goodPriceCanonical: 1.10
+        aisle: .meat,
+        goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10)
     )
     container.mainContext.insert(chicken)
     let list = GroceryList(name: "Weekly")

@@ -60,11 +60,9 @@ struct ItemPickerSheet: View {
                             dismiss()
                         } label: {
                             LabeledContent {
-                                Text(
-                                    "\(PriceDisplay.money(item.goodPriceCanonical))\(PriceDisplay.suffix(for: MeasureUnit.canonicalUnit(for: item.dimension)))"
-                                )
-                                .monospacedDigit()
-                                .foregroundStyle(.secondary)
+                                Text(item.goodPriceSummary(preferring: .per100Grams) ?? "")
+                                    .monospacedDigit()
+                                    .foregroundStyle(.secondary)
                             } label: {
                                 Text(item.name)
                                     .foregroundStyle(.primary)
@@ -94,7 +92,7 @@ struct ItemPickerSheet: View {
 
 #Preview {
     let container = try! ModelContainer(
-        for: GroceryItem.self,
+        for: AppSchema.schema,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     container.mainContext.insert(
@@ -102,8 +100,8 @@ struct ItemPickerSheet: View {
             seedID: "chicken-thigh-boneless",
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
-            category: "meat",
-            goodPriceCanonical: 1.10
+            aisle: .meat,
+            goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10)
         )
     )
     return ItemPickerSheet(selectedItemID: .constant(nil))

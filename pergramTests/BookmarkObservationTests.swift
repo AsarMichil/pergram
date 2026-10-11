@@ -14,7 +14,8 @@ struct BookmarkObservationTests {
     }
 
     private func makeItem(in context: ModelContext) -> GroceryItem {
-        let item = GroceryItem(name: "Chicken thigh", goodPriceCanonical: 1.10)
+        let item = GroceryItem(
+            name: "Chicken thigh", goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10))
         context.insert(item)
         return item
     }

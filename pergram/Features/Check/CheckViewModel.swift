@@ -160,8 +160,7 @@ final class CheckViewModel {
 
     func updateGoodPrice(for item: GroceryItem) {
         guard let normalizedPrice, let modelContext else { return }
-        item.goodPriceCanonical = normalizedPrice.canonical
-        item.dimension = normalizedPrice.dimension
+        item.setGoodPrice(normalizedPrice)
         item.userModified = true
         item.updatedAt = .now
         try? modelContext.save()
@@ -173,8 +172,7 @@ final class CheckViewModel {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let item = GroceryItem(
             name: trimmed.isEmpty ? "Untitled item" : trimmed,
-            goodPriceCanonical: normalizedPrice.canonical,
-            dimension: normalizedPrice.dimension,
+            goodPrice: normalizedPrice,
             userModified: true
         )
         modelContext.insert(item)
@@ -269,14 +267,13 @@ final class CheckViewModel {
     }
 
     private func recordObservation(_ price: NormalizedPrice, for item: GroceryItem?) {
-        guard let item, let modelContext, !item.isDeleted, item.dimension == price.dimension
-        else { return }
+        guard let item, let modelContext, !item.isDeleted else { return }
         let cents = Int((price.canonical * 100).rounded())
-        let signature = "\(ObjectIdentifier(item))-\(cents)"
+        let signature = "\(ObjectIdentifier(item))-\(price.dimension.rawValue)-\(cents)"
         guard signature != lastRecordedSignature else { return }
         lastRecordedSignature = signature
         let observation = PriceObservation(
-            priceCanonical: price.canonical,
+            price: price,
             date: .now,
             source: .keypad,
             item: item

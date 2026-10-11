@@ -112,11 +112,3 @@ enum Shopping {
         try? context.save()
     }
 }
-
-extension GroceryItem {
-    /// `nil` when the item has no good price yet, or the price is in another dimension.
-    func verdict(for price: NormalizedPrice) -> Verdict? {
-        guard price.dimension == dimension, goodPriceCanonical > 0 else { return nil }
-        return VerdictEngine.verdict(price: price.canonical, baseline: goodPriceCanonical)
-    }
-}

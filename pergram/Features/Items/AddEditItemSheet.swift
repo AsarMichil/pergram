@@ -50,7 +50,7 @@ struct AddEditItemSheet: View {
         }
         .onAppear {
             viewModel.attach(modelContext: modelContext)
-            switch item?.dimension {
+            switch item?.goodPrices.first?.dimension {
             case .count: viewModel.amountUnit = .each
             case .volume: viewModel.amountUnit = .millilitre
             default: break

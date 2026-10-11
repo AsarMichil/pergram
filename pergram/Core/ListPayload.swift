@@ -15,13 +15,18 @@ nonisolated struct ListPayload: Codable, Equatable, Sendable {
         let item: Item?
     }
 
-    /// The sender's catalog item, with their good price, so the receiver can relink it or adopt it.
+    /// The sender's catalog item, with their good prices, so the receiver can relink it or adopt it.
     struct Item: Codable, Equatable, Sendable {
         let seedID: String
         let name: String
-        let category: String
+        let aisle: String
+        let goodPrices: [GoodPrice]
+    }
+
+    /// One good price, in its dimension's canonical unit.
+    struct GoodPrice: Codable, Equatable, Sendable {
         let dimension: PriceDimension
-        let goodPriceCanonical: Double
+        let canonical: Double
     }
 
     enum DecodingFailure: Error, Equatable {

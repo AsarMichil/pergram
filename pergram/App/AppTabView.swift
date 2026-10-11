@@ -23,7 +23,10 @@ struct AppTabView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
-        .task { importSeedIfNeeded() }
+        .task {
+            LegacyGoodPriceMigration.run(in: modelContext)
+            importSeedIfNeeded()
+        }
         .sheet(item: $router.incomingList) { incoming in
             ImportListSheet(incoming: incoming) { _ in router.tab = .lists }
         }
@@ -58,8 +61,8 @@ struct AppTabView: View {
             seedID: "chicken-thigh-boneless",
             name: "Chicken thigh (boneless)",
             aliases: ["thighs"],
-            category: "meat",
-            goodPriceCanonical: 1.10
+            aisle: .meat,
+            goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10)
         )
     )
     return AppTabView()

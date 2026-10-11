@@ -26,8 +26,8 @@ struct ListSharingTests {
                 .init(
                     id: UUID(), text: "Thighs", isSkipped: true,
                     item: .init(
-                        seedID: "chicken-thigh-boneless", name: "Chicken thigh", category: "meat",
-                        dimension: .mass, goodPriceCanonical: chickenPrice)),
+                        seedID: "chicken-thigh-boneless", name: "Chicken thigh", aisle: "meat",
+                        goodPrices: [.init(dimension: .mass, canonical: chickenPrice)])),
             ]
         )
     }
@@ -59,7 +59,9 @@ struct ListSharingTests {
 
     @Test func exportCarriesSkipFlagsAndGoodPrices() throws {
         let context = try makeContext()
-        let chicken = GroceryItem(seedID: "chicken-thigh-boneless", goodPriceCanonical: 1.10)
+        let chicken = GroceryItem(
+            seedID: "chicken-thigh-boneless",
+            goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10))
         context.insert(chicken)
         let list = GroceryList(name: "Weekly")
         context.insert(list)
@@ -69,38 +71,46 @@ struct ListSharingTests {
 
         #expect(payload.id == list.id)
         #expect(payload.entries.first?.isSkipped == true)
-        #expect(payload.entries.first?.item?.goodPriceCanonical == 1.10)
+        #expect(
+            payload.entries.first?.item?.goodPrices == [.init(dimension: .mass, canonical: 1.10)])
     }
 
     @Test func aDifferentPriceIsOfferedNotApplied() throws {
         let context = try makeContext()
-        let chicken = GroceryItem(seedID: "chicken-thigh-boneless", goodPriceCanonical: 1.10)
+        let chicken = GroceryItem(
+            seedID: "chicken-thigh-boneless",
+            goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10))
         context.insert(chicken)
 
         let plan = ListSharing.plan(samplePayload(), in: context)
         let list = ListSharing.apply(plan, accepting: [], in: context)
 
         #expect(plan.offers.count == 1)
-        #expect(chicken.goodPriceCanonical == 1.10)
+        #expect(chicken.goodPricePerMass == 1.10)
         #expect(list.orderedEntries.last?.item?.persistentModelID == chicken.persistentModelID)
         #expect(list.orderedEntries.last?.isSkipped == true)
     }
 
     @Test func anAcceptedOfferReplacesThePrice() throws {
         let context = try makeContext()
-        let chicken = GroceryItem(seedID: "chicken-thigh-boneless", goodPriceCanonical: 1.10)
+        let chicken = GroceryItem(
+            seedID: "chicken-thigh-boneless",
+            goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10))
         context.insert(chicken)
 
         let plan = ListSharing.plan(samplePayload(), in: context)
         ListSharing.apply(plan, accepting: Set(plan.offers.map(\.id)), in: context)
 
-        #expect(chicken.goodPriceCanonical == 0.95)
+        #expect(chicken.goodPricePerMass == 0.95)
         #expect(chicken.userModified)
     }
 
     @Test func aMatchingPriceAsksNothing() throws {
         let context = try makeContext()
-        context.insert(GroceryItem(seedID: "chicken-thigh-boneless", goodPriceCanonical: 0.952))
+        context.insert(
+            GroceryItem(
+                seedID: "chicken-thigh-boneless",
+                goodPrice: NormalizedPrice(dimension: .mass, canonical: 0.952)))
 
         #expect(ListSharing.plan(samplePayload(), in: context).offers.isEmpty)
     }
@@ -112,12 +122,14 @@ struct ListSharingTests {
         ListSharing.apply(plan, accepting: [], in: context)
 
         #expect(plan.newItemNames == ["Chicken thigh"])
-        #expect(try items(in: context).map(\.goodPriceCanonical) == [0.95])
+        #expect(try items(in: context).map(\.goodPricePerMass) == [0.95])
     }
 
     @Test func userMadeItemsMatchByName() throws {
         let context = try makeContext()
-        let mine = GroceryItem(name: "Oat milk", goodPriceCanonical: 0.4, userModified: true)
+        let mine = GroceryItem(
+            name: "Oat milk", goodPrice: NormalizedPrice(dimension: .mass, canonical: 0.4),
+            userModified: true)
         context.insert(mine)
         let payload = ListPayload(
             id: UUID(), name: "L",
@@ -125,8 +137,8 @@ struct ListSharingTests {
                 .init(
                     id: UUID(), text: "oat milk", isSkipped: false,
                     item: .init(
-                        seedID: "", name: " oat MILK", category: "", dimension: .mass,
-                        goodPriceCanonical: 0.4))
+                        seedID: "", name: " oat MILK", aisle: "",
+                        goodPrices: [.init(dimension: .mass, canonical: 0.4)]))
             ])
 
         let list = ListSharing.apply(
@@ -156,5 +168,32 @@ struct ListSharingTests {
         #expect(list.orderedEntries.map(\.text) == ["Thighs", "Eggs"])
         #expect(list.orderedEntries.first?.id == first.entries[1].id)
         #expect(list.orderedEntries.first?.isSkipped == false)
+    }
+
+    @Test func aPriceYouLackStartsAcceptedAndOneYouHaveDoesNot() throws {
+        let context = try makeContext()
+        let chicken = GroceryItem(
+            seedID: "chicken-thigh-boneless",
+            goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10))
+        context.insert(chicken)
+        let payload = ListPayload(
+            id: UUID(), name: "L",
+            entries: [
+                .init(
+                    id: UUID(), text: "Thighs", isSkipped: false,
+                    item: .init(
+                        seedID: "chicken-thigh-boneless", name: "Chicken thigh", aisle: "meat",
+                        goodPrices: [
+                            .init(dimension: .mass, canonical: 0.95),
+                            .init(dimension: .count, canonical: 2.50),
+                        ]))
+            ])
+
+        let plan = ListSharing.plan(payload, in: context)
+        ListSharing.apply(plan, accepting: plan.initiallyAccepted, in: context)
+
+        #expect(plan.offers.count == 2)
+        #expect(chicken.goodPricePerMass == 1.10)
+        #expect(chicken.goodPricePerEach == 2.50)
     }
 }

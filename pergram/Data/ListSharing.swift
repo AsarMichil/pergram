@@ -16,9 +16,11 @@ enum ListSharing {
                         ListPayload.Item(
                             seedID: item.seedID,
                             name: item.name,
-                            category: item.category,
-                            dimension: item.dimension,
-                            goodPriceCanonical: item.goodPriceCanonical
+                            aisle: item.category,
+                            goodPrices: item.goodPrices.map {
+                                ListPayload.GoodPrice(
+                                    dimension: $0.dimension, canonical: $0.canonical)
+                            }
                         )
                     }
                 )
@@ -26,16 +28,20 @@ enum ListSharing {
         )
     }
 
-    /// The sender's good price for an item the receiver already has at a different one. Never applied
+    struct OfferID: Hashable {
+        let item: PersistentIdentifier
+        let dimension: PriceDimension
+    }
+
+    /// The sender's good price for an item the receiver already has, in one dimension. Never applied
     /// unless accepted: an incoming list must not quietly rewrite your baselines.
     struct PriceOffer: Identifiable {
         let item: GroceryItem
         let theirs: NormalizedPrice
 
-        var id: PersistentIdentifier { item.persistentModelID }
-        var yours: NormalizedPrice {
-            NormalizedPrice(dimension: item.dimension, canonical: item.goodPriceCanonical)
-        }
+        var id: OfferID { OfferID(item: item.persistentModelID, dimension: theirs.dimension) }
+        /// `nil` when the offer fills a gap rather than replacing a price.
+        var yours: NormalizedPrice? { item.goodPrice(for: theirs.dimension) }
     }
 
     struct ImportPlan {
@@ -43,6 +49,12 @@ enum ListSharing {
         let offers: [PriceOffer]
         let newItemNames: [String]
         let replacing: GroceryList?
+
+        /// Offers that only fill a gap start accepted, since they overwrite nothing; offers that
+        /// would replace one of your prices start declined.
+        var initiallyAccepted: Set<OfferID> {
+            Set(offers.filter { $0.yours == nil }.map(\.id))
+        }
     }
 
     static func plan(_ payload: ListPayload, in context: ModelContext) -> ImportPlan {
@@ -54,9 +66,9 @@ enum ListSharing {
                 newItemNames.append(incoming.name)
                 continue
             }
-            if differs(match, from: incoming) {
-                offers.append(PriceOffer(item: match, theirs: price(of: incoming)))
-            }
+            offers += prices(of: incoming)
+                .filter { differs(match.goodPrice(for: $0.dimension), from: $0) }
+                .map { PriceOffer(item: match, theirs: $0) }
         }
         return ImportPlan(
             payload: payload,
@@ -71,12 +83,11 @@ enum ListSharing {
     @discardableResult
     static func apply(
         _ plan: ImportPlan,
-        accepting accepted: Set<PersistentIdentifier>,
+        accepting accepted: Set<OfferID>,
         in context: ModelContext
     ) -> GroceryList {
         for offer in plan.offers where accepted.contains(offer.id) {
-            offer.item.goodPriceCanonical = offer.theirs.canonical
-            offer.item.dimension = offer.theirs.dimension
+            offer.item.setGoodPrice(offer.theirs)
             offer.item.userModified = true
             offer.item.updatedAt = .now
         }
@@ -134,11 +145,10 @@ enum ListSharing {
         let created = GroceryItem(
             seedID: incoming.seedID,
             name: incoming.name,
-            category: incoming.category,
-            goodPriceCanonical: incoming.goodPriceCanonical,
-            dimension: incoming.dimension,
+            aisle: Aisle(rawValue: incoming.aisle),
             userModified: incoming.seedID.isEmpty
         )
+        prices(of: incoming).forEach(created.setGoodPrice)
         context.insert(created)
         catalog.append(created)
         return created
@@ -146,14 +156,15 @@ enum ListSharing {
 
     /// Below a cent the two prices read the same on screen, so offering one would ask a question
     /// with no visible difference.
-    private static func differs(_ item: GroceryItem, from incoming: ListPayload.Item) -> Bool {
-        guard incoming.goodPriceCanonical > 0 else { return false }
-        return item.dimension != incoming.dimension
-            || abs(item.goodPriceCanonical - incoming.goodPriceCanonical) >= 0.005
+    private static func differs(_ yours: NormalizedPrice?, from theirs: NormalizedPrice) -> Bool {
+        guard let yours else { return true }
+        return abs(yours.canonical - theirs.canonical) >= 0.005
     }
 
-    private static func price(of incoming: ListPayload.Item) -> NormalizedPrice {
-        NormalizedPrice(dimension: incoming.dimension, canonical: incoming.goodPriceCanonical)
+    private static func prices(of incoming: ListPayload.Item) -> [NormalizedPrice] {
+        incoming.goodPrices
+            .filter { $0.canonical > 0 }
+            .map { NormalizedPrice(dimension: $0.dimension, canonical: $0.canonical) }
     }
 
     private static func normalized(_ name: String) -> String {

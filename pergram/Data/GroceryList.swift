@@ -28,9 +28,10 @@ final class GroceryList {
     }
 
     @discardableResult
-    func append(_ text: String, item: GroceryItem? = nil) -> ListEntry {
+    func append(_ text: String, item: GroceryItem? = nil, aisle: Aisle? = nil) -> ListEntry {
         let entry = ListEntry(text: text, position: (orderedEntries.last?.position ?? -1) + 1)
         entry.item = item
+        entry.aisleRaw = (aisle ?? item?.aisle)?.rawValue
         entry.list = self
         updatedAt = .now
         return entry
@@ -45,6 +46,9 @@ final class ListEntry {
     /// "Not this time": kept across trips until cleared, so a reused list remembers what you are
     /// sitting out.
     var isSkipped: Bool = false
+    /// An `Aisle` raw value: guessed when the entry is added, replaced when an item is linked or the
+    /// shopper moves it. `nil` falls back to the linked item's aisle.
+    var aisleRaw: String?
     var item: GroceryItem?
     var list: GroceryList?
 
@@ -53,5 +57,10 @@ final class ListEntry {
         self.text = text
         self.position = position
         self.isSkipped = isSkipped
+    }
+
+    var aisle: Aisle {
+        get { aisleRaw.flatMap(Aisle.init(rawValue:)) ?? item?.aisle ?? .other }
+        set { aisleRaw = newValue.rawValue }
     }
 }

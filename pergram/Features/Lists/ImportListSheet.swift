@@ -7,7 +7,7 @@ struct ImportListSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var plan: ListSharing.ImportPlan?
-    @State private var accepted: Set<PersistentIdentifier> = []
+    @State private var accepted: Set<ListSharing.OfferID> = []
 
     var body: some View {
         NavigationStack {
@@ -44,7 +44,9 @@ struct ImportListSheet: View {
         }
         .onAppear {
             guard plan == nil, case .success(let payload) = incoming.result else { return }
-            plan = ListSharing.plan(payload, in: modelContext)
+            let plan = ListSharing.plan(payload, in: modelContext)
+            self.plan = plan
+            accepted = plan.initiallyAccepted
         }
     }
 
@@ -69,7 +71,7 @@ struct ImportListSheet: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(offer.item.name)
                                 Text(
-                                    "Theirs \(format(offer.theirs)) · yours \(format(offer.yours))"
+                                    "Theirs \(format(offer.theirs)) · yours \(offer.yours.map(format) ?? "none")"
                                 )
                                 .font(.footnote)
                                 .monospacedDigit()
@@ -91,7 +93,9 @@ struct ImportListSheet: View {
                         .textCase(nil)
                     }
                 } footer: {
-                    Text("Your prices stay unless you switch one on.")
+                    Text(
+                        "Ones you have no price for start on. Yours stay unless you switch theirs on."
+                    )
                 }
             }
 

@@ -22,9 +22,8 @@ nonisolated struct SeedItem: Codable, Sendable {
             seedID: id,
             name: name,
             aliases: aliases,
-            category: category,
-            goodPriceCanonical: goodPricePer100g,
-            dimension: dimension ?? .mass,
+            aisle: Aisle(rawValue: category),
+            goodPrice: NormalizedPrice(dimension: dimension ?? .mass, canonical: goodPricePer100g),
             userModified: false,
             updatedAt: .now
         )

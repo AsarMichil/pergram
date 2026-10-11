@@ -56,7 +56,7 @@ struct SeedImporterTests {
         )
 
         let item = try #require(try allItems(context).first { $0.seedID == "a" })
-        item.goodPriceCanonical = 0.42
+        item.setGoodPrice(NormalizedPrice(dimension: .mass, canonical: 0.42))
         item.userModified = true
         try context.save()
 
@@ -76,7 +76,7 @@ struct SeedImporterTests {
 
         #expect(version == 2)
         let reloaded = try #require(try allItems(context).first { $0.seedID == "a" })
-        #expect(reloaded.goodPriceCanonical == 0.42)
+        #expect(reloaded.goodPricePerMass == 0.42)
         #expect(reloaded.userModified)
         #expect(try allItems(context).count == 2)
     }
