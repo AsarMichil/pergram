@@ -92,6 +92,10 @@ final class ShortScreenTests: XCTestCase {
         XCTAssertTrue(chooseItem.waitForExistence(timeout: 5), "item menu did not open")
         chooseItem.tap()
 
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5), "picker has no search")
+        search.tap()
+        search.typeText("Bananas")
         let bananas = app.staticTexts["Bananas"].firstMatch
         XCTAssertTrue(bananas.waitForExistence(timeout: 5), "picker has no rows")
         XCTAssertTrue(bananas.isHittable, "picker rows are not reachable")
@@ -113,5 +117,93 @@ final class ShortScreenTests: XCTestCase {
         XCTAssertTrue(zeroKey.waitForExistence(timeout: 5), "sheet keypad never appeared")
         XCTAssertTrue(zeroKey.isHittable, "sheet keypad is clipped")
         XCTAssertTrue(app.buttons["Save"].firstMatch.isHittable, "sheet Save is not reachable")
+    }
+
+    func testAddToCartKeyIsReachableAndCarriesTheTotalToShop() {
+        let app = launch()
+
+        app.buttons["4"].firstMatch.tap()
+        let addToCart = app.buttons["addToCartKey"].firstMatch
+        XCTAssertTrue(addToCart.isHittable, "add-to-cart key is behind the tab bar")
+        addToCart.tap()
+
+        let shopChip = app.buttons
+            .matching(NSPredicate(format: "label BEGINSWITH 'Switch to Shop, cart'"))
+            .firstMatch
+        XCTAssertTrue(shopChip.waitForExistence(timeout: 5), "the Shop chip shows no total")
+        XCTAssertTrue(shopChip.isHittable, "the Shop chip is clipped")
+        XCTAssertTrue(app.buttons["0"].firstMatch.isHittable, "keypad shifted under the tab bar")
+
+        shopChip.tap()
+        XCTAssertTrue(app.staticTexts["cartTotal"].waitForExistence(timeout: 5), "no cart total")
+
+        let finish = app.buttons["finishTrip"].firstMatch
+        if !finish.isHittable { app.swipeUp() }
+        XCTAssertTrue(finish.isHittable, "Finish trip is not reachable")
+        finish.tap()
+        let confirm = app.buttons["confirmFinishTrip"].firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5), "no trip summary")
+        confirm.tap()
+
+        XCTAssertTrue(app.buttons["Switch to Type"].firstMatch.isHittable, "Shop has no way back")
+    }
+
+    func testScanActionsFitBesideTheCaption() {
+        let app = launch()
+
+        app.buttons["Switch to Scan"].firstMatch.tap()
+
+        for identifier in ["scanBookmark", "scanAddToCart"] {
+            let button = app.buttons[identifier].firstMatch
+            XCTAssertTrue(button.waitForExistence(timeout: 5), "no \(identifier)")
+            XCTAssertTrue(button.isHittable, "\(identifier) is clipped or covered")
+        }
+        XCTAssertTrue(app.buttons["Switch to Type"].firstMatch.isHittable)
+    }
+
+    /// Shop is the leftmost mode, so its rows keep their actions on the leading edge and a swipe left
+    /// anywhere on the page, row or not, goes back to Type.
+    func testSwipingLeftOnShopReturnsToTypeFromARowOrTheBackground() {
+        let app = launch()
+
+        app.buttons["7"].firstMatch.tap()
+        app.buttons["addToCartKey"].firstMatch.tap()
+        let shopChip = app.buttons
+            .matching(NSPredicate(format: "label BEGINSWITH 'Switch to Shop'"))
+            .firstMatch
+        let zero = app.buttons["0"].firstMatch
+
+        shopChip.tap()
+        let label = app.staticTexts
+            .matching(NSPredicate(format: "label BEGINSWITH 'Item '"))
+            .firstMatch
+        XCTAssertTrue(label.waitForExistence(timeout: 5), "no cart row")
+        drag(label, from: 0.1, to: 0.9)
+        XCTAssertTrue(
+            app.buttons["Remove"].firstMatch.waitForExistence(timeout: 5), "no row actions")
+        drag(label, from: 0.9, to: 0.1)
+        XCTAssertTrue(zero.waitForExistence(timeout: 5), "a swipe on a row did not leave Shop")
+
+        shopChip.tap()
+        XCTAssertTrue(app.staticTexts["cartTotal"].waitForExistence(timeout: 5))
+        drag(app.staticTexts["cartTotal"].firstMatch, from: 0.9, to: 0.1)
+        XCTAssertTrue(zero.waitForExistence(timeout: 5), "a swipe on the page did not leave Shop")
+
+        shopChip.tap()
+        let finish = app.buttons["finishTrip"].firstMatch
+        if !finish.isHittable { app.swipeUp() }
+        finish.tap()
+        app.buttons["confirmFinishTrip"].firstMatch.tap()
+    }
+
+    /// Across the screen rather than across the element: a short element's own `swipeRight()` covers
+    /// too little distance and lands as a tap.
+    private func drag(_ element: XCUIElement, from start: CGFloat, to end: CGFloat) {
+        let window = XCUIApplication().windows.firstMatch
+        let y = element.frame.midY / window.frame.height
+        window.coordinate(withNormalizedOffset: CGVector(dx: start, dy: y))
+            .press(
+                forDuration: 0.05,
+                thenDragTo: window.coordinate(withNormalizedOffset: CGVector(dx: end, dy: y)))
     }
 }

@@ -6,6 +6,7 @@ import SwiftUI
 /// baseline here, not comparing against one — and needs no cross-tab navigation.
 struct AddEditItemSheet: View {
     let item: GroceryItem?
+    var initialName = ""
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -14,6 +15,13 @@ struct AddEditItemSheet: View {
     @State private var name = ""
 
     private var isEditing: Bool { item != nil }
+
+    /// How the dictionary says this item is usually priced, so a first good price starts in the right
+    /// unit — avocados by the each, chicken by weight.
+    private var usualDimension: PriceDimension? {
+        guard let seedID = item?.seedID, !seedID.isEmpty else { return nil }
+        return CatalogLibrary.bundled.entry(id: seedID)?.soldBy.first
+    }
     private var hasPrice: Bool { viewModel.normalizedPrice != nil }
 
     private var canonicalUnit: MeasureUnit {
@@ -50,7 +58,9 @@ struct AddEditItemSheet: View {
         }
         .onAppear {
             viewModel.attach(modelContext: modelContext)
-            switch item?.dimension {
+            viewModel.recordsChecks = false
+            if name.isEmpty { name = initialName }
+            switch item?.goodPrices.first?.dimension ?? usualDimension {
             case .count: viewModel.amountUnit = .each
             case .volume: viewModel.amountUnit = .millilitre
             default: break

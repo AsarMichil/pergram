@@ -440,6 +440,7 @@
 				DEVELOPMENT_TEAM = C5255FXZG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "pergram-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "PerGram Go";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "PerGram Go reads shelf prices with the camera. Frames are processed on your device and never stored or sent anywhere.";
@@ -452,7 +453,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.asarmichil.pergram;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -475,6 +476,7 @@
 				DEVELOPMENT_TEAM = C5255FXZG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "pergram-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "PerGram Go";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSCameraUsageDescription = "PerGram Go reads shelf prices with the camera. Frames are processed on your device and never stored or sent anywhere.";
@@ -487,7 +489,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.asarmichil.pergram;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

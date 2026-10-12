@@ -1,0 +1,6802 @@
+{
+ "catalogVersion": 1,
+ "items": [
+  {
+   "id": "apples",
+   "name": "Apples",
+   "aliases": [
+    "apple",
+    "gala",
+    "ambrosia",
+    "mcintosh",
+    "honeycrisp",
+    "granny smith",
+    "pommes",
+    "pomme"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "bananas",
+   "name": "Bananas",
+   "aliases": [
+    "banana",
+    "bananes",
+    "banane"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "plantains",
+   "name": "Plantains",
+   "aliases": [
+    "plantain",
+    "plantains verts"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "oranges",
+   "name": "Oranges",
+   "aliases": [
+    "orange",
+    "navel oranges",
+    "navel"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "mandarins",
+   "name": "Mandarins",
+   "aliases": [
+    "mandarin",
+    "clementines",
+    "clementine",
+    "mandarines",
+    "mandarine"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "lemons",
+   "name": "Lemons",
+   "aliases": [
+    "lemon",
+    "citrons",
+    "citron"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "limes",
+   "name": "Limes",
+   "aliases": [
+    "lime",
+    "lime verte"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "grapefruit",
+   "name": "Grapefruit",
+   "aliases": [
+    "grapefruits",
+    "pamplemousse",
+    "pamplemousses"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "grapes",
+   "name": "Grapes",
+   "aliases": [
+    "grape",
+    "green grapes",
+    "red grapes",
+    "raisins frais"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "strawberries",
+   "name": "Strawberries",
+   "aliases": [
+    "strawberry",
+    "fraises",
+    "fraise"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "blueberries",
+   "name": "Blueberries",
+   "aliases": [
+    "blueberry",
+    "bleuets",
+    "bleuet"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "raspberries",
+   "name": "Raspberries",
+   "aliases": [
+    "raspberry",
+    "framboises",
+    "framboise"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "blackberries",
+   "name": "Blackberries",
+   "aliases": [
+    "blackberry",
+    "mûres",
+    "mûre"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "cranberries-fresh",
+   "name": "Cranberries (fresh)",
+   "aliases": [
+    "fresh cranberries",
+    "canneberges fraîches"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cherries",
+   "name": "Cherries",
+   "aliases": [
+    "cherry",
+    "cerises",
+    "cerise"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "peaches",
+   "name": "Peaches",
+   "aliases": [
+    "peach",
+    "pêches",
+    "pêche"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "nectarines",
+   "name": "Nectarines",
+   "aliases": [
+    "nectarine"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "plums",
+   "name": "Plums",
+   "aliases": [
+    "plum",
+    "prunes fraîches"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "pears",
+   "name": "Pears",
+   "aliases": [
+    "pear",
+    "bartlett",
+    "bosc",
+    "poires",
+    "poire"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "kiwi",
+   "name": "Kiwi",
+   "aliases": [
+    "kiwis",
+    "kiwifruit"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "mangoes",
+   "name": "Mangoes",
+   "aliases": [
+    "mango",
+    "mangues",
+    "mangue"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "pineapple",
+   "name": "Pineapple",
+   "aliases": [
+    "pineapples",
+    "ananas"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "watermelon",
+   "name": "Watermelon",
+   "aliases": [
+    "watermelons",
+    "melon d'eau",
+    "pastèque"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cantaloupe",
+   "name": "Cantaloupe",
+   "aliases": [
+    "cantaloupes",
+    "melon brodé"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "honeydew",
+   "name": "Honeydew melon",
+   "aliases": [
+    "honeydew",
+    "melon miel"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "papaya",
+   "name": "Papaya",
+   "aliases": [
+    "papayas",
+    "papaye"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "pomegranate",
+   "name": "Pomegranate",
+   "aliases": [
+    "pomegranates",
+    "grenade"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "avocados",
+   "name": "Avocados",
+   "aliases": [
+    "avocado",
+    "avocats",
+    "avocat"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count",
+    "mass"
+   ]
+  },
+  {
+   "id": "coconut",
+   "name": "Coconut",
+   "aliases": [
+    "coconuts",
+    "noix de coco"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "dates-fresh",
+   "name": "Dates",
+   "aliases": [
+    "date",
+    "medjool dates",
+    "dattes"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "figs-fresh",
+   "name": "Figs (fresh)",
+   "aliases": [
+    "fresh figs",
+    "figues fraîches"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "rhubarb",
+   "name": "Rhubarb",
+   "aliases": [
+    "rhubarbe"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tomatoes",
+   "name": "Tomatoes",
+   "aliases": [
+    "tomato",
+    "tomates",
+    "tomate",
+    "vine tomatoes",
+    "roma tomatoes"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cherry-tomatoes",
+   "name": "Cherry tomatoes",
+   "aliases": [
+    "grape tomatoes",
+    "tomates cerises"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cucumbers",
+   "name": "Cucumbers",
+   "aliases": [
+    "cucumber",
+    "english cucumber",
+    "concombres",
+    "concombre"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "mini-cucumbers",
+   "name": "Mini cucumbers",
+   "aliases": [
+    "mini cucumber",
+    "lebanese cucumbers",
+    "mini concombres"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "lettuce-romaine",
+   "name": "Romaine lettuce",
+   "aliases": [
+    "romaine",
+    "laitue romaine"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "lettuce-iceberg",
+   "name": "Iceberg lettuce",
+   "aliases": [
+    "iceberg",
+    "laitue iceberg"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "lettuce-leaf",
+   "name": "Leaf lettuce",
+   "aliases": [
+    "green leaf lettuce",
+    "red leaf lettuce",
+    "boston lettuce",
+    "laitue frisée"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "salad-mix",
+   "name": "Salad mix",
+   "aliases": [
+    "spring mix",
+    "mixed greens",
+    "mesclun",
+    "salade mélangée"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "spinach",
+   "name": "Spinach",
+   "aliases": [
+    "baby spinach",
+    "épinards"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "kale",
+   "name": "Kale",
+   "aliases": [
+    "chou frisé",
+    "chou kale",
+    "chou vert frisé"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "arugula",
+   "name": "Arugula",
+   "aliases": [
+    "roquette"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cabbage-green",
+   "name": "Green cabbage",
+   "aliases": [
+    "cabbage",
+    "chou vert",
+    "chou"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cabbage-red",
+   "name": "Red cabbage",
+   "aliases": [
+    "chou rouge"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "napa-cabbage",
+   "name": "Napa cabbage",
+   "aliases": [
+    "chinese cabbage",
+    "chou nappa"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "bok-choy",
+   "name": "Bok choy",
+   "aliases": [
+    "baby bok choy",
+    "pak choi"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "broccoli",
+   "name": "Broccoli",
+   "aliases": [
+    "brocoli"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cauliflower",
+   "name": "Cauliflower",
+   "aliases": [
+    "chou-fleur"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "brussels-sprouts",
+   "name": "Brussels sprouts",
+   "aliases": [
+    "choux de bruxelles"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "carrots",
+   "name": "Carrots",
+   "aliases": [
+    "carrot",
+    "baby carrots",
+    "carottes",
+    "carotte"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "celery",
+   "name": "Celery",
+   "aliases": [
+    "céleri"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "onions-yellow",
+   "name": "Yellow onions",
+   "aliases": [
+    "onion",
+    "onions",
+    "cooking onions",
+    "oignons",
+    "oignon"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "onions-red",
+   "name": "Red onions",
+   "aliases": [
+    "red onion",
+    "oignons rouges"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "onions-sweet",
+   "name": "Sweet onions",
+   "aliases": [
+    "vidalia",
+    "sweet onion",
+    "oignons doux"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "green-onions",
+   "name": "Green onions",
+   "aliases": [
+    "scallions",
+    "oignons verts"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "shallots",
+   "name": "Shallots",
+   "aliases": [
+    "shallot",
+    "échalotes",
+    "échalote"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "leeks",
+   "name": "Leeks",
+   "aliases": [
+    "leek",
+    "poireaux",
+    "poireau"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "garlic",
+   "name": "Garlic",
+   "aliases": [
+    "garlic bulb",
+    "ail"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "ginger",
+   "name": "Ginger",
+   "aliases": [
+    "ginger root",
+    "gingembre"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "peppers-bell",
+   "name": "Bell peppers",
+   "aliases": [
+    "bell pepper",
+    "red pepper",
+    "green pepper",
+    "yellow pepper",
+    "poivrons",
+    "poivron"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "peppers-hot",
+   "name": "Hot peppers",
+   "aliases": [
+    "jalapeno",
+    "jalapeño",
+    "chili peppers",
+    "piments forts"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "potatoes",
+   "name": "Potatoes",
+   "aliases": [
+    "potato",
+    "russet",
+    "yellow potatoes",
+    "pommes de terre",
+    "pomme de terre",
+    "patates"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "baby-potatoes",
+   "name": "Baby potatoes",
+   "aliases": [
+    "mini potatoes",
+    "grelots",
+    "petites pommes de terre"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "sweet-potatoes",
+   "name": "Sweet potatoes",
+   "aliases": [
+    "sweet potato",
+    "yams",
+    "patates douces"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "zucchini",
+   "name": "Zucchini",
+   "aliases": [
+    "zucchinis",
+    "courgettes",
+    "courgette"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "eggplant",
+   "name": "Eggplant",
+   "aliases": [
+    "eggplants",
+    "aubergines",
+    "aubergine"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "squash-butternut",
+   "name": "Butternut squash",
+   "aliases": [
+    "butternut",
+    "courge musquée"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "squash-acorn",
+   "name": "Acorn squash",
+   "aliases": [
+    "courge poivrée"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "squash-spaghetti",
+   "name": "Spaghetti squash",
+   "aliases": [
+    "courge spaghetti"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "pumpkin",
+   "name": "Pumpkin",
+   "aliases": [
+    "pumpkins",
+    "citrouille"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "corn",
+   "name": "Corn on the cob",
+   "aliases": [
+    "corn",
+    "sweet corn",
+    "maïs",
+    "épis de maïs"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "green-beans",
+   "name": "Green beans",
+   "aliases": [
+    "haricots verts"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "snow-peas",
+   "name": "Snow peas",
+   "aliases": [
+    "snap peas",
+    "sugar snap peas",
+    "pois mange-tout"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "asparagus",
+   "name": "Asparagus",
+   "aliases": [
+    "asperges"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "mushrooms-white",
+   "name": "White mushrooms",
+   "aliases": [
+    "mushrooms",
+    "button mushrooms",
+    "champignons blancs",
+    "champignons"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "mushrooms-cremini",
+   "name": "Cremini mushrooms",
+   "aliases": [
+    "brown mushrooms",
+    "baby bella",
+    "champignons café"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "mushrooms-portobello",
+   "name": "Portobello mushrooms",
+   "aliases": [
+    "portobello",
+    "portobellos"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "mushrooms-shiitake",
+   "name": "Shiitake mushrooms",
+   "aliases": [
+    "shiitake"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beets",
+   "name": "Beets",
+   "aliases": [
+    "beet",
+    "beetroot",
+    "betteraves",
+    "betterave"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "turnips",
+   "name": "Turnips",
+   "aliases": [
+    "turnip",
+    "rutabaga",
+    "navets",
+    "navet"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "parsnips",
+   "name": "Parsnips",
+   "aliases": [
+    "parsnip",
+    "panais"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "radishes",
+   "name": "Radishes",
+   "aliases": [
+    "radish",
+    "radis"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "fennel",
+   "name": "Fennel",
+   "aliases": [
+    "fenouil"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "artichokes",
+   "name": "Artichokes",
+   "aliases": [
+    "artichoke",
+    "artichauts"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "okra",
+   "name": "Okra",
+   "aliases": [
+    "gombo"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "bean-sprouts",
+   "name": "Bean sprouts",
+   "aliases": [
+    "sprouts",
+    "fèves germées"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "herbs-cilantro",
+   "name": "Cilantro",
+   "aliases": [
+    "coriander leaves",
+    "coriandre fraîche"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "herbs-parsley",
+   "name": "Parsley",
+   "aliases": [
+    "italian parsley",
+    "persil"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "herbs-basil",
+   "name": "Basil (fresh)",
+   "aliases": [
+    "fresh basil",
+    "basilic frais"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "herbs-dill",
+   "name": "Dill (fresh)",
+   "aliases": [
+    "fresh dill",
+    "aneth"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "herbs-mint",
+   "name": "Mint (fresh)",
+   "aliases": [
+    "fresh mint",
+    "menthe"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "herbs-rosemary",
+   "name": "Rosemary (fresh)",
+   "aliases": [
+    "fresh rosemary",
+    "romarin"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "herbs-thyme",
+   "name": "Thyme (fresh)",
+   "aliases": [
+    "fresh thyme",
+    "thym"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "coleslaw-mix",
+   "name": "Coleslaw mix",
+   "aliases": [
+    "salade de chou"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "stir-fry-vegetables",
+   "name": "Stir-fry vegetables (fresh)",
+   "aliases": [
+    "stir fry mix",
+    "légumes à sauter"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "tofu",
+   "name": "Tofu",
+   "aliases": [
+    "firm tofu",
+    "extra firm tofu",
+    "tofu ferme"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "apricots",
+   "name": "Apricots",
+   "aliases": [
+    "apricot",
+    "abricots",
+    "abricot"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "lychees",
+   "name": "Lychees",
+   "aliases": [
+    "lychee",
+    "litchi",
+    "litchis"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "persimmons",
+   "name": "Persimmons",
+   "aliases": [
+    "persimmon",
+    "kaki",
+    "kakis"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "kumquats",
+   "name": "Kumquats",
+   "aliases": [
+    "kumquat"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "guava",
+   "name": "Guava",
+   "aliases": [
+    "guavas",
+    "goyave"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "passion-fruit",
+   "name": "Passion fruit",
+   "aliases": [
+    "fruit de la passion",
+    "grenadille"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "star-fruit",
+   "name": "Star fruit",
+   "aliases": [
+    "carambola",
+    "carambole"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "jackfruit",
+   "name": "Jackfruit",
+   "aliases": [
+    "jaque"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "dragon-fruit",
+   "name": "Dragon fruit",
+   "aliases": [
+    "pitaya",
+    "fruit du dragon"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "gooseberries",
+   "name": "Gooseberries",
+   "aliases": [
+    "gooseberry",
+    "groseilles à maquereau"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "currants",
+   "name": "Currants",
+   "aliases": [
+    "red currants",
+    "black currants",
+    "groseilles",
+    "cassis"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "swiss-chard",
+   "name": "Swiss chard",
+   "aliases": [
+    "chard",
+    "rainbow chard",
+    "bettes à carde",
+    "bette à carde"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "collard-greens",
+   "name": "Collard greens",
+   "aliases": [
+    "collards",
+    "chou cavalier"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "mustard-greens",
+   "name": "Mustard greens",
+   "aliases": [
+    "feuilles de moutarde"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "dandelion-greens",
+   "name": "Dandelion greens",
+   "aliases": [
+    "pissenlit"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "rapini",
+   "name": "Rapini",
+   "aliases": [
+    "broccoli rabe",
+    "broccoli raab",
+    "brocoli-rave"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "fiddleheads",
+   "name": "Fiddleheads",
+   "aliases": [
+    "fiddlehead ferns",
+    "têtes de violon"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "watercress",
+   "name": "Watercress",
+   "aliases": [
+    "cress",
+    "cresson",
+    "cresson de fontaine"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "endive",
+   "name": "Endive",
+   "aliases": [
+    "belgian endive",
+    "endives"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "radicchio",
+   "name": "Radicchio",
+   "aliases": [
+    "trévise"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "escarole",
+   "name": "Escarole",
+   "aliases": [
+    "scarole"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "celeriac",
+   "name": "Celeriac",
+   "aliases": [
+    "celery root",
+    "céleri-rave"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "kohlrabi",
+   "name": "Kohlrabi",
+   "aliases": [
+    "chou-rave"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "jerusalem-artichokes",
+   "name": "Jerusalem artichokes",
+   "aliases": [
+    "sunchokes",
+    "topinambours"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chives",
+   "name": "Chives",
+   "aliases": [
+    "ciboulette"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "lemongrass",
+   "name": "Lemongrass",
+   "aliases": [
+    "citronnelle"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "tomatillos",
+   "name": "Tomatillos",
+   "aliases": [
+    "tomatillo",
+    "tomatille"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cassava",
+   "name": "Cassava",
+   "aliases": [
+    "yuca",
+    "manioc"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "taro",
+   "name": "Taro",
+   "aliases": [
+    "taro root"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "lotus-root",
+   "name": "Lotus root",
+   "aliases": [
+    "racine de lotus"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "bitter-melon",
+   "name": "Bitter melon",
+   "aliases": [
+    "bitter gourd",
+    "margose"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "daikon",
+   "name": "Daikon",
+   "aliases": [
+    "daikon radish",
+    "white radish",
+    "radis daikon"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "edamame-fresh",
+   "name": "Edamame",
+   "aliases": [
+    "soybeans in pod",
+    "fèves de soya"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "fava-beans",
+   "name": "Fava beans",
+   "aliases": [
+    "broad beans",
+    "gourganes",
+    "fèves"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "microgreens",
+   "name": "Microgreens",
+   "aliases": [
+    "pousses"
+   ],
+   "aisle": "produce",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "chicken-thigh-boneless",
+   "name": "Chicken thigh (boneless)",
+   "aliases": [
+    "thighs",
+    "boneless thighs",
+    "chicken thighs",
+    "hauts de cuisse désossés"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chicken-thigh-bone-in",
+   "name": "Chicken thigh (bone-in)",
+   "aliases": [
+    "bone-in thighs",
+    "hauts de cuisse avec os"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chicken-breast-boneless",
+   "name": "Chicken breast (boneless)",
+   "aliases": [
+    "breast",
+    "boneless breast",
+    "chicken breasts",
+    "poitrines de poulet"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chicken-breast-bone-in",
+   "name": "Chicken breast (bone-in)",
+   "aliases": [
+    "bone-in breast",
+    "split breast"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chicken-drumsticks",
+   "name": "Chicken drumsticks",
+   "aliases": [
+    "drumsticks",
+    "pilons de poulet"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chicken-wings",
+   "name": "Chicken wings",
+   "aliases": [
+    "wings",
+    "ailes de poulet"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chicken-legs",
+   "name": "Chicken legs",
+   "aliases": [
+    "leg quarters",
+    "cuisses de poulet"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chicken-whole",
+   "name": "Whole chicken",
+   "aliases": [
+    "roasting chicken",
+    "poulet entier"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chicken-ground",
+   "name": "Ground chicken",
+   "aliases": [
+    "poulet haché"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rotisserie-chicken",
+   "name": "Rotisserie chicken",
+   "aliases": [
+    "bbq chicken",
+    "poulet rôti"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "turkey-ground",
+   "name": "Ground turkey",
+   "aliases": [
+    "dinde hachée"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "turkey-whole",
+   "name": "Whole turkey",
+   "aliases": [
+    "turkey",
+    "dinde entière",
+    "dinde"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "turkey-breast",
+   "name": "Turkey breast",
+   "aliases": [
+    "poitrine de dinde"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "ground-beef-lean",
+   "name": "Ground beef (lean)",
+   "aliases": [
+    "lean ground beef",
+    "hamburger",
+    "mince",
+    "ground beef",
+    "boeuf haché maigre",
+    "boeuf haché"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "ground-beef-extra-lean",
+   "name": "Ground beef (extra lean)",
+   "aliases": [
+    "extra lean ground beef",
+    "boeuf haché extra-maigre"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "ground-beef-medium",
+   "name": "Ground beef (medium)",
+   "aliases": [
+    "medium ground beef",
+    "boeuf haché mi-maigre"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-stewing",
+   "name": "Stewing beef",
+   "aliases": [
+    "stew meat",
+    "cubes de boeuf"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-striploin",
+   "name": "Striploin steak",
+   "aliases": [
+    "strip loin",
+    "new york steak",
+    "contre-filet"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-ribeye",
+   "name": "Rib eye steak",
+   "aliases": [
+    "ribeye",
+    "faux-filet"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-sirloin",
+   "name": "Sirloin steak",
+   "aliases": [
+    "sirloin",
+    "surlonge"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-tenderloin",
+   "name": "Beef tenderloin",
+   "aliases": [
+    "filet mignon",
+    "filet de boeuf"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-flank",
+   "name": "Flank steak",
+   "aliases": [
+    "bavette"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-blade-roast",
+   "name": "Blade roast",
+   "aliases": [
+    "pot roast",
+    "chuck roast",
+    "rôti de palette"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-prime-rib",
+   "name": "Prime rib roast",
+   "aliases": [
+    "prime rib",
+    "rôti de côtes"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-short-ribs",
+   "name": "Beef short ribs",
+   "aliases": [
+    "short ribs",
+    "bouts de côtes"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beef-brisket",
+   "name": "Beef brisket",
+   "aliases": [
+    "brisket",
+    "pointe de poitrine"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pork-chops",
+   "name": "Pork chops",
+   "aliases": [
+    "pork chop",
+    "côtelettes de porc"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pork-tenderloin",
+   "name": "Pork tenderloin",
+   "aliases": [
+    "filet de porc"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pork-loin-roast",
+   "name": "Pork loin roast",
+   "aliases": [
+    "pork roast",
+    "rôti de longe de porc"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pork-shoulder",
+   "name": "Pork shoulder",
+   "aliases": [
+    "pork butt",
+    "soc de porc",
+    "épaule de porc"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pork-ribs",
+   "name": "Pork ribs",
+   "aliases": [
+    "back ribs",
+    "side ribs",
+    "spareribs",
+    "côtes levées"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pork-ground",
+   "name": "Ground pork",
+   "aliases": [
+    "porc haché"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pork-belly",
+   "name": "Pork belly",
+   "aliases": [
+    "flanc de porc"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "bacon",
+   "name": "Bacon",
+   "aliases": [
+    "sliced bacon",
+    "bacon tranché"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "sausages-pork",
+   "name": "Pork sausages",
+   "aliases": [
+    "sausage",
+    "sausages",
+    "breakfast sausages",
+    "saucisses"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "sausages-italian",
+   "name": "Italian sausages",
+   "aliases": [
+    "italian sausage",
+    "saucisses italiennes"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "hot-dogs",
+   "name": "Hot dogs",
+   "aliases": [
+    "wieners",
+    "franks",
+    "saucisses à hot-dog"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "ham",
+   "name": "Ham",
+   "aliases": [
+    "ham steak",
+    "smoked ham",
+    "jambon"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "lamb-chops",
+   "name": "Lamb chops",
+   "aliases": [
+    "côtelettes d'agneau"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "lamb-leg",
+   "name": "Leg of lamb",
+   "aliases": [
+    "lamb leg",
+    "gigot d'agneau"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "lamb-ground",
+   "name": "Ground lamb",
+   "aliases": [
+    "agneau haché"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "veal-cutlets",
+   "name": "Veal cutlets",
+   "aliases": [
+    "veal scallopini",
+    "escalopes de veau"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "burgers-frozen-beef",
+   "name": "Beef burgers",
+   "aliases": [
+    "burger patties",
+    "galettes de boeuf"
+   ],
+   "aisle": "meat",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "salmon-fillet",
+   "name": "Salmon fillet",
+   "aliases": [
+    "salmon",
+    "atlantic salmon",
+    "filet de saumon",
+    "saumon"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "salmon-smoked",
+   "name": "Smoked salmon",
+   "aliases": [
+    "lox",
+    "saumon fumé"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "trout",
+   "name": "Rainbow trout",
+   "aliases": [
+    "trout",
+    "truite"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cod",
+   "name": "Cod fillet",
+   "aliases": [
+    "cod",
+    "morue",
+    "cabillaud"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "haddock",
+   "name": "Haddock fillet",
+   "aliases": [
+    "haddock",
+    "aiglefin"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tilapia",
+   "name": "Tilapia fillet",
+   "aliases": [
+    "tilapia"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "halibut",
+   "name": "Halibut",
+   "aliases": [
+    "flétan"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "sole",
+   "name": "Sole fillet",
+   "aliases": [
+    "sole"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "basa",
+   "name": "Basa fillet",
+   "aliases": [
+    "basa",
+    "swai"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tuna-steak",
+   "name": "Tuna steak",
+   "aliases": [
+    "fresh tuna",
+    "thon frais"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "shrimp-raw",
+   "name": "Shrimp (raw)",
+   "aliases": [
+    "raw shrimp",
+    "prawns",
+    "crevettes crues",
+    "crevettes"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "shrimp-cooked",
+   "name": "Shrimp (cooked)",
+   "aliases": [
+    "cooked shrimp",
+    "crevettes cuites"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "scallops",
+   "name": "Scallops",
+   "aliases": [
+    "pétoncles"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "mussels",
+   "name": "Mussels",
+   "aliases": [
+    "moules"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "clams",
+   "name": "Clams",
+   "aliases": [
+    "palourdes"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "lobster",
+   "name": "Lobster",
+   "aliases": [
+    "homard"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "crab",
+   "name": "Crab",
+   "aliases": [
+    "snow crab",
+    "crabe"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "oysters",
+   "name": "Oysters",
+   "aliases": [
+    "huîtres"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "squid",
+   "name": "Squid",
+   "aliases": [
+    "calamari",
+    "calmar"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "imitation-crab",
+   "name": "Imitation crab",
+   "aliases": [
+    "crab sticks",
+    "goberge"
+   ],
+   "aisle": "seafood",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "deli-turkey",
+   "name": "Sliced turkey",
+   "aliases": [
+    "deli turkey",
+    "dinde tranchée"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "deli-ham",
+   "name": "Sliced ham",
+   "aliases": [
+    "deli ham",
+    "jambon tranché"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "deli-chicken",
+   "name": "Sliced chicken",
+   "aliases": [
+    "deli chicken",
+    "poulet tranché"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "deli-roast-beef",
+   "name": "Roast beef (sliced)",
+   "aliases": [
+    "sliced roast beef",
+    "rosbif"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "salami",
+   "name": "Salami",
+   "aliases": [
+    "genoa salami",
+    "saucisson"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pepperoni",
+   "name": "Pepperoni",
+   "aliases": [
+    "pepperoni tranché"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "prosciutto",
+   "name": "Prosciutto",
+   "aliases": [
+    "jambon cru"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "bologna",
+   "name": "Bologna",
+   "aliases": [
+    "baloney",
+    "mortadelle"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pastrami",
+   "name": "Pastrami",
+   "aliases": [
+    "smoked meat"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "hummus",
+   "name": "Hummus",
+   "aliases": [
+    "houmous",
+    "hoummos"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "salsa-fresh",
+   "name": "Fresh salsa",
+   "aliases": [
+    "pico de gallo",
+    "salsa fraîche"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "guacamole",
+   "name": "Guacamole",
+   "aliases": [
+    "guac"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tzatziki",
+   "name": "Tzatziki",
+   "aliases": [
+    "tzatziki dip"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "dip",
+   "name": "Dip",
+   "aliases": [
+    "vegetable dip",
+    "trempette"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "olives",
+   "name": "Olives",
+   "aliases": [
+    "green olives",
+    "black olives",
+    "kalamata"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pickles",
+   "name": "Pickles",
+   "aliases": [
+    "dill pickles",
+    "cornichons"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "sushi",
+   "name": "Sushi",
+   "aliases": [
+    "sushi rolls"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "prepared-salad",
+   "name": "Prepared salad",
+   "aliases": [
+    "potato salad",
+    "pasta salad",
+    "salade préparée"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pizza-fresh",
+   "name": "Fresh pizza",
+   "aliases": [
+    "deli pizza",
+    "pizza fraîche"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "pierogies",
+   "name": "Perogies",
+   "aliases": [
+    "pierogies",
+    "pierogi",
+    "perogy"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "fresh-pasta",
+   "name": "Fresh pasta",
+   "aliases": [
+    "tortellini",
+    "ravioli",
+    "pâtes fraîches"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "kimchi",
+   "name": "Kimchi",
+   "aliases": [
+    "kimchee"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "sauerkraut",
+   "name": "Sauerkraut",
+   "aliases": [
+    "choucroute"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tofu-smoked",
+   "name": "Smoked tofu",
+   "aliases": [
+    "tofu fumé"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tempeh",
+   "name": "Tempeh",
+   "aliases": [
+    "tempeh de soya"
+   ],
+   "aisle": "deli",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "bread-white",
+   "name": "White bread",
+   "aliases": [
+    "sandwich bread",
+    "pain blanc"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "bread-whole-wheat",
+   "name": "Whole wheat bread",
+   "aliases": [
+    "brown bread",
+    "pain de blé entier"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "bread-multigrain",
+   "name": "Multigrain bread",
+   "aliases": [
+    "pain multigrain"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "bread-sourdough",
+   "name": "Sourdough bread",
+   "aliases": [
+    "sourdough",
+    "pain au levain"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "bread-rye",
+   "name": "Rye bread",
+   "aliases": [
+    "pumpernickel",
+    "pain de seigle"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "baguette",
+   "name": "Baguette",
+   "aliases": [
+    "french bread",
+    "french stick"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "buns-hamburger",
+   "name": "Hamburger buns",
+   "aliases": [
+    "burger buns",
+    "pains à hamburger"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "buns-hot-dog",
+   "name": "Hot dog buns",
+   "aliases": [
+    "pains à hot-dog"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "dinner-rolls",
+   "name": "Dinner rolls",
+   "aliases": [
+    "rolls",
+    "kaiser",
+    "petits pains"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "bagels",
+   "name": "Bagels",
+   "aliases": [
+    "bagel"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "english-muffins",
+   "name": "English muffins",
+   "aliases": [
+    "muffins anglais",
+    "muffin anglais"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "tortillas",
+   "name": "Tortillas",
+   "aliases": [
+    "wraps",
+    "flour tortillas",
+    "corn tortillas"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "pita",
+   "name": "Pita bread",
+   "aliases": [
+    "pita",
+    "pitas",
+    "pain pita"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "naan",
+   "name": "Naan",
+   "aliases": [
+    "naan bread",
+    "pain naan"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "croissants",
+   "name": "Croissants",
+   "aliases": [
+    "croissant"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "muffins",
+   "name": "Muffins",
+   "aliases": [
+    "muffin"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "donuts",
+   "name": "Donuts",
+   "aliases": [
+    "doughnuts",
+    "timbits",
+    "beignes"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "cake",
+   "name": "Cake",
+   "aliases": [
+    "gâteau"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "pie",
+   "name": "Pie",
+   "aliases": [
+    "apple pie",
+    "tarte"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "cookies-bakery",
+   "name": "Cookies (bakery)",
+   "aliases": [
+    "bakery cookies",
+    "biscuits de boulangerie"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "pizza-dough",
+   "name": "Pizza dough",
+   "aliases": [
+    "pâte à pizza"
+   ],
+   "aisle": "bakery",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "milk-2",
+   "name": "Milk 2%",
+   "aliases": [
+    "milk",
+    "2% milk",
+    "lait",
+    "lait 2 %"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "milk-skim",
+   "name": "Skim milk",
+   "aliases": [
+    "skim",
+    "lait écrémé"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "milk-1",
+   "name": "Milk 1%",
+   "aliases": [
+    "1% milk",
+    "lait 1 %"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "milk-homo",
+   "name": "Homogenized milk",
+   "aliases": [
+    "whole milk",
+    "3.25% milk",
+    "homo milk",
+    "lait homogénéisé",
+    "lait entier"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "milk-chocolate",
+   "name": "Chocolate milk",
+   "aliases": [
+    "lait au chocolat"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "milk-lactose-free",
+   "name": "Lactose-free milk",
+   "aliases": [
+    "lactose free milk",
+    "lait sans lactose"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "milk-oat",
+   "name": "Oat milk",
+   "aliases": [
+    "oat beverage",
+    "boisson d'avoine"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "milk-almond",
+   "name": "Almond milk",
+   "aliases": [
+    "almond beverage",
+    "boisson d'amande"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "milk-soy",
+   "name": "Soy milk",
+   "aliases": [
+    "soy beverage",
+    "boisson de soya"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "cream-cereal",
+   "name": "Cereal cream",
+   "aliases": [
+    "10% cream",
+    "half and half",
+    "crème 10 %"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "cream-coffee",
+   "name": "Coffee cream",
+   "aliases": [
+    "18% cream",
+    "crème 18 %"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "cream-whipping",
+   "name": "Whipping cream",
+   "aliases": [
+    "35% cream",
+    "heavy cream",
+    "crème à fouetter"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "coffee-creamer",
+   "name": "Coffee creamer",
+   "aliases": [
+    "flavoured creamer",
+    "colorant à café"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "sour-cream",
+   "name": "Sour cream",
+   "aliases": [
+    "crème sure"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "butter",
+   "name": "Butter",
+   "aliases": [
+    "salted butter",
+    "unsalted butter",
+    "beurre"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "margarine",
+   "name": "Margarine",
+   "aliases": [
+    "becel",
+    "margarine molle"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "eggs-large",
+   "name": "Eggs (large)",
+   "aliases": [
+    "eggs",
+    "large eggs",
+    "dozen eggs",
+    "oeufs",
+    "oeufs gros"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "eggs-liquid",
+   "name": "Liquid egg whites",
+   "aliases": [
+    "egg whites",
+    "blancs d'oeufs"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "yogurt-tub",
+   "name": "Yogurt (tub)",
+   "aliases": [
+    "yogurt",
+    "yoghurt",
+    "yogourt",
+    "yaourt"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "yogurt-greek",
+   "name": "Greek yogurt",
+   "aliases": [
+    "greek yoghurt",
+    "yogourt grec"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "yogurt-cups",
+   "name": "Yogurt cups",
+   "aliases": [
+    "yogurt tubes",
+    "petits pots de yogourt"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "kefir",
+   "name": "Kefir",
+   "aliases": [
+    "kéfir"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "cottage-cheese",
+   "name": "Cottage cheese",
+   "aliases": [
+    "fromage cottage"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cream-cheese",
+   "name": "Cream cheese",
+   "aliases": [
+    "philadelphia",
+    "fromage à la crème"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cheddar",
+   "name": "Cheddar cheese",
+   "aliases": [
+    "cheddar",
+    "old cheddar",
+    "mild cheddar",
+    "block cheese",
+    "fromage cheddar"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "mozzarella",
+   "name": "Mozzarella",
+   "aliases": [
+    "mozzarella cheese",
+    "fromage mozzarella"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "marble-cheese",
+   "name": "Marble cheese",
+   "aliases": [
+    "colby",
+    "fromage marbré"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "swiss-cheese",
+   "name": "Swiss cheese",
+   "aliases": [
+    "emmental",
+    "gruyère",
+    "fromage suisse"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "parmesan",
+   "name": "Parmesan",
+   "aliases": [
+    "parmigiano",
+    "parmesan cheese",
+    "parmesan râpé"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "feta",
+   "name": "Feta",
+   "aliases": [
+    "feta cheese"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "brie",
+   "name": "Brie",
+   "aliases": [
+    "camembert"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "goat-cheese",
+   "name": "Goat cheese",
+   "aliases": [
+    "chèvre",
+    "fromage de chèvre"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "havarti",
+   "name": "Havarti",
+   "aliases": [
+    "havarti cheese"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "gouda",
+   "name": "Gouda",
+   "aliases": [
+    "gouda cheese"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "provolone",
+   "name": "Provolone",
+   "aliases": [
+    "provolone cheese"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cheese-curds",
+   "name": "Cheese curds",
+   "aliases": [
+    "squeaky cheese",
+    "fromage en grains"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "shredded-cheese",
+   "name": "Shredded cheese",
+   "aliases": [
+    "grated cheese",
+    "tex mex cheese",
+    "fromage râpé"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cheese-slices",
+   "name": "Cheese slices",
+   "aliases": [
+    "processed cheese",
+    "singles",
+    "tranches de fromage"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "string-cheese",
+   "name": "String cheese",
+   "aliases": [
+    "cheese strings",
+    "ficello"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "ricotta",
+   "name": "Ricotta",
+   "aliases": [
+    "ricotta cheese"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "paneer",
+   "name": "Paneer",
+   "aliases": [
+    "paneer cheese"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pudding-cups",
+   "name": "Pudding cups",
+   "aliases": [
+    "pouding"
+   ],
+   "aisle": "dairy",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-vegetables-mixed",
+   "name": "Frozen mixed vegetables",
+   "aliases": [
+    "mixed vegetables",
+    "légumes surgelés"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-peas",
+   "name": "Frozen peas",
+   "aliases": [
+    "peas",
+    "pois surgelés",
+    "petits pois"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-corn",
+   "name": "Frozen corn",
+   "aliases": [
+    "maïs surgelé"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-broccoli",
+   "name": "Frozen broccoli",
+   "aliases": [
+    "brocoli surgelé"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-spinach",
+   "name": "Frozen spinach",
+   "aliases": [
+    "épinards surgelés"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-stir-fry",
+   "name": "Frozen stir-fry vegetables",
+   "aliases": [
+    "légumes asiatiques surgelés"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-berries",
+   "name": "Frozen berries",
+   "aliases": [
+    "frozen fruit",
+    "petits fruits surgelés"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-mango",
+   "name": "Frozen mango",
+   "aliases": [
+    "mangue surgelée"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-fries",
+   "name": "French fries (frozen)",
+   "aliases": [
+    "fries",
+    "frites surgelées"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-hash-browns",
+   "name": "Hash browns",
+   "aliases": [
+    "galettes de pommes de terre"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-pizza",
+   "name": "Frozen pizza",
+   "aliases": [
+    "pizza surgelée"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-lasagna",
+   "name": "Frozen lasagna",
+   "aliases": [
+    "lasagna",
+    "lasagne surgelée"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-dinners",
+   "name": "Frozen dinners",
+   "aliases": [
+    "frozen meals",
+    "tv dinners",
+    "repas surgelés"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-chicken-nuggets",
+   "name": "Chicken nuggets",
+   "aliases": [
+    "nuggets",
+    "croquettes de poulet"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-chicken-strips",
+   "name": "Chicken strips",
+   "aliases": [
+    "chicken fingers",
+    "lanières de poulet"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-chicken-breasts",
+   "name": "Frozen chicken breasts",
+   "aliases": [
+    "poitrines de poulet surgelées"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-fish-fillets",
+   "name": "Frozen fish fillets",
+   "aliases": [
+    "breaded fish",
+    "fish sticks",
+    "bâtonnets de poisson"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-shrimp",
+   "name": "Frozen shrimp",
+   "aliases": [
+    "crevettes surgelées"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-dumplings",
+   "name": "Dumplings",
+   "aliases": [
+    "potstickers",
+    "gyoza",
+    "dim sum",
+    "raviolis chinois"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-perogies",
+   "name": "Frozen perogies",
+   "aliases": [
+    "pierogies surgelés"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-waffles",
+   "name": "Frozen waffles",
+   "aliases": [
+    "eggo",
+    "gaufres surgelées"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-burritos",
+   "name": "Burritos",
+   "aliases": [
+    "frozen burrito"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "ice-cream",
+   "name": "Ice cream",
+   "aliases": [
+    "crème glacée"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "ice-cream-bars",
+   "name": "Ice cream bars",
+   "aliases": [
+    "popsicles",
+    "frozen treats",
+    "barres glacées"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-yogurt",
+   "name": "Frozen yogurt",
+   "aliases": [
+    "yogourt glacé"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "frozen-pie-shells",
+   "name": "Pie shells",
+   "aliases": [
+    "pie crust",
+    "croûtes à tarte"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-puff-pastry",
+   "name": "Puff pastry",
+   "aliases": [
+    "pâte feuilletée"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "ice",
+   "name": "Ice",
+   "aliases": [
+    "bag of ice",
+    "glace",
+    "glaçons"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-edamame",
+   "name": "Frozen edamame",
+   "aliases": [
+    "edamame surgelé"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-cauliflower-rice",
+   "name": "Cauliflower rice",
+   "aliases": [
+    "riced cauliflower",
+    "riz de chou-fleur"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-veggie-burgers",
+   "name": "Veggie burgers",
+   "aliases": [
+    "plant-based burgers",
+    "burgers végétariens"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-spring-rolls",
+   "name": "Spring rolls",
+   "aliases": [
+    "egg rolls",
+    "rouleaux impériaux"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "frozen-meatballs",
+   "name": "Meatballs",
+   "aliases": [
+    "frozen meatballs",
+    "boulettes de viande"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "frozen-garlic-bread",
+   "name": "Garlic bread",
+   "aliases": [
+    "pain à l'ail"
+   ],
+   "aisle": "frozen",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "rice-white",
+   "name": "White rice",
+   "aliases": [
+    "rice",
+    "long grain rice",
+    "riz blanc",
+    "riz"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rice-basmati",
+   "name": "Basmati rice",
+   "aliases": [
+    "basmati",
+    "riz basmati"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rice-jasmine",
+   "name": "Jasmine rice",
+   "aliases": [
+    "riz jasmin"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rice-brown",
+   "name": "Brown rice",
+   "aliases": [
+    "riz brun"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rice-arborio",
+   "name": "Arborio rice",
+   "aliases": [
+    "risotto rice",
+    "riz arborio"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rice-instant",
+   "name": "Instant rice",
+   "aliases": [
+    "minute rice",
+    "riz instantané"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "quinoa",
+   "name": "Quinoa",
+   "aliases": [
+    "quinoa blanc"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "couscous",
+   "name": "Couscous",
+   "aliases": [
+    "couscous marocain"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pasta-dry",
+   "name": "Pasta (dry)",
+   "aliases": [
+    "pasta",
+    "spaghetti",
+    "penne",
+    "macaroni",
+    "fusilli",
+    "rotini",
+    "linguine",
+    "pâtes alimentaires",
+    "pâtes"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pasta-whole-wheat",
+   "name": "Whole wheat pasta",
+   "aliases": [
+    "pâtes de blé entier"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "egg-noodles",
+   "name": "Egg noodles",
+   "aliases": [
+    "nouilles aux oeufs"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rice-noodles",
+   "name": "Rice noodles",
+   "aliases": [
+    "vermicelli",
+    "nouilles de riz"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "ramen",
+   "name": "Instant noodles",
+   "aliases": [
+    "ramen",
+    "mr noodles",
+    "nouilles instantanées"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "lasagna-noodles",
+   "name": "Lasagna noodles",
+   "aliases": [
+    "lasagne",
+    "pâtes à lasagne"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "mac-and-cheese",
+   "name": "Macaroni and cheese",
+   "aliases": [
+    "kraft dinner",
+    "kd",
+    "macaroni au fromage"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "flour-all-purpose",
+   "name": "All-purpose flour",
+   "aliases": [
+    "flour",
+    "farine tout usage",
+    "farine"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "flour-whole-wheat",
+   "name": "Whole wheat flour",
+   "aliases": [
+    "farine de blé entier"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "sugar-white",
+   "name": "White sugar",
+   "aliases": [
+    "sugar",
+    "granulated sugar",
+    "sucre blanc",
+    "sucre"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "sugar-brown",
+   "name": "Brown sugar",
+   "aliases": [
+    "cassonade"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "sugar-icing",
+   "name": "Icing sugar",
+   "aliases": [
+    "powdered sugar",
+    "sucre à glacer"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "baking-powder",
+   "name": "Baking powder",
+   "aliases": [
+    "poudre à pâte"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "baking-soda",
+   "name": "Baking soda",
+   "aliases": [
+    "bicarbonate de soude"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "yeast",
+   "name": "Yeast",
+   "aliases": [
+    "instant yeast",
+    "levure"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "vanilla",
+   "name": "Vanilla extract",
+   "aliases": [
+    "vanilla",
+    "vanille"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "chocolate-chips",
+   "name": "Chocolate chips",
+   "aliases": [
+    "brisures de chocolat"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cocoa",
+   "name": "Cocoa powder",
+   "aliases": [
+    "cocoa",
+    "cacao"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cornstarch",
+   "name": "Cornstarch",
+   "aliases": [
+    "fécule de maïs"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "oats",
+   "name": "Rolled oats",
+   "aliases": [
+    "oats",
+    "oatmeal",
+    "quick oats",
+    "flocons d'avoine",
+    "gruau"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "oatmeal-instant",
+   "name": "Instant oatmeal",
+   "aliases": [
+    "oatmeal packets",
+    "gruau instantané"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cereal",
+   "name": "Cereal",
+   "aliases": [
+    "breakfast cereal",
+    "céréales"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "granola",
+   "name": "Granola",
+   "aliases": [
+    "muesli"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pancake-mix",
+   "name": "Pancake mix",
+   "aliases": [
+    "mélange à crêpes"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "maple-syrup",
+   "name": "Maple syrup",
+   "aliases": [
+    "sirop d'érable"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "pancake-syrup",
+   "name": "Pancake syrup",
+   "aliases": [
+    "table syrup",
+    "sirop de table"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "honey",
+   "name": "Honey",
+   "aliases": [
+    "miel"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "jam",
+   "name": "Jam",
+   "aliases": [
+    "strawberry jam",
+    "jelly",
+    "confiture"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "peanut-butter",
+   "name": "Peanut butter",
+   "aliases": [
+    "beurre d'arachide",
+    "beurre d'arachides"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nut-butter",
+   "name": "Almond butter",
+   "aliases": [
+    "nut butter",
+    "beurre d'amande"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nutella",
+   "name": "Hazelnut spread",
+   "aliases": [
+    "nutella",
+    "tartinade aux noisettes"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "olive-oil",
+   "name": "Olive oil",
+   "aliases": [
+    "extra virgin olive oil",
+    "huile d'olive"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "vegetable-oil",
+   "name": "Vegetable oil",
+   "aliases": [
+    "canola oil",
+    "cooking oil",
+    "huile végétale",
+    "huile de canola"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "cooking-spray",
+   "name": "Cooking spray",
+   "aliases": [
+    "pam",
+    "enduit à cuisson"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "vinegar-white",
+   "name": "White vinegar",
+   "aliases": [
+    "vinegar",
+    "vinaigre blanc",
+    "vinaigre"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "vinegar-balsamic",
+   "name": "Balsamic vinegar",
+   "aliases": [
+    "balsamic",
+    "vinaigre balsamique"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "vinegar-cider",
+   "name": "Apple cider vinegar",
+   "aliases": [
+    "cider vinegar",
+    "vinaigre de cidre"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "salt",
+   "name": "Salt",
+   "aliases": [
+    "table salt",
+    "sea salt",
+    "sel"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pepper-black",
+   "name": "Black pepper",
+   "aliases": [
+    "pepper",
+    "poivre noir",
+    "poivre"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "spices",
+   "name": "Spices",
+   "aliases": [
+    "spice",
+    "seasoning",
+    "épices"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "garlic-powder",
+   "name": "Garlic powder",
+   "aliases": [
+    "ail en poudre"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cinnamon",
+   "name": "Cinnamon",
+   "aliases": [
+    "cannelle"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "paprika",
+   "name": "Paprika",
+   "aliases": [
+    "smoked paprika",
+    "paprika fumé"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chili-powder",
+   "name": "Chili powder",
+   "aliases": [
+    "assaisonnement au chili"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cumin",
+   "name": "Cumin",
+   "aliases": [
+    "ground cumin",
+    "cumin moulu"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "oregano",
+   "name": "Oregano",
+   "aliases": [
+    "dried oregano",
+    "origan"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "italian-seasoning",
+   "name": "Italian seasoning",
+   "aliases": [
+    "fines herbes",
+    "assaisonnement italien"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "curry-powder",
+   "name": "Curry powder",
+   "aliases": [
+    "curry",
+    "cari"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "bouillon",
+   "name": "Bouillon cubes",
+   "aliases": [
+    "stock cubes",
+    "oxo",
+    "cubes de bouillon"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "broth",
+   "name": "Broth",
+   "aliases": [
+    "stock",
+    "chicken broth",
+    "beef broth",
+    "vegetable broth",
+    "bouillon de poulet"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "canned-tomatoes",
+   "name": "Canned tomatoes",
+   "aliases": [
+    "diced tomatoes",
+    "crushed tomatoes",
+    "tomates en conserve"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tomato-paste",
+   "name": "Tomato paste",
+   "aliases": [
+    "pâte de tomates"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tomato-sauce",
+   "name": "Tomato sauce",
+   "aliases": [
+    "tomato puree",
+    "sauce tomate"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "pasta-sauce",
+   "name": "Pasta sauce",
+   "aliases": [
+    "spaghetti sauce",
+    "marinara",
+    "sauce pour pâtes"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "pesto",
+   "name": "Pesto",
+   "aliases": [
+    "basil pesto"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-soup",
+   "name": "Canned soup",
+   "aliases": [
+    "soup",
+    "campbell's",
+    "soupe en conserve",
+    "soupe"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "canned-chickpeas",
+   "name": "Chickpeas (canned)",
+   "aliases": [
+    "chickpeas",
+    "garbanzo beans",
+    "pois chiches"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-black-beans",
+   "name": "Black beans (canned)",
+   "aliases": [
+    "black beans",
+    "haricots noirs"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-kidney-beans",
+   "name": "Kidney beans (canned)",
+   "aliases": [
+    "kidney beans",
+    "red kidney beans",
+    "haricots rouges"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-beans",
+   "name": "Baked beans",
+   "aliases": [
+    "beans in tomato sauce",
+    "fèves au lard"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "lentils",
+   "name": "Lentils",
+   "aliases": [
+    "red lentils",
+    "green lentils",
+    "lentilles"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "dried-beans",
+   "name": "Dried beans",
+   "aliases": [
+    "navy beans",
+    "pinto beans",
+    "haricots secs"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-corn",
+   "name": "Canned corn",
+   "aliases": [
+    "kernel corn",
+    "maïs en grains"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-vegetables",
+   "name": "Canned vegetables",
+   "aliases": [
+    "légumes en conserve"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-fruit",
+   "name": "Canned fruit",
+   "aliases": [
+    "fruit cocktail",
+    "peaches in syrup",
+    "fruits en conserve"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "applesauce",
+   "name": "Applesauce",
+   "aliases": [
+    "apple sauce",
+    "compote de pommes"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-tuna",
+   "name": "Canned tuna",
+   "aliases": [
+    "tuna",
+    "thon en conserve",
+    "thon"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-salmon",
+   "name": "Canned salmon",
+   "aliases": [
+    "saumon en conserve"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-sardines",
+   "name": "Sardines",
+   "aliases": [
+    "sardines en conserve"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "canned-coconut-milk",
+   "name": "Coconut milk (canned)",
+   "aliases": [
+    "coconut milk",
+    "lait de coco"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "ketchup",
+   "name": "Ketchup",
+   "aliases": [
+    "catsup"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "mustard",
+   "name": "Mustard",
+   "aliases": [
+    "yellow mustard",
+    "dijon",
+    "moutarde"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "mayonnaise",
+   "name": "Mayonnaise",
+   "aliases": [
+    "mayo"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "relish",
+   "name": "Relish",
+   "aliases": [
+    "relish sucrée"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "bbq-sauce",
+   "name": "BBQ sauce",
+   "aliases": [
+    "barbecue sauce",
+    "sauce barbecue"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "hot-sauce",
+   "name": "Hot sauce",
+   "aliases": [
+    "sriracha",
+    "frank's",
+    "sauce piquante"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "soy-sauce",
+   "name": "Soy sauce",
+   "aliases": [
+    "sauce soya"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "fish-sauce",
+   "name": "Fish sauce",
+   "aliases": [
+    "sauce de poisson"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "oyster-sauce",
+   "name": "Oyster sauce",
+   "aliases": [
+    "sauce aux huîtres"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "hoisin",
+   "name": "Hoisin sauce",
+   "aliases": [
+    "hoisin"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "teriyaki",
+   "name": "Teriyaki sauce",
+   "aliases": [
+    "sauce teriyaki"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "worcestershire",
+   "name": "Worcestershire sauce",
+   "aliases": [
+    "worcestershire"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "salad-dressing",
+   "name": "Salad dressing",
+   "aliases": [
+    "dressing",
+    "ranch",
+    "caesar dressing",
+    "vinaigrette"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "salsa-jar",
+   "name": "Salsa",
+   "aliases": [
+    "jarred salsa",
+    "salsa en pot"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "gravy-mix",
+   "name": "Gravy mix",
+   "aliases": [
+    "gravy",
+    "sauce brune"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "curry-paste",
+   "name": "Curry paste",
+   "aliases": [
+    "pâte de cari"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "taco-kit",
+   "name": "Taco kit",
+   "aliases": [
+    "taco shells",
+    "taco seasoning",
+    "trousse à tacos"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "breadcrumbs",
+   "name": "Breadcrumbs",
+   "aliases": [
+    "panko",
+    "chapelure"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "croutons",
+   "name": "Croutons",
+   "aliases": [
+    "croûtons"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "crackers-baking",
+   "name": "Graham crumbs",
+   "aliases": [
+    "graham cracker crumbs",
+    "chapelure graham"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nuts-almonds",
+   "name": "Almonds",
+   "aliases": [
+    "almond",
+    "amandes"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nuts-walnuts",
+   "name": "Walnuts",
+   "aliases": [
+    "walnut",
+    "noix de grenoble"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nuts-cashews",
+   "name": "Cashews",
+   "aliases": [
+    "cashew",
+    "noix de cajou"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nuts-peanuts",
+   "name": "Peanuts",
+   "aliases": [
+    "peanut",
+    "arachides",
+    "cacahuètes"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nuts-mixed",
+   "name": "Mixed nuts",
+   "aliases": [
+    "noix mélangées"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nuts-pecans",
+   "name": "Pecans",
+   "aliases": [
+    "pecan",
+    "pacanes"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "seeds-sunflower",
+   "name": "Sunflower seeds",
+   "aliases": [
+    "graines de tournesol"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "seeds-chia",
+   "name": "Chia seeds",
+   "aliases": [
+    "chia",
+    "graines de chia"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "seeds-flax",
+   "name": "Flax seeds",
+   "aliases": [
+    "ground flax",
+    "graines de lin"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "dried-fruit",
+   "name": "Dried fruit",
+   "aliases": [
+    "raisins",
+    "dried cranberries",
+    "craisins",
+    "fruits séchés"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "coffee-ground",
+   "name": "Ground coffee",
+   "aliases": [
+    "coffee",
+    "café moulu",
+    "café"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "coffee-beans",
+   "name": "Coffee beans",
+   "aliases": [
+    "whole bean coffee",
+    "café en grains"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "coffee-pods",
+   "name": "Coffee pods",
+   "aliases": [
+    "k-cups",
+    "nespresso pods",
+    "capsules de café"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "coffee-instant",
+   "name": "Instant coffee",
+   "aliases": [
+    "café instantané"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tea-black",
+   "name": "Black tea",
+   "aliases": [
+    "tea",
+    "tea bags",
+    "orange pekoe",
+    "thé noir",
+    "thé"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "tea-green",
+   "name": "Green tea",
+   "aliases": [
+    "thé vert"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "tea-herbal",
+   "name": "Herbal tea",
+   "aliases": [
+    "tisane",
+    "infusion"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "hot-chocolate",
+   "name": "Hot chocolate mix",
+   "aliases": [
+    "hot cocoa",
+    "chocolat chaud"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "protein-powder",
+   "name": "Protein powder",
+   "aliases": [
+    "whey",
+    "poudre de protéines"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "evaporated-milk",
+   "name": "Evaporated milk",
+   "aliases": [
+    "evaporated milk",
+    "lait évaporé"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "condensed-milk",
+   "name": "Sweetened condensed milk",
+   "aliases": [
+    "condensed milk",
+    "lait concentré sucré"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "gelatin",
+   "name": "Jelly powder",
+   "aliases": [
+    "jello",
+    "gelatin",
+    "poudre pour gelée"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "coconut-flakes",
+   "name": "Shredded coconut",
+   "aliases": [
+    "coconut flakes",
+    "noix de coco râpée"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tahini",
+   "name": "Tahini",
+   "aliases": [
+    "sesame paste",
+    "tahina",
+    "beurre de sésame"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "sesame-oil",
+   "name": "Sesame oil",
+   "aliases": [
+    "huile de sésame"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "miso",
+   "name": "Miso",
+   "aliases": [
+    "miso paste",
+    "pâte miso"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "almond-flour",
+   "name": "Almond flour",
+   "aliases": [
+    "ground almonds",
+    "farine d'amande"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "water-chestnuts",
+   "name": "Water chestnuts",
+   "aliases": [
+    "châtaignes d'eau"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "bamboo-shoots",
+   "name": "Bamboo shoots",
+   "aliases": [
+    "pousses de bambou"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "hearts-of-palm",
+   "name": "Hearts of palm",
+   "aliases": [
+    "coeurs de palmier"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "black-eyed-peas",
+   "name": "Black-eyed peas",
+   "aliases": [
+    "doliques à oeil noir"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "mung-beans",
+   "name": "Mung beans",
+   "aliases": [
+    "haricots mungo"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "split-peas",
+   "name": "Split peas",
+   "aliases": [
+    "pois cassés"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rice-wild",
+   "name": "Wild rice",
+   "aliases": [
+    "riz sauvage"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "barley",
+   "name": "Pearl barley",
+   "aliases": [
+    "barley",
+    "orge perlé",
+    "orge"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "bulgur",
+   "name": "Bulgur",
+   "aliases": [
+    "boulgour"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "cornmeal",
+   "name": "Cornmeal",
+   "aliases": [
+    "polenta",
+    "semoule de maïs"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "molasses",
+   "name": "Molasses",
+   "aliases": [
+    "fancy molasses",
+    "mélasse"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "corn-syrup",
+   "name": "Corn syrup",
+   "aliases": [
+    "sirop de maïs"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "sweetener",
+   "name": "Sweetener",
+   "aliases": [
+    "splenda",
+    "stevia",
+    "édulcorant"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nutritional-yeast",
+   "name": "Nutritional yeast",
+   "aliases": [
+    "levure alimentaire"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "coconut-oil",
+   "name": "Coconut oil",
+   "aliases": [
+    "huile de coco"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "avocado-oil",
+   "name": "Avocado oil",
+   "aliases": [
+    "huile d'avocat"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "rice-vinegar",
+   "name": "Rice vinegar",
+   "aliases": [
+    "vinaigre de riz"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "sweet-chili-sauce",
+   "name": "Sweet chili sauce",
+   "aliases": [
+    "sauce chili douce"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "maple-butter",
+   "name": "Maple butter",
+   "aliases": [
+    "maple spread",
+    "beurre d'érable"
+   ],
+   "aisle": "pantry",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "chips",
+   "name": "Potato chips",
+   "aliases": [
+    "chips",
+    "croustilles"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "tortilla-chips",
+   "name": "Tortilla chips",
+   "aliases": [
+    "nacho chips",
+    "croustilles de maïs"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pretzels",
+   "name": "Pretzels",
+   "aliases": [
+    "bretzels"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "popcorn",
+   "name": "Popcorn",
+   "aliases": [
+    "microwave popcorn",
+    "maïs soufflé"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "crackers",
+   "name": "Crackers",
+   "aliases": [
+    "ritz",
+    "triscuit",
+    "craquelins"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "rice-cakes",
+   "name": "Rice cakes",
+   "aliases": [
+    "galettes de riz"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "cookies",
+   "name": "Cookies",
+   "aliases": [
+    "biscuits",
+    "oreo"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "granola-bars",
+   "name": "Granola bars",
+   "aliases": [
+    "cereal bars",
+    "barres tendres",
+    "barre granola"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "protein-bars",
+   "name": "Protein bars",
+   "aliases": [
+    "barres protéinées"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "fruit-snacks",
+   "name": "Fruit snacks",
+   "aliases": [
+    "fruit gummies",
+    "jujubes aux fruits"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "chocolate-bar",
+   "name": "Chocolate bars",
+   "aliases": [
+    "chocolate",
+    "candy bar",
+    "tablette de chocolat",
+    "chocolat"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "candy",
+   "name": "Candy",
+   "aliases": [
+    "gummies",
+    "sweets",
+    "bonbons"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "gum",
+   "name": "Gum",
+   "aliases": [
+    "chewing gum",
+    "gomme"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "jerky",
+   "name": "Beef jerky",
+   "aliases": [
+    "jerky",
+    "boeuf séché"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "trail-mix",
+   "name": "Trail mix",
+   "aliases": [
+    "mélange montagnard"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "seaweed-snacks",
+   "name": "Seaweed snacks",
+   "aliases": [
+    "roasted seaweed",
+    "algues grillées"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "cheese-puffs",
+   "name": "Cheese puffs",
+   "aliases": [
+    "cheezies",
+    "bâtonnets au fromage"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "nuts-pistachios",
+   "name": "Pistachios",
+   "aliases": [
+    "pistachio",
+    "pistaches"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "dark-chocolate",
+   "name": "Dark chocolate",
+   "aliases": [
+    "chocolat noir"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "veggie-chips",
+   "name": "Veggie chips",
+   "aliases": [
+    "croustilles de légumes"
+   ],
+   "aisle": "snacks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "water-bottled",
+   "name": "Bottled water",
+   "aliases": [
+    "water",
+    "spring water",
+    "eau embouteillée",
+    "eau"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "water-sparkling",
+   "name": "Sparkling water",
+   "aliases": [
+    "soda water",
+    "club soda",
+    "eau pétillante"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "juice-orange",
+   "name": "Orange juice",
+   "aliases": [
+    "oj",
+    "jus d'orange"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "juice-apple",
+   "name": "Apple juice",
+   "aliases": [
+    "jus de pomme"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "juice",
+   "name": "Juice",
+   "aliases": [
+    "fruit juice",
+    "juice boxes",
+    "jus"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "cranberry-cocktail",
+   "name": "Cranberry cocktail",
+   "aliases": [
+    "cranberry juice",
+    "cocktail de canneberges"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "pop",
+   "name": "Soft drinks",
+   "aliases": [
+    "pop",
+    "soda",
+    "cola",
+    "coke",
+    "boisson gazeuse"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "iced-tea",
+   "name": "Iced tea",
+   "aliases": [
+    "thé glacé"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "lemonade",
+   "name": "Lemonade",
+   "aliases": [
+    "limonade"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "sports-drinks",
+   "name": "Sports drinks",
+   "aliases": [
+    "gatorade",
+    "powerade",
+    "boisson pour sportifs"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "energy-drinks",
+   "name": "Energy drinks",
+   "aliases": [
+    "red bull",
+    "monster",
+    "boisson énergisante"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "kombucha",
+   "name": "Kombucha",
+   "aliases": [
+    "kombucha drink"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "cold-brew",
+   "name": "Cold brew coffee",
+   "aliases": [
+    "iced coffee",
+    "café infusé à froid"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "drink-mix",
+   "name": "Drink crystals",
+   "aliases": [
+    "drink mix",
+    "kool-aid",
+    "cristaux"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "beer",
+   "name": "Beer",
+   "aliases": [
+    "bière"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "wine",
+   "name": "Wine",
+   "aliases": [
+    "red wine",
+    "white wine",
+    "vin"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "cider",
+   "name": "Cider",
+   "aliases": [
+    "hard cider",
+    "cidre"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "coconut-water",
+   "name": "Coconut water",
+   "aliases": [
+    "eau de coco"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "tomato-juice",
+   "name": "Tomato juice",
+   "aliases": [
+    "clamato",
+    "jus de tomate"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "non-alcoholic-beer",
+   "name": "Non-alcoholic beer",
+   "aliases": [
+    "bière sans alcool"
+   ],
+   "aisle": "drinks",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "paper-towels",
+   "name": "Paper towels",
+   "aliases": [
+    "paper towel",
+    "essuie-tout"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "toilet-paper",
+   "name": "Toilet paper",
+   "aliases": [
+    "bathroom tissue",
+    "papier hygiénique"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "facial-tissue",
+   "name": "Facial tissue",
+   "aliases": [
+    "kleenex",
+    "tissues",
+    "papiers-mouchoirs"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "napkins",
+   "name": "Napkins",
+   "aliases": [
+    "serviettes de table"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "dish-soap",
+   "name": "Dish soap",
+   "aliases": [
+    "dishwashing liquid",
+    "savon à vaisselle"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "dishwasher-detergent",
+   "name": "Dishwasher detergent",
+   "aliases": [
+    "dishwasher pods",
+    "détergent pour lave-vaisselle"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "laundry-detergent",
+   "name": "Laundry detergent",
+   "aliases": [
+    "laundry soap",
+    "tide",
+    "détergent à lessive"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "volume",
+    "count"
+   ]
+  },
+  {
+   "id": "fabric-softener",
+   "name": "Fabric softener",
+   "aliases": [
+    "dryer sheets",
+    "assouplissant"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "volume",
+    "count"
+   ]
+  },
+  {
+   "id": "bleach",
+   "name": "Bleach",
+   "aliases": [
+    "javel",
+    "eau de javel"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "all-purpose-cleaner",
+   "name": "All-purpose cleaner",
+   "aliases": [
+    "cleaner",
+    "spray cleaner",
+    "nettoyant tout usage"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "disinfecting-wipes",
+   "name": "Disinfecting wipes",
+   "aliases": [
+    "lysol wipes",
+    "lingettes désinfectantes"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "sponges",
+   "name": "Sponges",
+   "aliases": [
+    "scrubbers",
+    "éponges"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "garbage-bags",
+   "name": "Garbage bags",
+   "aliases": [
+    "trash bags",
+    "sacs à ordures"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "recycling-bags",
+   "name": "Recycling bags",
+   "aliases": [
+    "blue bags",
+    "sacs de recyclage"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "compost-bags",
+   "name": "Compost bags",
+   "aliases": [
+    "green bin bags",
+    "sacs à compost"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "aluminum-foil",
+   "name": "Aluminum foil",
+   "aliases": [
+    "foil",
+    "tin foil",
+    "papier d'aluminium"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "plastic-wrap",
+   "name": "Plastic wrap",
+   "aliases": [
+    "cling wrap",
+    "saran",
+    "pellicule plastique"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "parchment-paper",
+   "name": "Parchment paper",
+   "aliases": [
+    "papier parchemin"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "food-storage-bags",
+   "name": "Food storage bags",
+   "aliases": [
+    "ziploc",
+    "freezer bags",
+    "sacs de congélation"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "batteries",
+   "name": "Batteries",
+   "aliases": [
+    "aa batteries",
+    "piles"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "light-bulbs",
+   "name": "Light bulbs",
+   "aliases": [
+    "ampoules"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "air-freshener",
+   "name": "Air freshener",
+   "aliases": [
+    "désodorisant"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "matches",
+   "name": "Matches",
+   "aliases": [
+    "lighter",
+    "allumettes"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "charcoal",
+   "name": "Charcoal",
+   "aliases": [
+    "briquettes",
+    "charbon de bois"
+   ],
+   "aisle": "household",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "shampoo",
+   "name": "Shampoo",
+   "aliases": [
+    "shampooing"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "conditioner",
+   "name": "Conditioner",
+   "aliases": [
+    "revitalisant"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "body-wash",
+   "name": "Body wash",
+   "aliases": [
+    "shower gel",
+    "gel douche"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "bar-soap",
+   "name": "Bar soap",
+   "aliases": [
+    "soap",
+    "savon"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "hand-soap",
+   "name": "Hand soap",
+   "aliases": [
+    "liquid soap",
+    "savon à mains"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "toothpaste",
+   "name": "Toothpaste",
+   "aliases": [
+    "dentifrice"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "toothbrush",
+   "name": "Toothbrush",
+   "aliases": [
+    "toothbrushes",
+    "brosse à dents"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "dental-floss",
+   "name": "Dental floss",
+   "aliases": [
+    "floss",
+    "soie dentaire"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "mouthwash",
+   "name": "Mouthwash",
+   "aliases": [
+    "rince-bouche"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "deodorant",
+   "name": "Deodorant",
+   "aliases": [
+    "antiperspirant",
+    "déodorant"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "razors",
+   "name": "Razors",
+   "aliases": [
+    "razor blades",
+    "rasoirs"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "shaving-cream",
+   "name": "Shaving cream",
+   "aliases": [
+    "shave gel",
+    "crème à raser"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "sunscreen",
+   "name": "Sunscreen",
+   "aliases": [
+    "sunblock",
+    "écran solaire"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "lotion",
+   "name": "Lotion",
+   "aliases": [
+    "moisturizer",
+    "body lotion",
+    "lotion hydratante"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "lip-balm",
+   "name": "Lip balm",
+   "aliases": [
+    "chapstick",
+    "baume à lèvres"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "cotton-swabs",
+   "name": "Cotton swabs",
+   "aliases": [
+    "q-tips",
+    "cotons-tiges"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "feminine-pads",
+   "name": "Pads",
+   "aliases": [
+    "sanitary pads",
+    "serviettes hygiéniques"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "tampons",
+   "name": "Tampons",
+   "aliases": [
+    "tampons hygiéniques"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "pain-reliever",
+   "name": "Pain reliever",
+   "aliases": [
+    "tylenol",
+    "advil",
+    "ibuprofen",
+    "acetaminophen",
+    "analgésique"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "vitamins",
+   "name": "Vitamins",
+   "aliases": [
+    "multivitamins",
+    "vitamines"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "bandages",
+   "name": "Bandages",
+   "aliases": [
+    "band-aids",
+    "pansements"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "hand-sanitizer",
+   "name": "Hand sanitizer",
+   "aliases": [
+    "désinfectant pour les mains"
+   ],
+   "aisle": "personal-care",
+   "soldBy": [
+    "volume"
+   ]
+  },
+  {
+   "id": "diapers",
+   "name": "Diapers",
+   "aliases": [
+    "nappies",
+    "couches"
+   ],
+   "aisle": "baby",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "baby-wipes",
+   "name": "Baby wipes",
+   "aliases": [
+    "wipes",
+    "lingettes pour bébé"
+   ],
+   "aisle": "baby",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "baby-formula",
+   "name": "Infant formula",
+   "aliases": [
+    "formula",
+    "baby formula",
+    "préparation pour nourrissons"
+   ],
+   "aisle": "baby",
+   "soldBy": [
+    "mass",
+    "volume"
+   ]
+  },
+  {
+   "id": "baby-food",
+   "name": "Baby food",
+   "aliases": [
+    "purées pour bébé",
+    "compotes pour bébé"
+   ],
+   "aisle": "baby",
+   "soldBy": [
+    "count"
+   ]
+  },
+  {
+   "id": "baby-cereal",
+   "name": "Baby cereal",
+   "aliases": [
+    "infant cereal",
+    "céréales pour bébé"
+   ],
+   "aisle": "baby",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "dog-food",
+   "name": "Dog food",
+   "aliases": [
+    "kibble",
+    "nourriture pour chiens"
+   ],
+   "aisle": "pet",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cat-food",
+   "name": "Cat food",
+   "aliases": [
+    "nourriture pour chats"
+   ],
+   "aisle": "pet",
+   "soldBy": [
+    "mass",
+    "count"
+   ]
+  },
+  {
+   "id": "cat-litter",
+   "name": "Cat litter",
+   "aliases": [
+    "kitty litter",
+    "litière"
+   ],
+   "aisle": "pet",
+   "soldBy": [
+    "mass"
+   ]
+  },
+  {
+   "id": "pet-treats",
+   "name": "Pet treats",
+   "aliases": [
+    "dog treats",
+    "cat treats",
+    "gâteries"
+   ],
+   "aisle": "pet",
+   "soldBy": [
+    "count"
+   ]
+  }
+ ]
+}

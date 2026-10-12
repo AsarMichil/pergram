@@ -1,13 +1,35 @@
 import SwiftData
 import SwiftUI
 
+/// Ordered as the swipe moves through them: Shop ← Type → Scan.
 nonisolated enum CheckInputMode: CaseIterable, Hashable, Sendable {
+    case shop
     case type
     case scan
 
-    var toggled: CheckInputMode { self == .type ? .scan : .type }
-    var title: String { self == .type ? "Type" : "Scan" }
-    var symbolName: String { self == .type ? "keyboard" : "camera.viewfinder" }
+    var title: String {
+        switch self {
+        case .shop: return "Shop"
+        case .type: return "Type"
+        case .scan: return "Scan"
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .shop: return "cart"
+        case .type: return "keyboard"
+        case .scan: return "camera.viewfinder"
+        }
+    }
+
+    /// The neighbour a swipe lands on, or `nil` at either end.
+    func swiped(forward: Bool) -> CheckInputMode? {
+        let all = Self.allCases
+        guard let index = all.firstIndex(of: self) else { return nil }
+        let target = forward ? index + 1 : index - 1
+        return all.indices.contains(target) ? all[target] : nil
+    }
 }
 
 struct CheckView: View {
@@ -18,21 +40,33 @@ struct CheckView: View {
     /// Owned here, not by `ScanModeView`, so the session's lifetime follows the selected mode rather
     /// than the appearance of a view the layout may build more than once.
     @State private var scanModel = ScanModel()
-    @State private var mode: CheckInputMode = .type
+    @Environment(AppRouter.self) private var router
+    @Query(filter: #Predicate<Trip> { !$0.isFinished }, sort: \Trip.startedAt, order: .reverse)
+    private var activeTrips: [Trip]
     @State private var isShowingItemPicker = false
     @State private var isShowingSaveSheet = false
 
-    /// Resolved from the live `@Query`, so a deleted row becomes `nil` reactively — the fix for a
-    /// stale selection is that the query, not a held reference, is the source of truth.
+    private var mode: CheckInputMode { router.checkMode }
+    private var activeTrip: Trip? { activeTrips.first }
+
+    /// Resolved from live queries, so a deleted row becomes `nil` reactively — the fix for a stale
+    /// selection is that the query, not a held reference, is the source of truth.
+    private var selectedListEntry: ListEntry? {
+        guard let id = viewModel.selectedListEntryID else { return nil }
+        return activeTrip?.list?.entries?.first { $0.id == id }
+    }
+
     private var selectedItem: GroceryItem? {
         guard let id = viewModel.selectedItemID else { return nil }
         return items.first { $0.persistentModelID == id }
     }
 
+    /// The good price in the dimension being typed. An item with good prices only in another
+    /// dimension still shows one, so the panel can say they do not compare rather than go blank.
     private var baseline: NormalizedPrice? {
-        selectedItem.map {
-            NormalizedPrice(dimension: $0.dimension, canonical: $0.goodPriceCanonical)
-        }
+        guard let selectedItem else { return nil }
+        let dimension = viewModel.normalizedPrice?.dimension ?? viewModel.amountUnit.dimension
+        return selectedItem.goodPrice(for: dimension) ?? selectedItem.goodPrices.first
     }
 
     private var settledVerdict: Verdict? {
@@ -59,42 +93,36 @@ struct CheckView: View {
                 (proxy.size.width - metrics.contentPadding * 2) / viewfinderHeight
 
             VStack(spacing: metrics.stackSpacing) {
-                ModeBubble(mode: $mode)
-
-                Spacer(minLength: 0)
-
-                VerdictPanelView(
-                    entered: viewModel.normalizedPrice,
-                    baseline: baseline,
-                    bookmarked: viewModel.lastBookmarked,
-                    settledVerdict: settledVerdict,
-                    isSettled: viewModel.isSettled,
-                    hasEnoughInput: viewModel.hasEnoughInput,
-                    settleTick: viewModel.settleTick,
-                    metrics: metrics,
-                    onClearBookmark: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            viewModel.clearBookmark()
-                        }
-                    }
+                ModeBubble(
+                    mode: Binding(get: { router.checkMode }, set: { router.checkMode = $0 }),
+                    cartTotal: activeTrip?.tally.total
                 )
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
 
-                Spacer(minLength: 0)
-
-                inputZone(metrics: metrics, viewfinderHeight: viewfinderHeight)
-                    .padding(metrics.contentPadding)
+                if mode == .shop {
+                    ShopView(trip: activeTrip, onPrice: price)
+                        .transition(.move(edge: .leading).combined(with: .opacity))
+                } else {
+                    // Shop sits left of Type, so the column always arrives from and leaves to the
+                    // trailing edge. One container, so the move is the column's and not the keypad's
+                    // own Scan-facing transition.
+                    // A keypad is a fixed canvas: past this size the keys and the hero grow faster
+                    // than the screen can give, and the bottom row is what falls off. Digits gain
+                    // nothing from the accessibility sizes anyway, which is why the system keypads
+                    // bound themselves the same way. Shop scrolls, so it is left unbounded.
+                    priceColumn(metrics: metrics, viewfinderHeight: viewfinderHeight)
+                        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
             .onChange(of: viewfinderRatio, initial: true) { _, ratio in
                 scanModel.setPreviewAspectRatio(ratio)
             }
         }
-        // A keypad is a fixed canvas: past this size the keys and the hero grow faster than the
-        // screen can give, and the bottom row is what falls off. Digits gain nothing from the
-        // accessibility sizes anyway, which is why the system keypads bound themselves the same way.
-        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
+        .sensoryFeedback(.success, trigger: viewModel.cartTick)
         .onAppear {
             viewModel.attach(modelContext: modelContext)
             scanModel.onCandidate = viewModel.applyScannedEntry
@@ -109,6 +137,8 @@ struct CheckView: View {
         // Only `.background` stops the session. `.inactive` also fires for the permission alert,
         // Control Centre and the notification shade, none of which are worth a teardown.
         .onChange(of: scenePhase) { _, phase in
+            if phase == .background { viewModel.commitCheck() }
+            if phase == .active { Shopping.finishIdleTrip(in: modelContext) }
             guard mode == .scan else { return }
             switch phase {
             case .active: scanModel.start()
@@ -117,7 +147,11 @@ struct CheckView: View {
             }
         }
         .sheet(isPresented: $isShowingItemPicker) {
-            ItemPickerSheet(selectedItemID: $viewModel.selectedItemID)
+            ItemPickerSheet(
+                selectedItemID: $viewModel.selectedItemID,
+                selectedListEntryID: $viewModel.selectedListEntryID,
+                listEntries: pickableListEntries
+            )
         }
         .sheet(isPresented: $isShowingSaveSheet) {
             if let normalizedPrice = viewModel.normalizedPrice {
@@ -125,6 +159,35 @@ struct CheckView: View {
                     viewModel.saveAsGoodPrice(named: name)
                 }
             }
+        }
+    }
+
+    /// Type and Scan share this column, so switching between them keeps the readout's identity and
+    /// only the input zone swaps.
+    private func priceColumn(metrics: CheckMetrics, viewfinderHeight: CGFloat) -> some View {
+        VStack(spacing: metrics.stackSpacing) {
+            Spacer(minLength: 0)
+
+            VerdictPanelView(
+                entered: viewModel.normalizedPrice,
+                baseline: baseline,
+                bookmarked: viewModel.lastBookmarked,
+                settledVerdict: settledVerdict,
+                isSettled: viewModel.isSettled,
+                hasEnoughInput: viewModel.hasEnoughInput,
+                settleTick: viewModel.settleTick,
+                metrics: metrics,
+                onClearBookmark: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        viewModel.clearBookmark()
+                    }
+                }
+            )
+
+            Spacer(minLength: 0)
+
+            inputZone(metrics: metrics, viewfinderHeight: viewfinderHeight)
+                .padding(metrics.contentPadding)
         }
     }
 
@@ -137,8 +200,18 @@ struct CheckView: View {
             typeInput(metrics: metrics)
                 .transition(.move(edge: .leading).combined(with: .opacity))
         case .scan:
-            ScanModeView(model: scanModel, viewfinderHeight: viewfinderHeight)
-                .transition(.move(edge: .trailing).combined(with: .opacity))
+            ScanModeView(
+                model: scanModel,
+                viewfinderHeight: viewfinderHeight,
+                selectionName: selectedItem?.name ?? selectedListEntry?.text,
+                canBookmark: viewModel.hasEnoughInput,
+                canAddToCart: viewModel.canAddToCart,
+                onBookmark: bookmark,
+                onAddToCart: addToCart
+            )
+            .transition(.move(edge: .trailing).combined(with: .opacity))
+        case .shop:
+            EmptyView()
         }
     }
 
@@ -146,11 +219,14 @@ struct CheckView: View {
         VStack(spacing: 0) {
             CheckFieldsView(
                 viewModel: viewModel,
-                selectedItemName: selectedItem?.name,
+                selectedItemName: selectedItem?.name ?? selectedListEntry?.text,
                 baseline: baseline,
                 onChooseItem: { isShowingItemPicker = true },
                 onSetGoodPrice: setGoodPrice,
-                onClearItem: { viewModel.selectedItemID = nil },
+                onClearItem: {
+                    viewModel.selectedItemID = nil
+                    viewModel.selectedListEntryID = nil
+                },
                 metrics: metrics
             )
 
@@ -159,10 +235,34 @@ struct CheckView: View {
 
             KeypadView(
                 viewModel: viewModel,
-                onBookmark: { viewModel.bookmarkCurrentPrice(for: selectedItem) },
+                onBookmark: bookmark,
+                onAddToCart: addToCart,
                 metrics: metrics
             )
         }
+    }
+
+    private func price(_ entry: ListEntry) {
+        viewModel.selectedItemID = entry.item?.persistentModelID
+        viewModel.selectedListEntryID = entry.id
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            router.checkMode = router.lastPriceMode
+        }
+    }
+
+    private func bookmark() {
+        viewModel.bookmarkCurrentPrice(for: selectedItem)
+    }
+
+    private func addToCart() {
+        viewModel.addToCart(item: selectedItem, listEntry: selectedListEntry)
+    }
+
+    /// While a list is being shopped, its uncrossed entries lead the picker, so naming the item and
+    /// claiming the list entry are one tap.
+    private var pickableListEntries: [ListEntry] {
+        guard let trip = activeTrip, let list = trip.list else { return [] }
+        return list.orderedEntries.filter { !trip.isCrossed($0) }
     }
 
     private func setGoodPrice() {
@@ -180,8 +280,9 @@ struct CheckView: View {
                 guard abs(horizontal) > abs(value.translation.height) * 1.5,
                     abs(horizontal) > 60
                 else { return }
+                guard let target = mode.swiped(forward: horizontal < 0) else { return }
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                    mode = horizontal < 0 ? .scan : .type
+                    router.checkMode = target
                 }
             }
     }
@@ -190,34 +291,41 @@ struct CheckView: View {
 @MainActor
 private func previewContainer() -> ModelContainer {
     let container = try! ModelContainer(
-        for: GroceryItem.self,
+        for: AppSchema.schema,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
-    container.mainContext.insert(
-        GroceryItem(
-            seedID: "chicken-thigh-boneless",
-            name: "Chicken thigh (boneless)",
-            aliases: ["thighs"],
-            category: "meat",
-            goodPriceCanonical: 1.10
-        )
+    let chicken = GroceryItem(
+        seedID: "chicken-thigh-boneless",
+        name: "Chicken thigh (boneless)",
+        aliases: ["thighs"],
+        aisle: .meat,
+        goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10)
     )
+    container.mainContext.insert(chicken)
+    let list = GroceryList(name: "Weekly")
+    container.mainContext.insert(list)
+    list.append("Milk")
+    list.append("Thighs", item: chicken)
+    list.append("Paper towels").isSkipped = true
     return container
 }
 
 #Preview("Check") {
     CheckView()
         .modelContainer(previewContainer())
+        .environment(AppRouter())
 }
 
 /// The shortest supported iPhone, and the size the fixed layout has to survive.
 #Preview("Check · iPhone SE (375×667)", traits: .fixedLayout(width: 375, height: 667)) {
     CheckView()
         .modelContainer(previewContainer())
+        .environment(AppRouter())
 }
 
 #Preview("Check · SE + AX5 type", traits: .fixedLayout(width: 375, height: 667)) {
     CheckView()
         .modelContainer(previewContainer())
+        .environment(AppRouter())
         .environment(\.dynamicTypeSize, .accessibility5)
 }

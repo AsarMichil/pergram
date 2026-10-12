@@ -35,13 +35,20 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("Legal") {
+                Section {
                     Link(destination: Self.privacyURL) {
                         Label("Privacy policy", systemImage: "hand.raised")
                     }
                     Link(destination: Self.supportURL) {
                         Label("Support", systemImage: "lifepreserver")
                     }
+                } header: {
+                    Text("Legal")
+                } footer: {
+                    // Open Government Licence – Canada asks for attribution of anything derived.
+                    Text(
+                        "Item names checked against the Canadian Nutrient File, Health Canada, under the Open Government Licence – Canada."
+                    )
                 }
 
                 Section {

@@ -51,7 +51,9 @@ final class ScreenshotTests: XCTestCase {
 
     private func launch() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-checkDisplayUnit", "kilogram", "-checkAmountUnit", "kilogram"]
+        app.launchArguments = [
+            "-checkDisplayUnit", "kilogram", "-checkAmountUnit", "kilogram", "-demoGoodPrices",
+        ]
         app.launch()
         return app
     }

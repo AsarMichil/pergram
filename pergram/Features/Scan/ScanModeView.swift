@@ -7,6 +7,13 @@ import SwiftUI
 struct ScanModeView: View {
     let model: ScanModel
     let viewfinderHeight: CGFloat
+    /// The item or list entry being priced. Scan has no item row, so the caption is the only place
+    /// that says what a scan will be judged against.
+    var selectionName: String?
+    var canBookmark = false
+    var canAddToCart = false
+    var onBookmark: (() -> Void)?
+    var onAddToCart: (() -> Void)?
 
     @State private var focusPoint: CGPoint?
     @State private var focusTick = 0
@@ -23,7 +30,19 @@ struct ScanModeView: View {
                     maxWidth: .infinity, minHeight: viewfinderHeight, maxHeight: viewfinderHeight
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 28))
-            caption
+            // The caption row already reserves a full target (`CheckMetrics.captionAllowance`), so
+            // the actions flank it without costing the viewfinder any height.
+            HStack(spacing: 8) {
+                actionButton(
+                    "Park this price to compare against", systemImage: "bookmark",
+                    identifier: "scanBookmark", isEnabled: canBookmark, action: onBookmark)
+                caption
+                    .frame(maxWidth: .infinity)
+                actionButton(
+                    "Add to cart", systemImage: "cart.badge.plus",
+                    identifier: "scanAddToCart", isEnabled: canAddToCart, action: onAddToCart)
+            }
+            .frame(height: CheckMetrics.captionAllowance)
         }
         .sensoryFeedback(.impact(weight: .light), trigger: model.filledTick)
     }
@@ -91,7 +110,7 @@ struct ScanModeView: View {
         Text(Self.adjustCaption)
             .hidden()
             .overlay {
-                Text(captionText)
+                captionLine
                     .contentTransition(.opacity)
                     .animation(.easeInOut(duration: 0.2), value: captionText)
             }
@@ -100,8 +119,37 @@ struct ScanModeView: View {
             .lineLimit(1)
     }
 
+    @ViewBuilder
+    private func actionButton(
+        _ label: String, systemImage: String, identifier: String, isEnabled: Bool,
+        action: (() -> Void)?
+    ) -> some View {
+        if let action {
+            Button(action: action) {
+                Image(systemName: systemImage)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(isEnabled ? AnyShapeStyle(.white) : AnyShapeStyle(.secondary))
+                    .frame(width: 44, height: 44)
+                    .glassEffect(
+                        isEnabled ? .regular.tint(.accentColor).interactive() : .regular,
+                        in: .circle)
+            }
+            .buttonStyle(.plain)
+            .disabled(!isEnabled)
+            .animation(.easeInOut(duration: 0.3), value: isEnabled)
+            .accessibilityLabel(label)
+            .accessibilityIdentifier(identifier)
+        }
+    }
+
     private static let aimCaption = "Aim at the shelf tag"
     private static let adjustCaption = "Swipe to Type to adjust"
+
+    private var captionLine: Text {
+        guard let selectionName else { return Text(captionText) }
+        let name = Text(selectionName).fontWeight(.semibold).foregroundStyle(.primary)
+        return captionText.isEmpty ? name : Text("\(name) · \(captionText)")
+    }
 
     private var captionText: String {
         guard model.status == .scanning else { return "" }

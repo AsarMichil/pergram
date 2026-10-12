@@ -64,8 +64,8 @@ a separate module, SwiftData included):
 pergram/
   App/        entry point, tab shell, theming
   Core/       pure logic: Unit, UnitGraph, Rate, VerdictEngine — no SwiftUI/UIKit
-  Data/       SwiftData models, seed import, versioned migration
-  Features/   Check/ Scan/ Items/ Help/
+  Data/       SwiftData models, the bundled catalog, launch migrations
+  Features/   Check/ Scan/ Shop/ Lists/ Items/ Settings/
 ```
 
 Core is pure and `nonisolated` (the target defaults to `MainActor` isolation) so it runs off the
