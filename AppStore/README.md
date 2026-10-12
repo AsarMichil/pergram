@@ -15,7 +15,7 @@ Both sets show the same four states, in upload order:
 | `01-good.png` | Bananas under the good price |
 | `02-meh.png` | Ground beef in the middle band |
 | `03-bad.png` | Cheddar cheese well over |
-| `04-items.png` | The seeded item list with saved good prices |
+| `04-items.png` | The item list with saved good prices |
 
 `ScreenshotTests` also captures `05-compare.png` — a parked price with the difference against the
 one being checked. It is not in either uploaded set; it exists so the comparison chip is verifiable
@@ -27,6 +27,9 @@ without driving the app by hand, and is a candidate if a fifth slot is ever want
 `pergramUITests/ScreenshotTests.swift` drives the app into each state and attaches a screenshot.
 The UI test target is `skipped = "YES"` in the scheme so it stays out of the normal test run; flip
 it to `"NO"`, capture, and flip it back.
+
+A fresh install has no good prices, so the test launches with `-demoGoodPrices`, which gives a debug
+build three (bananas, lean ground beef, cheddar). Release builds ignore the flag.
 
 ```sh
 xcrun simctl ui <id> appearance dark

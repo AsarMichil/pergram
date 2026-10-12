@@ -3,13 +3,8 @@ import SwiftUI
 
 struct ItemsView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(filter: #Predicate<GroceryItem> { $0.userModified }, sort: \GroceryItem.name)
-    private var yours: [GroceryItem]
-    @Query(filter: #Predicate<GroceryItem> { !$0.userModified }, sort: \GroceryItem.name)
-    private var suggested: [GroceryItem]
-
+    @Query(sort: \GroceryItem.name) private var allItems: [GroceryItem]
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
-    @Query private var allItems: [GroceryItem]
     @State private var searchText = ""
     @State private var isAdding = false
     @State private var addingName = ""
@@ -23,8 +18,7 @@ struct ItemsView: View {
         PriceDisplay.displayUnit(for: .mass, preferred: storedUnit)
     }
 
-    private var filteredYours: [GroceryItem] { filter(yours) }
-    private var filteredSuggested: [GroceryItem] { filter(suggested) }
+    private var priced: [GroceryItem] { filter(allItems) }
     private var query: String { searchText.trimmingCharacters(in: .whitespacesAndNewlines) }
 
     /// Everything else the search finds — dictionary entries, and items with no good price yet — so
@@ -44,14 +38,9 @@ struct ItemsView: View {
     var body: some View {
         NavigationStack {
             List {
-                if !filteredYours.isEmpty {
-                    Section("Yours") {
-                        ForEach(filteredYours, content: row)
-                    }
-                }
-                if !filteredSuggested.isEmpty {
-                    Section("Suggested") {
-                        ForEach(filteredSuggested, content: row)
+                if !priced.isEmpty {
+                    Section {
+                        ForEach(priced, content: row)
                     }
                 }
                 if !query.isEmpty && (!unpriced.isEmpty || canAddQuery) {
@@ -161,15 +150,14 @@ struct ItemsView: View {
 
     @ViewBuilder
     private var emptyState: some View {
-        if query.isEmpty && filteredYours.isEmpty && filteredSuggested.isEmpty {
+        if query.isEmpty && priced.isEmpty {
             ContentUnavailableView(
-                "No items yet",
-                systemImage: "cart",
-                description: Text("Add one with +, or check a price and save it.")
+                "No good prices yet",
+                systemImage: "tag",
+                description: Text(
+                    "Search for anything you buy to give it one, or check a price and save it.")
             )
-        } else if filteredYours.isEmpty && filteredSuggested.isEmpty && unpriced.isEmpty
-            && !canAddQuery
-        {
+        } else if priced.isEmpty && unpriced.isEmpty && !canAddQuery {
             ContentUnavailableView.search(text: searchText)
         }
     }

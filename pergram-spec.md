@@ -37,6 +37,10 @@ If the item isn't matched to a baseline, degrade gracefully: show the normalized
 
 ## 2. Baseline data
 
+> **Superseded (2026-10).** The seeded good-price list was removed: a fresh install has no good
+> prices, setting them is the shopper's own work, and search runs over a read-only dictionary
+> (`pergram/Data/catalog.json`) instead. Kept below as the original plan.
+
 - **Seeded list ships in the app bundle** as a JSON file: ~60–100 common Canadian grocery items (chicken thigh, chicken breast, ground beef, salmon, butter, cheddar, rice, pasta, apples, bananas, etc.) with a `goodPrice` per 100g in CAD. You author this once from your own receipts/flyers.
 - On first launch, the seed is imported into local storage (SwiftData). After that, **the local copy is the truth** — users edit freely, edits never get clobbered by app updates.
 - Seed JSON is versioned (`seedVersion`). If a future update adds new items, import only items the user doesn't already have. Never overwrite user-modified prices. This one rule prevents the most likely support complaint.

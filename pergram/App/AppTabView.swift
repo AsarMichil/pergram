@@ -25,29 +25,11 @@ struct AppTabView: View {
         .tabBarMinimizeBehavior(.onScrollDown)
         .task {
             LegacyGoodPriceMigration.run(in: modelContext)
-            importSeedIfNeeded()
+            DemoGoodPrices.insertIfRequested(in: modelContext)
             Shopping.finishIdleTrip(in: modelContext)
         }
         .sheet(item: $router.incomingList) { incoming in
             ImportListSheet(incoming: incoming) { _ in router.tab = .lists }
-        }
-    }
-
-    private func importSeedIfNeeded() {
-        let defaults = UserDefaults.standard
-        let currentVersion = defaults.integer(forKey: SeedImporter.versionDefaultsKey)
-        do {
-            let seed = try SeedImporter.loadBundledSeed()
-            let newVersion = try SeedImporter.importMissingItems(
-                from: seed,
-                into: modelContext,
-                currentVersion: currentVersion
-            )
-            if newVersion != currentVersion {
-                defaults.set(newVersion, forKey: SeedImporter.versionDefaultsKey)
-            }
-        } catch {
-            assertionFailure("Seed import failed: \(error)")
         }
     }
 }

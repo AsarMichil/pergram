@@ -92,6 +92,10 @@ final class ShortScreenTests: XCTestCase {
         XCTAssertTrue(chooseItem.waitForExistence(timeout: 5), "item menu did not open")
         chooseItem.tap()
 
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5), "picker has no search")
+        search.tap()
+        search.typeText("Bananas")
         let bananas = app.staticTexts["Bananas"].firstMatch
         XCTAssertTrue(bananas.waitForExistence(timeout: 5), "picker has no rows")
         XCTAssertTrue(bananas.isHittable, "picker rows are not reachable")

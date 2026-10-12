@@ -5,9 +5,9 @@ import SwiftData
 /// CloudKit later by flipping a checkbox rather than performing a migration.
 @Model
 final class GroceryItem {
-    /// The catalog's stable slug, shared with `seed.json` and `catalog.json`; empty for an item the
-    /// user made up. Item identity for SwiftUI (`ForEach`, `sheet(item:)`) is SwiftData's
-    /// `persistentModelID`, not this — empty slugs must never collide items. Renamed from `id`.
+    /// The `catalog.json` entry's stable slug; empty for an item the user made up. Item identity
+    /// for SwiftUI (`ForEach`, `sheet(item:)`) is SwiftData's `persistentModelID`, not this —
+    /// empty slugs must never collide items. Renamed from `id`.
     @Attribute(originalName: "id")
     var seedID: String = ""
     var name: String = ""

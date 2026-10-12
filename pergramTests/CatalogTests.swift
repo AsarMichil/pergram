@@ -57,9 +57,8 @@ struct CatalogFileTests {
         #expect(catalog.guessAisle(for: text) == aisle)
     }
 
-    @Test func everySeededGoodPriceHasADictionaryEntry() throws {
-        let seed = try SeedImporter.loadBundledSeed()
-        #expect(seed.items.filter { catalog.entry(id: $0.id) == nil }.map(\.id).isEmpty)
+    @Test func everyDemoGoodPriceHasADictionaryEntry() {
+        #expect(DemoGoodPrices.prices.filter { catalog.entry(id: $0.id) == nil }.isEmpty)
     }
 }
 
