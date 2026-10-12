@@ -45,11 +45,41 @@ enum ListSharing {
         var yours: NormalizedPrice? { item.goodPrice(for: theirs.dimension) }
     }
 
+    struct ListChanges {
+        let added: [String]
+        let removed: [String]
+        let nowSkipped: [String]
+        let nowNeeded: [String]
+
+        var isEmpty: Bool {
+            added.isEmpty && removed.isEmpty && nowSkipped.isEmpty && nowNeeded.isEmpty
+        }
+    }
+
     struct ImportPlan {
         let payload: ListPayload
         let offers: [PriceOffer]
         let newItemNames: [String]
         let replacing: GroceryList?
+
+        /// What an update would do to the list already here; `nil` when there is none.
+        var changes: ListChanges? {
+            guard let replacing else { return nil }
+            let mine = Dictionary(
+                (replacing.entries ?? []).map { ($0.id, $0) },
+                uniquingKeysWith: { first, _ in first })
+            let theirs = Set(payload.entries.map(\.id))
+            return ListChanges(
+                added: payload.entries.filter { mine[$0.id] == nil }.map(\.text),
+                removed: mine.values.filter { !theirs.contains($0.id) }.map(\.text).sorted(),
+                nowSkipped: payload.entries.filter { incoming in
+                    incoming.isSkipped && mine[incoming.id].map { !$0.isSkipped } == true
+                }.map(\.text),
+                nowNeeded: payload.entries.filter { incoming in
+                    !incoming.isSkipped && mine[incoming.id]?.isSkipped == true
+                }.map(\.text)
+            )
+        }
 
         /// Offers that only fill a gap start accepted, since they overwrite nothing; offers that
         /// would replace one of your prices start declined.
@@ -80,11 +110,13 @@ enum ListSharing {
     }
 
     /// A list already here under the same `id` is updated in place, entry by entry, which is the same
-    /// merge a sync would do.
+    /// merge a sync would do. `asCopy` instead makes an unrelated list with fresh ids, so later shares
+    /// of the original keep updating the original and leave the copy alone.
     @discardableResult
     static func apply(
         _ plan: ImportPlan,
         accepting accepted: Set<OfferID>,
+        asCopy: Bool = false,
         in context: ModelContext
     ) -> GroceryList {
         for offer in plan.offers where accepted.contains(offer.id) {
@@ -94,15 +126,17 @@ enum ListSharing {
         }
 
         var catalog = (try? context.fetch(FetchDescriptor<GroceryItem>())) ?? []
-        let list = plan.replacing ?? insertList(id: plan.payload.id, in: context)
-        list.name = plan.payload.name
+        let target = asCopy ? nil : plan.replacing
+        let list = target ?? insertList(id: asCopy ? UUID() : plan.payload.id, in: context)
+        list.name = asCopy ? "\(plan.payload.name) (copy)" : plan.payload.name
         list.updatedAt = .now
 
         var existing = Dictionary(
             (list.entries ?? []).map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         for (position, incoming) in plan.payload.entries.enumerated() {
             let entry =
-                existing.removeValue(forKey: incoming.id) ?? insertEntry(incoming.id, in: list)
+                existing.removeValue(forKey: incoming.id)
+                ?? insertEntry(asCopy ? UUID() : incoming.id, in: list)
             entry.text = incoming.text
             entry.isSkipped = incoming.isSkipped
             entry.position = position

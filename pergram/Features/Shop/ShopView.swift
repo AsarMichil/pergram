@@ -5,17 +5,26 @@ import SwiftUI
 /// room the fixed Check column cannot give.
 struct ShopView: View {
     let trip: Trip?
+    /// Called when the shopper taps a list entry to price it: Check selects it and goes back to Type
+    /// or Scan.
+    var onPrice: (ListEntry) -> Void = { _ in }
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \GroceryList.name) private var lists: [GroceryList]
     @State private var editingEntry: CartEntry?
     @State private var matchingEntry: CartEntry?
     @State private var isShowingSummary = false
+    @State private var preparingList: GroceryList?
 
     var body: some View {
-        if let trip {
-            tripContent(trip)
-        } else {
-            noTrip
+        Group {
+            if let trip {
+                tripContent(trip)
+            } else {
+                noTrip
+            }
+        }
+        .sheet(item: $preparingList) { list in
+            ShopPrepSheet(list: list) {}
         }
     }
 
@@ -76,27 +85,27 @@ struct ShopView: View {
             }
 
             if let list = trip.list {
-                // In store order, so the list reads in the order the aisles are walked.
-                ForEach(AisleOrder.standard.sorted(list.orderedEntries, by: \.aisle), id: \.aisle) {
-                    group in
+                // In store order, so the list reads in the order the aisles are walked. Entries sat
+                // out this time fold away at the end, still there if the shopper changes their mind.
+                ForEach(
+                    AisleOrder.standard.sorted(needed(in: list, trip: trip), by: \.aisle),
+                    id: \.aisle
+                ) { group in
                     Section(group.aisle.title) {
                         ForEach(group.elements) { entry in
-                            ShopListRow(entry: entry, isCrossed: trip.isCrossed(entry)) {
-                                Shopping.setCrossed(!trip.isCrossed(entry), for: entry, in: trip)
-                            }
-                            .swipeActions(edge: .leading) {
-                                Button {
-                                    entry.isSkipped.toggle()
-                                    try? modelContext.save()
-                                } label: {
-                                    Label(
-                                        entry.isSkipped ? "Need it" : "Not this time",
-                                        systemImage: entry.isSkipped
-                                            ? "arrow.uturn.backward" : "minus.circle")
-                                }
-                                .tint(entry.isSkipped ? .accentColor : .gray)
+                            listRow(entry, in: trip)
+                        }
+                    }
+                }
+                let sittingOut = list.orderedEntries.filter { $0.isSkipped && !trip.isCrossed($0) }
+                if !sittingOut.isEmpty {
+                    Section {
+                        DisclosureGroup("Not this time (\(sittingOut.count))") {
+                            ForEach(sittingOut) { entry in
+                                listRow(entry, in: trip)
                             }
                         }
+                        .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -149,6 +158,37 @@ struct ShopView: View {
         }
     }
 
+    /// Crossed entries stay in their aisle even when flagged: buying one anyway is still buying it.
+    private func needed(in list: GroceryList, trip: Trip) -> [ListEntry] {
+        list.orderedEntries.filter { !$0.isSkipped || trip.isCrossed($0) }
+    }
+
+    private func listRow(_ entry: ListEntry, in trip: Trip) -> some View {
+        ShopListRow(
+            entry: entry,
+            isCrossed: trip.isCrossed(entry),
+            onToggle: { Shopping.setCrossed(!trip.isCrossed(entry), for: entry, in: trip) },
+            onPrice: { onPrice(entry) }
+        )
+        .contextMenu {
+            Button(
+                entry.isSkipped ? "Need it this time" : "Not this time",
+                systemImage: entry.isSkipped ? "arrow.uturn.backward" : "minus.circle"
+            ) {
+                entry.isSkipped.toggle()
+                try? modelContext.save()
+            }
+            Menu("Move to aisle", systemImage: "arrow.up.arrow.down") {
+                ForEach(Aisle.allCases, id: \.self) { aisle in
+                    Button(aisle.title) {
+                        entry.aisle = aisle
+                        try? modelContext.save()
+                    }
+                }
+            }
+        }
+    }
+
     private func subtitle(_ trip: Trip, tally: CartTally) -> String {
         let count = tally.count == 1 ? "1 item" : "\(tally.count) items"
         guard let list = trip.list else { return count }
@@ -158,7 +198,7 @@ struct ShopView: View {
     private func listMenu(title: String) -> some View {
         Menu(title, systemImage: "checklist") {
             ForEach(lists) { list in
-                Button(list.name) { Shopping.startTrip(shopping: list, in: modelContext) }
+                Button(list.name) { preparingList = list }
             }
         }
     }
@@ -211,38 +251,44 @@ private struct CartRow: View {
     }
 }
 
+/// Two targets: the circle crosses an entry off by hand, the rest of the row goes to price it, since
+/// pricing is the more useful thing to do with an item you are standing in front of.
 private struct ShopListRow: View {
     let entry: ListEntry
     let isCrossed: Bool
     var onToggle: () -> Void
+    var onPrice: () -> Void
 
     var body: some View {
-        Button(action: onToggle) {
-            HStack(spacing: 10) {
-                Image(systemName: symbol)
+        HStack(spacing: 10) {
+            Button(action: onToggle) {
+                Image(systemName: isCrossed ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
                     .foregroundStyle(isCrossed ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
                     .contentTransition(.symbolEffect(.replace))
-                Text(entry.text)
-                    .strikethrough(isCrossed)
-                    .foregroundStyle(isCrossed || isSittingOut ? .secondary : .primary)
-                Spacer(minLength: 8)
-                if isSittingOut {
-                    Text("not this time")
-                        .font(.footnote)
+                    .frame(width: 44, height: 44)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isCrossed ? "Uncross \(entry.text)" : "Cross off \(entry.text)")
+
+            Button(action: onPrice) {
+                HStack(spacing: 8) {
+                    Text(entry.text)
+                        .strikethrough(isCrossed)
+                        .foregroundStyle(isCrossed ? .secondary : .primary)
+                    Spacer(minLength: 8)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(.tertiary)
                 }
+                .frame(minHeight: 44)
+                .contentShape(.rect)
             }
-            .contentShape(.rect)
+            .buttonStyle(.plain)
+            .accessibilityLabel("Price \(entry.text)")
+            .accessibilityValue(isCrossed ? "Got it" : "")
         }
-        .buttonStyle(.plain)
-        .accessibilityValue(isCrossed ? "Got it" : isSittingOut ? "Not this time" : "")
-    }
-
-    /// Buying a flagged entry anyway crosses it for this trip; the flag stays for the next one.
-    private var isSittingOut: Bool { entry.isSkipped && !isCrossed }
-
-    private var symbol: String {
-        if isCrossed { return "checkmark.circle.fill" }
-        return isSittingOut ? "minus.circle" : "circle"
+        .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 16))
     }
 }

@@ -81,6 +81,7 @@ struct ListDetailView: View {
     @State private var editText = ""
     @State private var isRenamingList = false
     @State private var listName = ""
+    @State private var isPreparing = false
     @FocusState private var isAddFieldFocused: Bool
 
     var body: some View {
@@ -144,8 +145,7 @@ struct ListDetailView: View {
         // An inset rather than a bottom bar: the floating tab bar draws over a toolbar's bottom bar.
         .safeAreaInset(edge: .bottom) {
             Button {
-                Shopping.startTrip(shopping: list, in: modelContext)
-                router.shop()
+                isPreparing = true
             } label: {
                 Label("Shop this list", systemImage: "cart")
                     .frame(maxWidth: .infinity, minHeight: 32)
@@ -154,6 +154,9 @@ struct ListDetailView: View {
             .padding(.horizontal)
             .padding(.bottom, 8)
             .accessibilityIdentifier("shopThisList")
+        }
+        .sheet(isPresented: $isPreparing) {
+            ShopPrepSheet(list: list) { router.shop() }
         }
         .sheet(item: $linkingEntry) { entry in
             ItemPickerSheet(

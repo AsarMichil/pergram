@@ -32,10 +32,7 @@ struct ImportListSheet: View {
                 if let plan {
                     ToolbarItem(placement: .confirmationAction) {
                         Button(plan.replacing == nil ? "Import" : "Update") {
-                            let list = ListSharing.apply(
-                                plan, accepting: accepted, in: modelContext)
-                            dismiss()
-                            onImported(list)
+                            finish(plan, asCopy: false)
                         }
                         .accessibilityIdentifier("confirmImport")
                     }
@@ -60,7 +57,19 @@ struct ImportListSheet: View {
                 }
             } footer: {
                 if plan.replacing != nil {
-                    Text("You already have this list. Importing updates it to match.")
+                    Text("You already have this list. Update replaces yours with this one.")
+                }
+            }
+
+            if let changes = plan.changes {
+                changesSection(changes)
+                Section {
+                    Button("Save as a copy instead", systemImage: "plus.square.on.square") {
+                        finish(plan, asCopy: true)
+                    }
+                    .accessibilityIdentifier("importAsCopy")
+                } footer: {
+                    Text("Keeps your list as it is and adds this one beside it.")
                 }
             }
 
@@ -109,6 +118,42 @@ struct ImportListSheet: View {
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private func changesSection(_ changes: ListSharing.ListChanges) -> some View {
+        Section("What changes") {
+            if changes.isEmpty {
+                Text("Nothing — it matches your list.")
+                    .foregroundStyle(.secondary)
+            }
+            changeRow("Added", changes.added, systemImage: "plus.circle")
+            changeRow("Not this time", changes.nowSkipped, systemImage: "minus.circle")
+            changeRow("Needed again", changes.nowNeeded, systemImage: "arrow.uturn.backward")
+            changeRow("Removed", changes.removed, systemImage: "trash")
+        }
+    }
+
+    @ViewBuilder
+    private func changeRow(_ title: String, _ names: [String], systemImage: String) -> some View {
+        if !names.isEmpty {
+            Label {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                    Text(names.joined(separator: ", "))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            } icon: {
+                Image(systemName: systemImage)
+            }
+        }
+    }
+
+    private func finish(_ plan: ListSharing.ImportPlan, asCopy: Bool) {
+        let list = ListSharing.apply(plan, accepting: accepted, asCopy: asCopy, in: modelContext)
+        dismiss()
+        onImported(list)
     }
 
     private func binding(for offer: ListSharing.PriceOffer) -> Binding<Bool> {

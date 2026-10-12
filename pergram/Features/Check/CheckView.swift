@@ -99,7 +99,7 @@ struct CheckView: View {
                 )
 
                 if mode == .shop {
-                    ShopView(trip: activeTrip)
+                    ShopView(trip: activeTrip, onPrice: price)
                         .transition(.move(edge: .leading).combined(with: .opacity))
                 } else {
                     // Shop sits left of Type, so the column always arrives from and leaves to the
@@ -199,6 +199,7 @@ struct CheckView: View {
             ScanModeView(
                 model: scanModel,
                 viewfinderHeight: viewfinderHeight,
+                selectionName: selectedItem?.name ?? selectedListEntry?.text,
                 canBookmark: viewModel.hasEnoughInput,
                 canAddToCart: viewModel.canAddToCart,
                 onBookmark: bookmark,
@@ -234,6 +235,14 @@ struct CheckView: View {
                 onAddToCart: addToCart,
                 metrics: metrics
             )
+        }
+    }
+
+    private func price(_ entry: ListEntry) {
+        viewModel.selectedItemID = entry.item?.persistentModelID
+        viewModel.selectedListEntryID = entry.id
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            router.checkMode = router.lastPriceMode
         }
     }
 

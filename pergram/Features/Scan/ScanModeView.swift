@@ -7,6 +7,9 @@ import SwiftUI
 struct ScanModeView: View {
     let model: ScanModel
     let viewfinderHeight: CGFloat
+    /// The item or list entry being priced. Scan has no item row, so the caption is the only place
+    /// that says what a scan will be judged against.
+    var selectionName: String?
     var canBookmark = false
     var canAddToCart = false
     var onBookmark: (() -> Void)?
@@ -107,7 +110,7 @@ struct ScanModeView: View {
         Text(Self.adjustCaption)
             .hidden()
             .overlay {
-                Text(captionText)
+                captionLine
                     .contentTransition(.opacity)
                     .animation(.easeInOut(duration: 0.2), value: captionText)
             }
@@ -141,6 +144,12 @@ struct ScanModeView: View {
 
     private static let aimCaption = "Aim at the shelf tag"
     private static let adjustCaption = "Swipe to Type to adjust"
+
+    private var captionLine: Text {
+        guard let selectionName else { return Text(captionText) }
+        let name = Text(selectionName).fontWeight(.semibold).foregroundStyle(.primary)
+        return captionText.isEmpty ? name : Text("\(name) · \(captionText)")
+    }
 
     private var captionText: String {
         guard model.status == .scanning else { return "" }
