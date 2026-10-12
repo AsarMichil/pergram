@@ -121,6 +121,8 @@ enum ListSharing {
     ) -> GroceryList {
         for offer in plan.offers where accepted.contains(offer.id) {
             offer.item.setGoodPrice(offer.theirs)
+            context.insert(
+                PriceObservation(price: offer.theirs, reason: .goodPrice, item: offer.item))
             offer.item.userModified = true
             offer.item.updatedAt = .now
         }
@@ -186,8 +188,11 @@ enum ListSharing {
             aisle: Aisle(rawValue: incoming.aisle),
             userModified: incoming.seedID.isEmpty
         )
-        prices(of: incoming).forEach(created.setGoodPrice)
         context.insert(created)
+        for price in prices(of: incoming) {
+            created.setGoodPrice(price)
+            context.insert(PriceObservation(price: price, reason: .goodPrice, item: created))
+        }
         catalog.append(created)
         return created
     }

@@ -191,46 +191,51 @@ struct ListDetailView: View {
     }
 
     private func row(for entry: ListEntry) -> some View {
-        ListEntryRow(entry: entry)
-            .contentShape(.rect)
-            .onTapGesture { linkingEntry = entry }
-            .swipeActions(edge: .trailing) {
-                Button(role: .destructive) {
-                    modelContext.delete(entry)
-                    save()
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-                Button {
-                    editText = entry.text
-                    editingEntry = entry
-                } label: {
-                    Label("Rename", systemImage: "pencil")
-                }
-                .tint(.indigo)
+        Button {
+            linkingEntry = entry
+        } label: {
+            ListEntryRow(entry: entry)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("Links a good price")
+        .swipeActions(edge: .trailing) {
+            Button(role: .destructive) {
+                modelContext.delete(entry)
+                save()
+            } label: {
+                Label("Delete", systemImage: "trash")
             }
-            .swipeActions(edge: .leading) {
-                Button {
-                    entry.isSkipped.toggle()
-                    save()
-                } label: {
-                    Label(
-                        entry.isSkipped ? "Need it" : "Not this time",
-                        systemImage: entry.isSkipped
-                            ? "arrow.uturn.backward" : "minus.circle")
-                }
-                .tint(entry.isSkipped ? .accentColor : .gray)
+            Button {
+                editText = entry.text
+                editingEntry = entry
+            } label: {
+                Label("Rename", systemImage: "pencil")
             }
-            .contextMenu {
-                Menu("Move to aisle", systemImage: "arrow.up.arrow.down") {
-                    ForEach(Aisle.allCases, id: \.self) { aisle in
-                        Button(aisle.title) {
-                            entry.aisle = aisle
-                            save()
-                        }
+            .tint(.indigo)
+        }
+        .swipeActions(edge: .leading) {
+            Button {
+                entry.isSkipped.toggle()
+                save()
+            } label: {
+                Label(
+                    entry.isSkipped ? "Need it" : "Not this time",
+                    systemImage: entry.isSkipped
+                        ? "arrow.uturn.backward" : "minus.circle")
+            }
+            .tint(entry.isSkipped ? .accentColor : .gray)
+        }
+        .contextMenu {
+            Menu("Move to aisle", systemImage: "arrow.up.arrow.down") {
+                ForEach(Aisle.allCases, id: \.self) { aisle in
+                    Button(aisle.title) {
+                        entry.aisle = aisle
+                        save()
                     }
                 }
             }
+        }
     }
 
     private func addTypedEntry() {

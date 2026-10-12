@@ -9,6 +9,8 @@ struct ItemsView: View {
     @State private var isAdding = false
     @State private var addingName = ""
     @State private var editingItem: GroceryItem?
+    /// Made from the dictionary just to open the sheet; removed again if the shopper cancels.
+    @State private var provisionalItem: GroceryItem?
     @State private var renamingItem: GroceryItem?
     @State private var isRenaming = false
     @State private var renameText = ""
@@ -47,7 +49,7 @@ struct ItemsView: View {
                     Section("Give a good price") {
                         ForEach(unpriced) { result in
                             Button {
-                                editingItem = item(for: result)
+                                giveGoodPrice(to: result)
                             } label: {
                                 LabeledContent(result.name) {
                                     Image(systemName: "plus.circle")
@@ -94,7 +96,7 @@ struct ItemsView: View {
         .sheet(isPresented: $isAdding) {
             AddEditItemSheet(item: nil, initialName: addingName)
         }
-        .sheet(item: $editingItem) { item in
+        .sheet(item: $editingItem, onDismiss: discardProvisionalItem) { item in
             AddEditItemSheet(item: item)
         }
         .alert("Rename item", isPresented: $isRenaming) {
@@ -178,11 +180,29 @@ struct ItemsView: View {
         }
     }
 
-    private func item(for result: ItemSearchResult) -> GroceryItem {
+    /// Saved before presenting, so the sheet is keyed by a permanent identifier that a save inside
+    /// it cannot change.
+    private func giveGoodPrice(to result: ItemSearchResult) {
         switch result {
-        case .item(let item): return item
-        case .entry(let entry): return CatalogLibrary.item(for: entry, in: modelContext)
+        case .item(let item):
+            editingItem = item
+        case .entry(let entry):
+            let item = CatalogLibrary.item(for: entry, in: modelContext)
+            if item.modelContext != nil, !item.hasGoodPrice, (item.listEntries ?? []).isEmpty {
+                provisionalItem = item
+            }
+            try? modelContext.save()
+            editingItem = item
         }
+    }
+
+    private func discardProvisionalItem() {
+        defer { provisionalItem = nil }
+        guard let item = provisionalItem, !item.hasGoodPrice, (item.listEntries ?? []).isEmpty,
+            (item.cartEntries ?? []).isEmpty, (item.observations ?? []).isEmpty
+        else { return }
+        modelContext.delete(item)
+        try? modelContext.save()
     }
 
     private func startRename(_ item: GroceryItem) {

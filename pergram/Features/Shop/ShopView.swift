@@ -11,6 +11,7 @@ struct ShopView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \GroceryList.name) private var lists: [GroceryList]
     @State private var editingEntry: CartEntry?
+    @State private var removingEntry: CartEntry?
     @State private var matchingEntry: CartEntry?
     @State private var isShowingSummary = false
     @State private var preparingList: GroceryList?
@@ -72,7 +73,7 @@ struct ShopView: View {
                         } label: {
                             Label("Remove", systemImage: "trash")
                         }
-                        if trip.list != nil, entry.listEntryID == nil {
+                        if trip.list != nil, trip.listEntry(for: entry) == nil {
                             Button {
                                 matchingEntry = entry
                             } label: {
@@ -119,8 +120,10 @@ struct ShopView: View {
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .sensoryFeedback(.selection, trigger: trip.crossedEntryIDs)
-        .sheet(item: $editingEntry) { entry in
-            QuantitySheet(entry: entry, label: trip.label(for: entry))
+        .sheet(item: $editingEntry, onDismiss: removePendingEntry) { entry in
+            QuantitySheet(entry: entry, label: trip.label(for: entry)) {
+                removingEntry = entry
+            }
         }
         .sheet(item: $matchingEntry) { entry in
             MatchToListSheet(entry: entry, trip: trip)
@@ -156,6 +159,12 @@ struct ShopView: View {
             }
             .accessibilityLabel("Trip options")
         }
+    }
+
+    private func removePendingEntry() {
+        guard let removingEntry else { return }
+        Shopping.remove(removingEntry, in: modelContext)
+        self.removingEntry = nil
     }
 
     /// Crossed entries stay in their aisle even when flagged: buying one anyway is still buying it.

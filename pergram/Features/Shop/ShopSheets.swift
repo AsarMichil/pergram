@@ -6,6 +6,9 @@ import SwiftUI
 struct QuantitySheet: View {
     let entry: CartEntry
     let label: String
+    /// Asks the presenter to remove the entry once the sheet is gone: deleting it here would leave
+    /// the dismissing sheet reading a deleted model.
+    var onRemove: () -> Void = {}
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var text = ""
@@ -34,7 +37,7 @@ struct QuantitySheet: View {
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
                 Button("Remove from cart", role: .destructive) {
-                    Shopping.remove(entry, in: modelContext)
+                    onRemove()
                     dismiss()
                 }
                 .accessibilityIdentifier("removeFromCart")

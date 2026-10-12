@@ -222,4 +222,14 @@ struct ListSharingTests {
 
         #expect(list.orderedEntries.first?.aisle == .household)
     }
+
+    @Test func importedGoodPricesArePriceHistory() throws {
+        let context = try makeContext()
+
+        ListSharing.apply(
+            ListSharing.plan(samplePayload(), in: context), accepting: [], in: context)
+
+        let recorded = try context.fetch(FetchDescriptor<PriceObservation>())
+        #expect(recorded.map(\.reason) == [.goodPrice])
+    }
 }

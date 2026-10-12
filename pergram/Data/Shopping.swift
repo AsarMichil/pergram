@@ -20,7 +20,7 @@ enum Shopping {
     static func startTrip(shopping list: GroceryList? = nil, in context: ModelContext) -> Trip {
         if let trip = activeTrip(in: context) {
             if let list { trip.list = list }
-            save(context)
+            touch(trip, in: context)
             return trip
         }
         let trip = Trip(list: list)
@@ -47,14 +47,15 @@ enum Shopping {
         context.insert(entry)
         entry.trip = trip
         entry.item = item
-        if entry.item == nil && listEntry == nil {
+        entry.savedName = item?.name ?? listEntry?.text ?? ""
+        if entry.savedName.isEmpty {
             entry.unnamedOrdinal = trip.nextUnnamedOrdinal
         }
         if let crossing = listEntry ?? item.flatMap(trip.uncrossedEntry(linkedTo:)) {
             entry.listEntryID = crossing.id
             trip.setCrossed(true, for: crossing)
         }
-        save(context)
+        touch(trip, in: context)
         return entry
     }
 
@@ -66,6 +67,7 @@ enum Shopping {
         if let trip, let listEntryID {
             uncrossIfUnclaimed(listEntryID, in: trip)
         }
+        if let trip { trip.lastActivityAt = .now }
         save(context)
     }
 
@@ -81,19 +83,20 @@ enum Shopping {
             entry.item = item
             entry.verdict = entry.unitPrice.flatMap(item.verdict(for:))
         }
+        entry.savedName = entry.item?.name ?? listEntry.text
         trip.setCrossed(true, for: listEntry)
-        save(context)
+        touch(trip, in: context)
     }
 
     static func setCrossed(_ crossed: Bool, for listEntry: ListEntry, in trip: Trip) {
         trip.setCrossed(crossed, for: listEntry)
-        trip.modelContext.map(save)
+        if let context = trip.modelContext { touch(trip, in: context) }
     }
 
     static func setQuantity(_ quantity: Double, for entry: CartEntry, in context: ModelContext) {
         guard quantity > 0 else { return }
         entry.quantity = quantity
-        save(context)
+        if let trip = entry.trip { touch(trip, in: context) } else { save(context) }
     }
 
     /// Finishing is when the cart's prices become history: by now the shopper has fixed typos,
@@ -113,14 +116,27 @@ enum Shopping {
     }
 
     /// A trip nobody has touched in this long was finished without saying so: it is closed out, so
-    /// its prices are kept and the next shop starts with an empty cart.
+    /// its prices are kept and the next shop starts with an empty cart. One that never got anything
+    /// in its cart has nothing to keep and is discarded instead.
     static let idleLimit: TimeInterval = 6 * 60 * 60
 
     static func finishIdleTrip(now: Date = .now, in context: ModelContext) {
         guard let trip = activeTrip(in: context) else { return }
-        let lastActivity = trip.orderedEntries.last?.addedAt ?? trip.startedAt
+        let lastActivity =
+            [trip.lastActivityAt, trip.startedAt, trip.orderedEntries.last?.addedAt]
+            .compactMap { $0 }.max() ?? trip.startedAt
         guard now.timeIntervalSince(lastActivity) >= idleLimit else { return }
-        finish(trip, at: lastActivity, in: context)
+        if trip.orderedEntries.isEmpty {
+            context.delete(trip)
+            save(context)
+        } else {
+            finish(trip, at: lastActivity, in: context)
+        }
+    }
+
+    private static func touch(_ trip: Trip, at date: Date = .now, in context: ModelContext) {
+        trip.lastActivityAt = date
+        save(context)
     }
 
     private static func uncrossIfUnclaimed(_ listEntryID: UUID, in trip: Trip) {

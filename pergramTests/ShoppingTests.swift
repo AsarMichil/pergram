@@ -180,4 +180,48 @@ struct ShoppingTests {
         #expect(tally?.count == 2)
         #expect(tally?.good == 1)
     }
+
+    @Test func anEntryKeepsItsNameWhenTheListItCameFromIsSwitched() {
+        Shopping.startTrip(shopping: list, in: context)
+        let entry = Shopping.addToCart(
+            price: 3.49, unitPrice: nil, item: nil, listEntry: milk, in: context)
+        let other = GroceryList(name: "Other")
+        context.insert(other)
+
+        let trip = Shopping.startTrip(shopping: other, in: context)
+
+        #expect(trip.label(for: entry) == "Milk")
+    }
+
+    @Test func anEntryKeepsItsNameWhenItsItemIsDeleted() throws {
+        let entry = Shopping.addToCart(
+            price: 5, unitPrice: perHundredGrams, item: chicken, in: context)
+        context.delete(chicken)
+        try context.save()
+
+        #expect(entry.label(listEntry: nil) == "Chicken thigh")
+    }
+
+    @Test func aPlannedTripIsNotIdleWhileTheShopperIsStillUsingIt() throws {
+        let trip = Shopping.startTrip(shopping: list, in: context)
+        let entry = Shopping.addToCart(price: 1, unitPrice: nil, item: nil, in: context)
+        let morning = Date.now.addingTimeInterval(-10 * 60 * 60)
+        trip.startedAt = morning
+        entry.addedAt = morning
+        Shopping.setCrossed(true, for: milk, in: trip)
+        let crossedAt = trip.lastActivityAt
+
+        Shopping.finishIdleTrip(now: crossedAt.addingTimeInterval(5 * 60 * 60), in: context)
+
+        #expect(Shopping.activeTrip(in: context) != nil)
+    }
+
+    @Test func anIdleTripWithAnEmptyCartIsDiscardedNotKept() throws {
+        let trip = Shopping.startTrip(shopping: list, in: context)
+
+        Shopping.finishIdleTrip(
+            now: trip.lastActivityAt.addingTimeInterval(7 * 60 * 60), in: context)
+
+        #expect(try context.fetch(FetchDescriptor<Trip>()).isEmpty)
+    }
 }

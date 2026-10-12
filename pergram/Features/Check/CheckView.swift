@@ -46,11 +46,11 @@ struct CheckView: View {
     @State private var isShowingItemPicker = false
     @State private var isShowingSaveSheet = false
 
-    /// Resolved from the live `@Query`, so a deleted row becomes `nil` reactively — the fix for a
-    /// stale selection is that the query, not a held reference, is the source of truth.
     private var mode: CheckInputMode { router.checkMode }
     private var activeTrip: Trip? { activeTrips.first }
 
+    /// Resolved from live queries, so a deleted row becomes `nil` reactively — the fix for a stale
+    /// selection is that the query, not a held reference, is the source of truth.
     private var selectedListEntry: ListEntry? {
         guard let id = viewModel.selectedListEntryID else { return nil }
         return activeTrip?.list?.entries?.first { $0.id == id }
@@ -97,6 +97,7 @@ struct CheckView: View {
                     mode: Binding(get: { router.checkMode }, set: { router.checkMode = $0 }),
                     cartTotal: activeTrip?.tally.total
                 )
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
 
                 if mode == .shop {
                     ShopView(trip: activeTrip, onPrice: price)
@@ -105,7 +106,12 @@ struct CheckView: View {
                     // Shop sits left of Type, so the column always arrives from and leaves to the
                     // trailing edge. One container, so the move is the column's and not the keypad's
                     // own Scan-facing transition.
+                    // A keypad is a fixed canvas: past this size the keys and the hero grow faster
+                    // than the screen can give, and the bottom row is what falls off. Digits gain
+                    // nothing from the accessibility sizes anyway, which is why the system keypads
+                    // bound themselves the same way. Shop scrolls, so it is left unbounded.
                     priceColumn(metrics: metrics, viewfinderHeight: viewfinderHeight)
+                        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
                         .transition(.move(edge: .trailing).combined(with: .opacity))
                 }
             }
@@ -114,10 +120,6 @@ struct CheckView: View {
                 scanModel.setPreviewAspectRatio(ratio)
             }
         }
-        // A keypad is a fixed canvas: past this size the keys and the hero grow faster than the
-        // screen can give, and the bottom row is what falls off. Digits gain nothing from the
-        // accessibility sizes anyway, which is why the system keypads bound themselves the same way.
-        .dynamicTypeSize(...DynamicTypeSize.accessibility1)
         .contentShape(Rectangle())
         .simultaneousGesture(modeSwipe)
         .sensoryFeedback(.success, trigger: viewModel.cartTick)

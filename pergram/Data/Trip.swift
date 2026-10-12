@@ -11,12 +11,16 @@ final class Trip {
     var isFinished: Bool = false
     var list: GroceryList?
     var crossedEntryIDs: [UUID] = []
+    /// Any change to the trip, prep and cross-offs included, so a list planned in the morning is not
+    /// taken for an abandoned trip by the afternoon.
+    var lastActivityAt: Date = Date.distantPast
 
     @Relationship(deleteRule: .cascade, inverse: \CartEntry.trip)
     var entries: [CartEntry]? = []
 
     init(startedAt: Date = .now, list: GroceryList? = nil) {
         self.startedAt = startedAt
+        self.lastActivityAt = startedAt
         self.list = list
     }
 
@@ -71,6 +75,9 @@ final class CartEntry {
     /// Labels an entry with no item as "Item N". Never renumbered on delete, because the label is
     /// what the shopper remembers from the shelf.
     var unnamedOrdinal: Int = 0
+    /// The name it was added or matched under, so the label survives the item or list entry going
+    /// away — a switched list, a deleted item, an update that dropped the entry.
+    var savedName: String = ""
     var unitPriceCanonical: Double?
     var dimensionRaw: String?
     /// The verdict when it was added. It does not follow later edits to the good price.
@@ -110,6 +117,6 @@ final class CartEntry {
     func label(listEntry: ListEntry?) -> String {
         if let item { return item.name }
         if let listEntry { return listEntry.text }
-        return "Item \(unnamedOrdinal)"
+        return savedName.isEmpty ? "Item \(unnamedOrdinal)" : savedName
     }
 }

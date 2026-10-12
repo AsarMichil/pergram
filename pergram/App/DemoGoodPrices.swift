@@ -3,7 +3,7 @@ import SwiftData
 
 /// A fresh install has no good prices: setting them is the shopper's own work. App Store screenshots
 /// need verdicts to show, so a debug build launched with `-demoGoodPrices` gets a few. Release
-/// builds compile this to nothing.
+/// builds ignore the flag.
 @MainActor
 enum DemoGoodPrices {
     static let prices: [(id: String, price: NormalizedPrice)] = [

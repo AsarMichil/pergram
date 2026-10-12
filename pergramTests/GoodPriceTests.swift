@@ -57,7 +57,7 @@ struct GoodPriceTests {
 
     @Test func aLegacyPriceMovesIntoItsDimension() throws {
         let context = try makeContext()
-        let eggs = GroceryItem(name: "Eggs")
+        let eggs = GroceryItem(name: "Eggs", userModified: true)
         eggs.goodPriceCanonical = 0.42
         eggs.dimensionRaw = PriceDimension.count.rawValue
         context.insert(eggs)
@@ -70,7 +70,7 @@ struct GoodPriceTests {
 
     @Test func migrationNeverOverwritesANewerPrice() throws {
         let context = try makeContext()
-        let eggs = GroceryItem(name: "Eggs", goodPrice: perEach)
+        let eggs = GroceryItem(name: "Eggs", goodPrice: perEach, userModified: true)
         eggs.goodPriceCanonical = 0.42
         eggs.dimensionRaw = PriceDimension.count.rawValue
         context.insert(eggs)
@@ -79,6 +79,35 @@ struct GoodPriceTests {
         LegacyGoodPriceMigration.run(in: context)
 
         #expect(eggs.goodPrices == [perEach])
+    }
+
+    /// A price the old bundled seed set, untouched since, is not the shopper's: an upgrade starts
+    /// where a fresh install does.
+    @Test func anUntouchedSeedPriceIsDroppedWithItsItem() throws {
+        let context = try makeContext()
+        let bananas = GroceryItem(seedID: "bananas", name: "Bananas")
+        bananas.goodPriceCanonical = 0.18
+        context.insert(bananas)
+
+        LegacyGoodPriceMigration.run(in: context)
+
+        #expect(try context.fetch(FetchDescriptor<GroceryItem>()).isEmpty)
+    }
+
+    @Test func anUntouchedSeedItemOnAListStaysWithoutItsPrice() throws {
+        let context = try makeContext()
+        let bananas = GroceryItem(seedID: "bananas", name: "Bananas")
+        bananas.goodPriceCanonical = 0.18
+        context.insert(bananas)
+        let list = GroceryList(name: "Weekly")
+        context.insert(list)
+        list.append("Bananas", item: bananas)
+
+        LegacyGoodPriceMigration.run(in: context)
+
+        #expect(!bananas.hasGoodPrice)
+        #expect(bananas.goodPriceCanonical == 0)
+        #expect(list.orderedEntries.first?.item?.persistentModelID == bananas.persistentModelID)
     }
 
     @Test func observationsRememberTheirDimension() throws {

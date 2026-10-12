@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 @main
 struct PergramApp: App {
@@ -25,8 +26,25 @@ struct PergramApp: App {
 
     private func open(_ url: URL) {
         let isScoped = url.startAccessingSecurityScopedResource()
-        defer { if isScoped { url.stopAccessingSecurityScopedResource() } }
         let result = Result { try ListPayload.decode(from: Data(contentsOf: url)) }
-        router.incomingList = IncomingList(result: result)
+        if isScoped { url.stopAccessingSecurityScopedResource() }
+        // Not opened in place, so iOS handed over a copy in Documents/Inbox that is ours to delete.
+        if url.pathComponents.contains("Inbox") { try? FileManager.default.removeItem(at: url) }
+        dismissPresentedSheets {
+            router.incomingList = IncomingList(result: result)
+        }
+    }
+
+    /// A sheet can only present from the top of the stack, so an import arriving over the item
+    /// picker or a cart entry would otherwise be dropped without a word.
+    private func dismissPresentedSheets(then present: @escaping () -> Void) {
+        let root = UIApplication.shared.connectedScenes
+            .compactMap { ($0 as? UIWindowScene)?.keyWindow?.rootViewController }
+            .first
+        guard let root, root.presentedViewController != nil else {
+            present()
+            return
+        }
+        root.dismiss(animated: true, completion: present)
     }
 }

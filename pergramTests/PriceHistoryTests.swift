@@ -170,14 +170,15 @@ struct PriceHistoryTests {
     }
 
     @Test func aTripIdleForSixHoursIsFinishedAndItsPricesKept() throws {
-        let entry = Shopping.addToCart(
+        Shopping.addToCart(
             price: 5, unitPrice: NormalizedPrice(dimension: .mass, canonical: 1.0), item: chicken,
             in: context)
+        let lastTouched = try #require(Shopping.activeTrip(in: context)).lastActivityAt
 
-        Shopping.finishIdleTrip(now: entry.addedAt.addingTimeInterval(5 * 60 * 60), in: context)
+        Shopping.finishIdleTrip(now: lastTouched.addingTimeInterval(5 * 60 * 60), in: context)
         #expect(Shopping.activeTrip(in: context) != nil)
 
-        Shopping.finishIdleTrip(now: entry.addedAt.addingTimeInterval(6 * 60 * 60), in: context)
+        Shopping.finishIdleTrip(now: lastTouched.addingTimeInterval(6 * 60 * 60), in: context)
         #expect(Shopping.activeTrip(in: context) == nil)
         #expect(observations.map(\.reason) == [.bought])
     }
