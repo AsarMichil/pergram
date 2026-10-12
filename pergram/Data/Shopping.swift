@@ -96,10 +96,31 @@ enum Shopping {
         save(context)
     }
 
-    static func finish(_ trip: Trip, in context: ModelContext) {
+    /// Finishing is when the cart's prices become history: by now the shopper has fixed typos,
+    /// removed what they put back and matched what they had not named, so this is what they paid.
+    static func finish(_ trip: Trip, at date: Date = .now, in context: ModelContext) {
+        guard !trip.isFinished else { return }
         trip.isFinished = true
-        trip.endedAt = .now
+        trip.endedAt = date
+        for entry in trip.orderedEntries {
+            guard let item = entry.item, let unitPrice = entry.unitPrice else { continue }
+            context.insert(
+                PriceObservation(
+                    price: unitPrice, reason: .bought, date: entry.addedAt,
+                    verdict: entry.verdict, tripID: trip.id, item: item))
+        }
         save(context)
+    }
+
+    /// A trip nobody has touched in this long was finished without saying so: it is closed out, so
+    /// its prices are kept and the next shop starts with an empty cart.
+    static let idleLimit: TimeInterval = 6 * 60 * 60
+
+    static func finishIdleTrip(now: Date = .now, in context: ModelContext) {
+        guard let trip = activeTrip(in: context) else { return }
+        let lastActivity = trip.orderedEntries.last?.addedAt ?? trip.startedAt
+        guard now.timeIntervalSince(lastActivity) >= idleLimit else { return }
+        finish(trip, at: lastActivity, in: context)
     }
 
     private static func uncrossIfUnclaimed(_ listEntryID: UUID, in trip: Trip) {

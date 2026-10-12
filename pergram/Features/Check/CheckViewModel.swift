@@ -50,7 +50,10 @@ final class CheckViewModel {
     private var acceleratingClearTask: Task<Void, Never>?
     private var deleteWasLongPress = false
     private var modelContext: ModelContext?
-    private var lastRecordedSignature: String?
+    private var lastCheckSignature: String?
+    private var inputSource: CheckSource = .keypad
+    /// Off for the good-price sheet, whose calculator defines a baseline rather than checking one.
+    var recordsChecks = true
 
     init() {
         if let raw = UserDefaults.standard.string(forKey: Self.amountUnitDefaultsKey),
@@ -99,9 +102,12 @@ final class CheckViewModel {
         setFocusedText(text)
     }
 
+    /// Starting a new price is the moment the last one was checked and moved on from.
     private func consumeFreshBase() -> String {
         guard isEditingFresh else { return focusedText }
+        if focusedField == .price { commitCheck() }
         isEditingFresh = false
+        inputSource = .keypad
         return ""
     }
 
@@ -123,19 +129,16 @@ final class CheckViewModel {
     }
 
     /// A throwaway reference for comparison shopping, deliberately independent of the good-price
-    /// baseline and needing no selected item.
-    ///
-    /// Parking a price is also what commits it to history. A scan or a typed entry can be wrong, so
-    /// only a reading the user has vouched for is worth recording against the item.
+    /// baseline and needing no selected item. Not price history: a bookmark is a glance, and only a
+    /// price acted on — bought or made the good price — is kept against the item.
     func bookmarkCurrentPrice(for item: GroceryItem?) {
         guard let normalizedPrice else { return }
         lastBookmarked = normalizedPrice
-        recordObservation(normalizedPrice, for: item)
+        commitCheck()
     }
 
     /// The entry stays on screen so its verdict does not vanish; the next digit starts a new price.
-    ///
-    /// Like a bookmark, a price you put in the cart is one you vouched for, so it is recorded too.
+    /// Its price becomes history when the trip is finished, once the cart has been reviewed.
     func addToCart(item: GroceryItem?, listEntry: ListEntry?) {
         guard let priceValue, priceValue > 0, let modelContext else { return }
         Shopping.addToCart(
@@ -145,9 +148,7 @@ final class CheckViewModel {
             listEntry: listEntry,
             in: modelContext
         )
-        if let normalizedPrice {
-            recordObservation(normalizedPrice, for: item)
-        }
+        commitCheck()
         selectedListEntryID = nil
         focusedField = .price
         isEditingFresh = true
@@ -163,6 +164,8 @@ final class CheckViewModel {
         item.setGoodPrice(normalizedPrice)
         item.userModified = true
         item.updatedAt = .now
+        modelContext.insert(
+            PriceObservation(price: normalizedPrice, reason: .goodPrice, item: item))
         try? modelContext.save()
         settle()
     }
@@ -176,6 +179,8 @@ final class CheckViewModel {
             userModified: true
         )
         modelContext.insert(item)
+        modelContext.insert(
+            PriceObservation(price: normalizedPrice, reason: .goodPrice, item: item))
         try? modelContext.save()
         selectedItemID = item.persistentModelID
         settle()
@@ -184,6 +189,8 @@ final class CheckViewModel {
     /// Fills the fields and lets the normal settle run, so a scan reaches the verdict by the same
     /// path as a typed price. A tag that yielded only a price leaves the amount and unit alone.
     func applyScannedEntry(_ candidate: ScanCandidate) {
+        commitCheck()
+        inputSource = .scan
         priceText = Self.priceText(candidate.price)
         if let amount = candidate.amount, let unit = candidate.unit {
             amountText = Self.amountText(amount)
@@ -266,19 +273,26 @@ final class CheckViewModel {
         settleTick &+= 1
     }
 
-    private func recordObservation(_ price: NormalizedPrice, for item: GroceryItem?) {
-        guard let item, let modelContext, !item.isDeleted else { return }
-        let cents = Int((price.canonical * 100).rounded())
-        let signature = "\(ObjectIdentifier(item))-\(price.dimension.rawValue)-\(cents)"
-        guard signature != lastRecordedSignature else { return }
-        lastRecordedSignature = signature
-        let observation = PriceObservation(
-            price: price,
-            date: .now,
-            source: .keypad,
-            item: item
-        )
-        modelContext.insert(observation)
+    /// Keeps the price on screen as one check, once. Called when the shopper moves on from it —
+    /// starts the next price, scans another tag, bookmarks, adds to the cart or leaves the app — so
+    /// the pauses while typing one price do not each count as a check.
+    func commitCheck() {
+        guard recordsChecks, let modelContext, let normalizedPrice else { return }
+        // `registeredModel`, not `model(for:)`: the latter hands back an invalidated instance for an
+        // identifier it cannot find, which traps the moment it is read.
+        let item: GroceryItem? = selectedItemID.flatMap { modelContext.registeredModel(for: $0) }
+        let cents = Int((normalizedPrice.canonical * 100).rounded())
+        let signature =
+            "\(item.map { "\($0.persistentModelID)" } ?? "-")-\(normalizedPrice.dimension.rawValue)-\(cents)"
+        guard signature != lastCheckSignature else { return }
+        lastCheckSignature = signature
+        modelContext.insert(
+            PriceCheck(
+                price: normalizedPrice,
+                verdict: item?.verdict(for: normalizedPrice),
+                source: inputSource,
+                itemName: item?.name
+            ))
         try? modelContext.save()
     }
 }

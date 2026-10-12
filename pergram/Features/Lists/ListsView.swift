@@ -163,7 +163,7 @@ struct ListDetailView: View {
                 selectedItemID: Binding(
                     get: { entry.item?.persistentModelID },
                     set: { id in
-                        entry.item = id.flatMap { modelContext.model(for: $0) as? GroceryItem }
+                        entry.item = id.flatMap { modelContext.registeredModel(for: $0) }
                         if let aisle = entry.item?.aisle { entry.aisle = aisle }
                         save()
                     }

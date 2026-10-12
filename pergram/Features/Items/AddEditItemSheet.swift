@@ -58,6 +58,7 @@ struct AddEditItemSheet: View {
         }
         .onAppear {
             viewModel.attach(modelContext: modelContext)
+            viewModel.recordsChecks = false
             if name.isEmpty { name = initialName }
             switch item?.goodPrices.first?.dimension ?? usualDimension {
             case .count: viewModel.amountUnit = .each

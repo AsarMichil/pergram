@@ -57,7 +57,7 @@ struct AddToCartTests {
         #expect(viewModel.amountText == "100")
     }
 
-    @Test func addingRecordsTheObservationForTheItem() throws {
+    @Test func addingJudgesTheEntryAgainstTheItem() throws {
         let item = GroceryItem(
             name: "Chicken thigh", goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10))
         context.insert(item)
@@ -65,7 +65,6 @@ struct AddToCartTests {
 
         viewModel.addToCart(item: item, listEntry: nil)
 
-        #expect(try context.fetch(FetchDescriptor<PriceObservation>()).count == 1)
         #expect(cart.first?.verdict == .bad)
     }
 

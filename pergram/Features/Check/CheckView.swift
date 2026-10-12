@@ -135,6 +135,8 @@ struct CheckView: View {
         // Only `.background` stops the session. `.inactive` also fires for the permission alert,
         // Control Centre and the notification shade, none of which are worth a teardown.
         .onChange(of: scenePhase) { _, phase in
+            if phase == .background { viewModel.commitCheck() }
+            if phase == .active { Shopping.finishIdleTrip(in: modelContext) }
             guard mode == .scan else { return }
             switch phase {
             case .active: scanModel.start()

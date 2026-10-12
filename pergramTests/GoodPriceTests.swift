@@ -93,7 +93,7 @@ struct GoodPriceTests {
         viewModel.focus(.amount)
         viewModel.inputDigit("1")
 
-        viewModel.bookmarkCurrentPrice(for: avocado)
+        viewModel.updateGoodPrice(for: avocado)
 
         let recorded = try context.fetch(FetchDescriptor<PriceObservation>())
         #expect(recorded.map(\.dimensionRaw) == [PriceDimension.count.rawValue])

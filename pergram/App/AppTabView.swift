@@ -26,6 +26,7 @@ struct AppTabView: View {
         .task {
             LegacyGoodPriceMigration.run(in: modelContext)
             importSeedIfNeeded()
+            Shopping.finishIdleTrip(in: modelContext)
         }
         .sheet(item: $router.incomingList) { incoming in
             ImportListSheet(incoming: incoming) { _ in router.tab = .lists }
