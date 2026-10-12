@@ -8,6 +8,9 @@ struct ItemPickerSheet: View {
     @Binding var selectedItemID: PersistentIdentifier?
     var selectedListEntryID: Binding<UUID?> = .constant(nil)
     var listEntries: [ListEntry] = []
+    /// What the search starts with — a list entry's text when linking it, so the likely matches are
+    /// already showing.
+    var initialQuery = ""
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \GroceryItem.name) private var items: [GroceryItem]
@@ -93,6 +96,9 @@ struct ItemPickerSheet: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search items"
             )
+            .onAppear {
+                if searchText.isEmpty { searchText = initialQuery }
+            }
             .navigationTitle("Choose item")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

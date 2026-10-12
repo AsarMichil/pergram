@@ -117,7 +117,9 @@ struct ListDetailView: View {
             if !(list.entries ?? []).isEmpty {
                 Section {
                 } footer: {
-                    Text("Tap to link a good price. Swipe right to sit one out this time.")
+                    Text(
+                        "Long-press an item to link, rename or move it. Swipe right to sit one out this time."
+                    )
                 }
             }
         }
@@ -167,7 +169,8 @@ struct ListDetailView: View {
                         if let aisle = entry.item?.aisle { entry.aisle = aisle }
                         save()
                     }
-                )
+                ),
+                initialQuery: entry.text
             )
         }
         .alert(
@@ -190,52 +193,64 @@ struct ListDetailView: View {
         Array(ItemSearch.results(for: newEntryText, items: items, limit: 5))
     }
 
+    /// No tap action: entries mostly link themselves when added, so linking, renaming and moving
+    /// are occasional and live in the long-press menu rather than on every tap.
     private func row(for entry: ListEntry) -> some View {
-        Button {
-            linkingEntry = entry
-        } label: {
-            ListEntryRow(entry: entry)
-                .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .accessibilityHint("Links a good price")
-        .swipeActions(edge: .trailing) {
-            Button(role: .destructive) {
-                modelContext.delete(entry)
-                save()
-            } label: {
-                Label("Delete", systemImage: "trash")
+        ListEntryRow(entry: entry)
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) {
+                    modelContext.delete(entry)
+                    save()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                Button {
+                    editText = entry.text
+                    editingEntry = entry
+                } label: {
+                    Label("Rename", systemImage: "pencil")
+                }
+                .tint(.indigo)
             }
-            Button {
-                editText = entry.text
-                editingEntry = entry
-            } label: {
-                Label("Rename", systemImage: "pencil")
+            .swipeActions(edge: .leading) {
+                Button {
+                    entry.isSkipped.toggle()
+                    save()
+                } label: {
+                    Label(
+                        entry.isSkipped ? "Need it" : "Not this time",
+                        systemImage: entry.isSkipped
+                            ? "arrow.uturn.backward" : "minus.circle")
+                }
+                .tint(entry.isSkipped ? .accentColor : .gray)
             }
-            .tint(.indigo)
-        }
-        .swipeActions(edge: .leading) {
-            Button {
-                entry.isSkipped.toggle()
-                save()
-            } label: {
-                Label(
-                    entry.isSkipped ? "Need it" : "Not this time",
-                    systemImage: entry.isSkipped
-                        ? "arrow.uturn.backward" : "minus.circle")
-            }
-            .tint(entry.isSkipped ? .accentColor : .gray)
-        }
-        .contextMenu {
-            Menu("Move to aisle", systemImage: "arrow.up.arrow.down") {
-                ForEach(Aisle.allCases, id: \.self) { aisle in
-                    Button(aisle.title) {
-                        entry.aisle = aisle
-                        save()
+            .contextMenu {
+                Button(
+                    entry.item == nil ? "Link to item…" : "Change item…",
+                    systemImage: "link"
+                ) {
+                    linkingEntry = entry
+                }
+                Button("Rename", systemImage: "pencil") {
+                    editText = entry.text
+                    editingEntry = entry
+                }
+                Button(
+                    entry.isSkipped ? "Need it this time" : "Not this time",
+                    systemImage: entry.isSkipped ? "arrow.uturn.backward" : "minus.circle"
+                ) {
+                    entry.isSkipped.toggle()
+                    save()
+                }
+                Menu("Move to aisle", systemImage: "arrow.up.arrow.down") {
+                    ForEach(Aisle.allCases, id: \.self) { aisle in
+                        Button(aisle.title) {
+                            entry.aisle = aisle
+                            save()
+                        }
                     }
                 }
             }
-        }
     }
 
     private func addTypedEntry() {
@@ -301,9 +316,15 @@ private struct ListEntryRow: View {
     let entry: ListEntry
 
     var body: some View {
-        HStack {
+        HStack(spacing: 6) {
             Text(entry.text)
                 .foregroundStyle(entry.isSkipped ? .secondary : .primary)
+            if entry.item != nil {
+                Image(systemName: "link")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .accessibilityLabel("Linked")
+            }
             Spacer(minLength: 8)
             if entry.isSkipped {
                 Text("not this time")

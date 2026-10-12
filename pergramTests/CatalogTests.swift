@@ -101,6 +101,15 @@ struct CatalogSearchTests {
         #expect(catalog.search("past").map(\.id) == ["tomato-paste"])
     }
 
+    @Test func freeTextWithAnUnknownWordStillFindsTheKnownOne() {
+        #expect(catalog.search("PC baby spinach").map(\.id) == ["spinach"])
+        #expect(catalog.search("no name tomato").first?.id == "tomatoes")
+    }
+
+    @Test func shortWordsAloneDoNotMatch() {
+        #expect(catalog.search("pc of").isEmpty)
+    }
+
     @Test func retiredEntriesAreNotSearchedButStillResolve() {
         #expect(catalog.search("old thing").isEmpty)
         #expect(catalog.entry(id: "old")?.name == "Old thing")
