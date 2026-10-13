@@ -16,7 +16,7 @@ final class ListShareItem: NSObject, UIActivityItemSource {
     }
 
     static func message(for payload: ListPayload) -> String {
-        payload.plainText + "\n\nMade with PerGram Go — get it on the App Store: "
+        payload.plainText + "\n\nGet PerGram Go — grocery lists that know a good price: "
             + appStoreURL.absoluteString
     }
 

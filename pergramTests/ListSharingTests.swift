@@ -69,7 +69,7 @@ struct ListSharingTests {
         #expect(
             ListShareItem.message(for: samplePayload())
                 == "Weekly\n☐ Milk — 2 L\n– Chicken thigh (not this time)\n\n"
-                + "Made with PerGram Go — get it on the App Store: "
+                + "Get PerGram Go — grocery lists that know a good price: "
                 + "https://apps.apple.com/app/id6799463251")
     }
 
