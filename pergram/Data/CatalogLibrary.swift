@@ -30,18 +30,37 @@ enum CatalogLibrary {
         return item
     }
 
-    /// The shopper's own item named exactly `text`, else the dictionary's, created if need be.
-    static func exactItem(
-        named text: String, among items: [GroceryItem], catalog: Catalog = bundled,
-        in context: ModelContext
-    ) -> GroceryItem? {
+}
+
+/// The one way typed text becomes an item, so "Bananas" from a list, from Check and from a shared
+/// list is always the same Bananas.
+@MainActor
+enum ItemIdentity {
+    /// The shopper's item named `text` (or with it as an alias), ignoring case and accents.
+    static func existing(named text: String, in context: ModelContext) -> GroceryItem? {
         let query = SearchText.normalize(text)
-        if let own = items.first(where: { item in
+        guard !query.isEmpty else { return nil }
+        let items = (try? context.fetch(FetchDescriptor<GroceryItem>())) ?? []
+        return items.first { item in
             ([item.name] + item.aliases).contains { SearchText.normalize($0) == query }
-        }) {
-            return own
         }
-        return catalog.exactMatch(for: text).map { item(for: $0, in: context) }
+    }
+
+    /// Their own item first, then the dictionary's, then a new item named exactly as typed — with
+    /// the aisle its words suggest.
+    static func item(
+        named text: String, catalog: Catalog = CatalogLibrary.bundled, in context: ModelContext
+    ) -> GroceryItem {
+        let name = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let own = existing(named: name, in: context) { return own }
+        if let entry = catalog.exactMatch(for: name) {
+            return CatalogLibrary.item(for: entry, in: context)
+        }
+        let item = GroceryItem(
+            name: name.isEmpty ? "Untitled item" : name, aisle: catalog.guessAisle(for: name),
+            userModified: true)
+        context.insert(item)
+        return item
     }
 }
 
@@ -61,6 +80,14 @@ enum ItemSearchResult: Identifiable {
         switch self {
         case .item(let item): return item.name
         case .entry(let entry): return entry.name
+        }
+    }
+
+    /// The shopper's item for this result, made from the dictionary entry if it is not one yet.
+    func item(in context: ModelContext) -> GroceryItem {
+        switch self {
+        case .item(let item): return item
+        case .entry(let entry): return CatalogLibrary.item(for: entry, in: context)
         }
     }
 

@@ -256,8 +256,7 @@ struct ListDetailView: View {
     private func addTypedEntry() {
         let text = newEntryText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        let item = CatalogLibrary.exactItem(named: text, among: items, in: modelContext)
-        append(text, item: item)
+        append(text, item: ItemIdentity.item(named: text, in: modelContext))
     }
 
     private func add(_ suggestion: ItemSearchResult) {

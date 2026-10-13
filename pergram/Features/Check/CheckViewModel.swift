@@ -172,13 +172,10 @@ final class CheckViewModel {
 
     func saveAsGoodPrice(named name: String) {
         guard let normalizedPrice, let modelContext else { return }
-        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let item = GroceryItem(
-            name: trimmed.isEmpty ? "Untitled item" : trimmed,
-            goodPrice: normalizedPrice,
-            userModified: true
-        )
-        modelContext.insert(item)
+        let item = ItemIdentity.item(named: name, in: modelContext)
+        item.setGoodPrice(normalizedPrice)
+        item.userModified = true
+        item.updatedAt = .now
         modelContext.insert(
             PriceObservation(price: normalizedPrice, reason: .goodPrice, item: item))
         try? modelContext.save()

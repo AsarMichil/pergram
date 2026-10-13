@@ -155,10 +155,7 @@ struct ItemPickerSheet: View {
     }
 
     private func addQuery() {
-        let item = GroceryItem(
-            name: query, aisle: CatalogLibrary.bundled.guessAisle(for: query), userModified: true)
-        modelContext.insert(item)
-        select(item)
+        select(ItemIdentity.item(named: query, in: modelContext))
     }
 }
 
