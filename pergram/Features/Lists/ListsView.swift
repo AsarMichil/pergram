@@ -116,10 +116,9 @@ struct ListDetailView: View {
         .navigationTitle(list.name)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                ShareLink(
-                    item: SharedListFile(payload: ListSharing.payload(for: list)),
-                    preview: SharePreview(list.name, image: Image(systemName: "checklist"))
-                )
+                Button("Share", systemImage: "square.and.arrow.up") {
+                    ListShare.present(ListSharing.payload(for: list))
+                }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {

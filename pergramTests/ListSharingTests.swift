@@ -65,6 +65,14 @@ struct ListSharingTests {
             samplePayload().plainText == "Weekly\n☐ Milk — 2 L\n– Chicken thigh (not this time)")
     }
 
+    @Test func sharedMessageEndsWithWhereToGetTheApp() {
+        #expect(
+            ListShareItem.message(for: samplePayload())
+                == "Weekly\n☐ Milk — 2 L\n– Chicken thigh (not this time)\n\n"
+                + "Made with PerGram Go — get it on the App Store: "
+                + "https://apps.apple.com/app/id6799463251")
+    }
+
     @Test func exportCarriesNotesSkipFlagsAndGoodPrices() throws {
         let context = try makeContext()
         let chicken = GroceryItem(

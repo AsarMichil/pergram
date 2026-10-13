@@ -183,6 +183,13 @@ Before building UI, read the frontend-design skill notes / Apple HIG grocery-adj
 | 1.3 | Shopping list with "target good prices" | `category` field + existing item store |
 | 2.0 | `fr-CA` localization | String catalogs |
 | 2.x | LLM-assisted natural-language item entry ("costco rotisserie chicken 1.2kg $8") | Foundation Models plumbing already in v1 |
+| — | Share a list by link that opens in the app (`agent-docs/sharing-spec.md`) | `ListPayload` share format |
+| — | Web page that shows a shared list to people without the app; could update when the list changes | Link sharing + a server at `pergram.asarmichil.com` |
+| — | Live shared lists between phones | Same `ListPayload`, synced instead of sent |
+| — | Past trips history screen | Finished trips keep `listName`, `missedItemNames` and their cart |
+| — | Per-store aisle order | `AisleOrder` is a value, not a constant |
+| — | Stats and counters (checks made, bad buys avoided) | `PriceCheck` log |
+| — | App Store screenshots of Lists and Shop | `ScreenshotTests` |
 
 ---
 
