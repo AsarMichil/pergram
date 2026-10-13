@@ -1,20 +1,28 @@
-PerGram Go — a unit-price sanity checker for Canadian grocery shopping. Get a price into it any way you like, and it answers one question: good, meh, or bad, in $/100g.
+PerGram Go — a unit-price sanity checker for Canadian grocery shopping. Get a price into it any way you like, and it answers one question: good, meh, or bad.
 
-New in this build: Scan. Point the camera at a shelf tag instead of typing.
+New in 1.2.0: grocery lists, shopping trips with a running cart, and Your items.
+
+Before you start: if you installed an earlier 1.2.0 test build, delete the app and reinstall. Lists made with that build will not carry over.
 
 What to try:
-• Scan a shelf tag. Aim so the tag fills the frame — pinch to zoom, tap to focus. It fills the fields on its own; no button to press.
-• Scan the awkward ones: a big price with a tiny "/lb", a random-weight meat label, a French tag, "2 for $5", a bottle priced per 100 mL.
-• Swipe to Type to correct anything it got wrong, then read the verdict.
-• Type a price and an amount (g, kg, lb, oz), then read the verdict.
-• Cycle the display unit ($/100g ↔ $/lb) and confirm the big number and the "last" chip update together.
-• Tap the bookmark key (right of the 0) to pin a price, then tap the "last" chip to pop it away.
-• Set or update your "good price" for an item, then re-check to watch the verdict change.
+• Lists — make a list and add things by typing. Pick a suggestion, or type anything ("PC thighs" is fine). Each lands in its aisle.
+• Tap something on a list to add a note ("6", "2 lb", "ripe ones"), rename it or move it to another aisle.
+• Shop this list — switch off what you are skipping this week, then Start. Skips stay on the list for next time.
+• On the Shop page, tap an item to price it. You land in Type or Scan with it already selected. Add it to the cart and it crosses itself off.
+• Tap the circle to cross something off without pricing it. Swipe right on a row for "Not this time".
+• Add the same item at the same price twice. It should count up to × 2, not add a second row.
+• Add a price with no item picked, then swipe right on it in the cart and choose "What was this?".
+• Pick an item with no good price on Check. Where the verdict would be, tap "Set as good price".
+• Finish a trip. The summary names bad buys and offers "Use $X" for anything you bought without a good price.
+• Your items (the Items tab) — everything you buy, by aisle. Tap one to set or remove good prices; an item can have one per weight, per volume and each.
+• Share a list with another tester (AirDrop or Messages). Change it, share it again, and check the import screen: what changed, then Update or Save as copy.
 
-Most useful feedback: a photo of a tag it read wrong, or refused to read, with what it should have said. A wrong number matters far more than a blank one.
+Most useful feedback: anything that felt confusing, an item the search did not know, an item that landed in the wrong aisle, or a tag the scanner read wrong (with a photo).
 
 Known limits:
-• Scanning has been tested against photos of tags rather than real shelves, so glare, curved shelf strips and aisle lighting are unknowns.
+• The cart total is what you checked, before tax and deposits — not a receipt.
+• Sharing sends a copy. Lists do not sync live between phones.
+• Search knows about 550 common Canadian groceries in English and French; anything else can be typed.
 • Camera frames are processed on your device and never stored or sent anywhere.
 
 Please send feedback with the TestFlight "Send Feedback" button — screenshots welcome.

@@ -1,7 +1,7 @@
-# App Review reply — Guideline 2.1, new app submission
+# App Review notes
 
-Paste the numbered answers below into the App Store Connect reply, and the same text into
-**App Review Information → Notes** so future submissions carry it.
+Paste the numbered answers below into **App Review Information → Notes** for each submission. They
+were first written as the Guideline 2.1 reply and are kept current with the app (last: 1.2.0).
 
 ---
 
@@ -25,6 +25,9 @@ and compares it against a good price the user sets themselves.
 The audience is ordinary grocery shoppers in Canada, particularly anyone comparing package sizes,
 brands or stores. There is no professional or business use case.
 
+Since 1.2.0 it also keeps grocery lists and a running cart for a shopping trip, so the same check
+happens while shopping a list, and a trip ends with a summary of what was spent and how it rated.
+
 The verdict is deliberately measured against the user's own saved good price rather than a market
 average, so it reflects what that person considers acceptable.
 
@@ -36,8 +39,9 @@ offline from first launch.
 - **Check (Type).** Opens on this tab. Enter a price on the keypad, tap the amount field, enter an
   amount, and choose a unit. The verdict appears above.
 - **Selecting an item.** Tap the item row between the price card and the keypad to open its menu.
-  "Choose item…" picks from a list of common groceries, each carrying a starting good price shown on
-  the row itself. "Set good price to …" replaces that baseline with whatever is currently on screen.
+  "Choose item…" searches the user's items and a built-in list of common groceries. A fresh install
+  has no good prices: the user sets them. With an item selected, "Set as good price" appears where
+  the verdict would be, and "Set good price to …" in the item menu does the same.
 - **Display unit.** Tap the unit beside the large price (for example `/kg`) to cycle it.
 - **Comparing two products.** The bookmark key parks the price on screen; check a second product and
   the chip under the price shows the difference between them.
@@ -45,7 +49,14 @@ offline from first launch.
   permission the first time. Point the camera at any printed price tag and the fields fill on their
   own; there is no button to press. Pinch to zoom and tap to focus for small print.
   A printed grocery shelf tag works, and so does a photograph of one shown on another screen.
-- **Items.** The saved list, searchable, with prices editable via + or by swiping a row.
+- **Shop.** The leftmost mode on the Check screen ("Shop", or swipe right from Type). It shows the
+  running cart and, when shopping a list, that list by aisle. The add-to-cart key sits under the
+  bookmark key; "Finish trip" shows the trip summary.
+- **Lists.** Create a list with +, add items by typing, tap an item to add a note or change its
+  aisle, and "Shop this list" to start a trip. The share button sends a copy of the list as a
+  `.pergram` file, which PerGram Go opens on another device to import or update it.
+- **Items.** Everything the user has added or priced, by aisle, searchable; tap one to set or remove
+  its good prices.
 - **Settings.** How the app works, a feedback email, links to the support page and privacy policy,
   and the version number.
 
@@ -65,9 +76,13 @@ Everything is Apple's own on-device frameworks:
 Camera frames are processed in memory in real time and are never written to disk, saved to the photo
 library, or transmitted. The app's privacy manifest declares no collected data and no tracking.
 
-The grocery items that ship with the app, and their starting prices, are the developer's own
-estimates written by hand. They are not licensed from, scraped from, or supplied by any retailer or
-data provider.
+Sharing a list uses the system share sheet: the app writes a small file and iOS sends it by whatever
+the user picks (AirDrop, Messages, Files). The app itself never connects to anything.
+
+The built-in list of common groceries is names, aliases and aisles only — no prices. It was written
+by the developer and its French names were checked against Health Canada's Canadian Nutrient File,
+published under the Open Government Licence – Canada, which the app credits in Settings. Nothing
+comes from any retailer.
 
 ## 5. Regional differences
 
@@ -86,8 +101,9 @@ Neither applies.
 The app is a unit-price calculator. It is not in a regulated industry, and it makes no health,
 financial, or safety claims. A verdict is arithmetic against a number the user chose.
 
-It contains no third-party protected material. There is no retailer branding, no licensed price
-data, and no third-party content of any kind. Scanning reads the price printed on a tag the user is
+It contains no third-party protected material. There is no retailer branding and no price data
+from anyone but the user. The only outside material is a cross-check of grocery names against an
+open Government of Canada dataset, credited in Settings as its licence requires. Scanning reads the price printed on a tag the user is
 standing in front of, using the camera, in the same way a person reads it — nothing is retained and
 no retailer system is accessed.
 
@@ -106,16 +122,20 @@ One continuous take, on a physical device, roughly 60–90 seconds. Start with t
 5. Tap "Scan". Allow camera access when iOS asks — leave the permission prompt in the recording.
 6. Point at a printed price tag until the fields fill on their own. Pinch to zoom once.
 7. Swipe to "Type" to show the scanned values can be corrected by hand.
-8. Open Items, scroll, use the search field.
-9. Back on Check, tap the unit beside the large price to cycle it.
-10. Open Settings and open the privacy policy link.
+8. Open Lists, create a list, add two items, and tap one to add a note.
+9. Tap "Shop this list", then Start. Tap an item to price it and add it to the cart with the cart
+   key; show it cross off.
+10. Open the Shop page and tap "Finish trip" to show the summary.
+11. Open Items, scroll, use the search field.
+12. Back on Check, tap the unit beside the large price to cycle it.
+13. Open Settings and open the privacy policy link.
 
 Include audio narration or on-screen captions if convenient; neither is required.
 
 
 ---
 
-# 1.0.1 — hotfix for scan
+# Archived — 1.0.1 hotfix for scan (released)
 
 **1.0 is live with scan broken.** The Guideline 4 layout work fixed the short-screen overflow but
 regressed the camera: the scan view sat inside a `ViewThatFits`, which builds every candidate in
