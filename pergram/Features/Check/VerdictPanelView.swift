@@ -10,6 +10,9 @@ struct VerdictPanelView: View {
     let settleTick: Int
     var metrics: CheckMetrics = .roomy
     var onClearBookmark: () -> Void = {}
+    /// Set when an item is selected: where there is no verdict to give, the row offers to make this
+    /// price the good price — the empty state doing a job instead of reporting one.
+    var onSetGoodPrice: (() -> Void)?
 
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -74,6 +77,18 @@ struct VerdictPanelView: View {
                 value: settleTick
             )
             .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale))
+        } else if let onSetGoodPrice {
+            Button(action: onSetGoodPrice) {
+                verdictLabel("SET AS GOOD PRICE", systemImage: "target", color: .accentColor)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(
+                dimensionMismatch
+                    ? "This item has a good price in another unit"
+                    : "This item has no good price yet"
+            )
+            .accessibilityIdentifier("setAsGoodPrice")
+            .transition(.opacity)
         } else if dimensionMismatch {
             verdictLabel(
                 "DIFFERENT UNIT", systemImage: "exclamationmark.triangle", color: .secondary

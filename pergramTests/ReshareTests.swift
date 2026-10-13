@@ -22,10 +22,18 @@ struct ReshareTests {
         receiver = try context()
         list = GroceryList(name: "Weekly")
         sender.insert(list)
-        list.append("Milk")
-        list.append("Eggs")
-        list.append("Paper towels")
+        for name in ["Milk", "Eggs", "Paper towels"] {
+            let item = GroceryItem(name: name)
+            sender.insert(item)
+            list.add(item)
+        }
         try sender.save()
+    }
+
+    private func senderAdds(_ name: String) {
+        let item = GroceryItem(name: name)
+        sender.insert(item)
+        list.add(item)
     }
 
     private func receive() -> ListSharing.ImportPlan {
@@ -36,14 +44,14 @@ struct ReshareTests {
         try receiver.fetch(FetchDescriptor<GroceryList>())
     }
 
-    private func entry(_ text: String, in list: GroceryList) -> ListEntry? {
-        list.orderedEntries.first { $0.text == text }
+    private func entry(_ name: String, in list: GroceryList) -> ListEntry? {
+        list.orderedEntries.first { $0.name == name }
     }
 
     @Test func aReshareShowsWhatTheSenderChanged() throws {
         ListSharing.apply(receive(), accepting: [], in: receiver)
-        list.orderedEntries.first { $0.text == "Paper towels" }?.isSkipped = true
-        list.append("Bananas")
+        list.orderedEntries.first { $0.name == "Paper towels" }?.isSkipped = true
+        senderAdds("Bananas")
 
         let changes = try #require(receive().changes)
 
@@ -54,8 +62,8 @@ struct ReshareTests {
 
     @Test func updatingBringsTheSendersNotThisTime() throws {
         ListSharing.apply(receive(), accepting: [], in: receiver)
-        list.orderedEntries.first { $0.text == "Paper towels" }?.isSkipped = true
-        list.append("Bananas")
+        list.orderedEntries.first { $0.name == "Paper towels" }?.isSkipped = true
+        senderAdds("Bananas")
 
         let updated = ListSharing.apply(receive(), accepting: [], in: receiver)
 
@@ -69,7 +77,7 @@ struct ReshareTests {
         let trip = Shopping.startTrip(shopping: theirs, in: receiver)
         let milk = try #require(entry("Milk", in: theirs))
         Shopping.setCrossed(true, for: milk, in: trip)
-        list.append("Bananas")
+        senderAdds("Bananas")
 
         ListSharing.apply(receive(), accepting: [], in: receiver)
 
@@ -79,7 +87,7 @@ struct ReshareTests {
     @Test func aCopyLeavesTheReceiversListAlone() throws {
         let original = ListSharing.apply(receive(), accepting: [], in: receiver)
         try #require(entry("Eggs", in: original)).isSkipped = true
-        list.append("Bananas")
+        senderAdds("Bananas")
 
         let copy = ListSharing.apply(receive(), accepting: [], asCopy: true, in: receiver)
 
@@ -95,7 +103,7 @@ struct ReshareTests {
     @Test func laterSharesUpdateTheOriginalNotTheCopy() throws {
         let original = ListSharing.apply(receive(), accepting: [], in: receiver)
         let copy = ListSharing.apply(receive(), accepting: [], asCopy: true, in: receiver)
-        list.append("Bananas")
+        senderAdds("Bananas")
 
         let plan = receive()
         ListSharing.apply(plan, accepting: [], in: receiver)

@@ -2,11 +2,10 @@ import SwiftData
 import SwiftUI
 
 /// Search first: the shopper's items and the bundled dictionary answer the same query, and anything
-/// neither knows is one "Add" away. With nothing typed it shows only what the shopper already uses —
-/// the dictionary is too long to browse and is not meant to be.
+/// neither knows is one "Add" away. With nothing typed it shows only the shopper's own items — the
+/// dictionary is too long to browse and is not meant to be.
 struct ItemPickerSheet: View {
     @Binding var selectedItemID: PersistentIdentifier?
-    var selectedListEntryID: Binding<UUID?> = .constant(nil)
     var listEntries: [ListEntry] = []
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -17,14 +16,12 @@ struct ItemPickerSheet: View {
     private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
     private var query: String { searchText.trimmingCharacters(in: .whitespacesAndNewlines) }
 
-    private var pricedItems: [GroceryItem] { items.filter(\.hasGoodPrice) }
-
     private var results: [ItemSearchResult] { ItemSearch.results(for: query, items: items) }
 
     private var matchingListEntries: [ListEntry] {
         guard !query.isEmpty else { return listEntries }
         let normalized = SearchText.normalize(query)
-        return listEntries.filter { SearchText.normalize($0.text).contains(normalized) }
+        return listEntries.filter { SearchText.normalize($0.name).contains(normalized) }
     }
 
     /// Offered unless the query already names something exactly, which would only make a duplicate.
@@ -33,17 +30,12 @@ struct ItemPickerSheet: View {
         return !results.contains { $0.isNamed(query) }
     }
 
-    private var hasSelection: Bool {
-        selectedItemID != nil || selectedListEntryID.wrappedValue != nil
-    }
-
     var body: some View {
         NavigationStack {
             List {
-                if hasSelection && query.isEmpty {
+                if selectedItemID != nil && query.isEmpty {
                     Button("Clear selection", role: .destructive) {
                         selectedItemID = nil
-                        selectedListEntryID.wrappedValue = nil
                         dismiss()
                     }
                 }
@@ -52,10 +44,9 @@ struct ItemPickerSheet: View {
                         ForEach(matchingListEntries) { entry in
                             Button {
                                 selectedItemID = entry.item?.persistentModelID
-                                selectedListEntryID.wrappedValue = entry.id
                                 dismiss()
                             } label: {
-                                Label(entry.text, systemImage: "circle")
+                                Label(entry.name, systemImage: "circle")
                                     .foregroundStyle(.primary)
                             }
                         }
@@ -63,7 +54,7 @@ struct ItemPickerSheet: View {
                 }
                 if query.isEmpty {
                     Section("Your items") {
-                        ForEach(pricedItems) { item in
+                        ForEach(items) { item in
                             itemRow(
                                 name: item.name,
                                 detail: item.goodPriceSummary(preferring: storedUnit)
@@ -101,7 +92,7 @@ struct ItemPickerSheet: View {
                 }
             }
             .overlay {
-                if query.isEmpty && pricedItems.isEmpty && matchingListEntries.isEmpty {
+                if query.isEmpty && items.isEmpty && matchingListEntries.isEmpty {
                     ContentUnavailableView(
                         "Search for an item",
                         systemImage: "magnifyingglass",
@@ -121,7 +112,7 @@ struct ItemPickerSheet: View {
             }
         case .entry(let entry):
             itemRow(name: entry.name, detail: entry.aisle.title) {
-                select(CatalogLibrary.item(for: entry, in: modelContext))
+                select(result.item(in: modelContext))
             }
         }
     }
@@ -144,15 +135,11 @@ struct ItemPickerSheet: View {
     private func select(_ item: GroceryItem) {
         try? modelContext.save()
         selectedItemID = item.persistentModelID
-        selectedListEntryID.wrappedValue = nil
         dismiss()
     }
 
     private func addQuery() {
-        let item = GroceryItem(
-            name: query, aisle: CatalogLibrary.bundled.guessAisle(for: query), userModified: true)
-        modelContext.insert(item)
-        select(item)
+        select(ItemIdentity.item(named: query, in: modelContext))
     }
 }
 

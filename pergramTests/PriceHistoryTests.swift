@@ -62,7 +62,7 @@ struct PriceHistoryTests {
     @Test func addingToTheCartIsNotHistoryUntilTheTripIsFinished() {
         let viewModel = makeViewModel(selecting: chicken)
 
-        viewModel.addToCart(item: chicken, listEntry: nil)
+        viewModel.addToCart(item: chicken)
 
         #expect(observations.isEmpty)
     }
@@ -85,6 +85,16 @@ struct PriceHistoryTests {
         #expect(observations.first?.item?.name == "Oat milk")
     }
 
+    @Test func savingAGoodPriceUnderAnExistingNameUsesThatItem() {
+        let viewModel = makeViewModel()
+
+        viewModel.saveAsGoodPrice(named: "chicken THIGH")
+
+        let items = (try? context.fetch(FetchDescriptor<GroceryItem>())) ?? []
+        #expect(items.count == 1)
+        #expect(chicken.goodPricePerMass == 2)
+    }
+
     @Test func typingOnePriceIsOneCheckOnceTheShopperMovesOn() {
         let viewModel = makeViewModel(selecting: chicken)
         #expect(checks.isEmpty)
@@ -102,7 +112,7 @@ struct PriceHistoryTests {
         let viewModel = makeViewModel()
 
         viewModel.bookmarkCurrentPrice(for: nil)
-        viewModel.addToCart(item: nil, listEntry: nil)
+        viewModel.addToCart(item: nil)
 
         #expect(checks.count == 1)
     }
@@ -142,15 +152,12 @@ struct PriceHistoryTests {
         #expect(observations.first?.date == bought.addedAt)
     }
 
-    @Test func aPriceMatchedToAnItemBeforeFinishingIsRecorded() throws {
-        let list = GroceryList(name: "Weekly")
-        context.insert(list)
-        let thighs = list.append("Thighs", item: chicken)
-        let trip = Shopping.startTrip(shopping: list, in: context)
+    @Test func aPriceNamedBeforeFinishingIsRecorded() throws {
         let entry = Shopping.addToCart(
             price: 5, unitPrice: NormalizedPrice(dimension: .mass, canonical: 1.0), item: nil,
             in: context)
-        Shopping.match(entry, to: thighs, in: context)
+        let trip = try #require(Shopping.activeTrip(in: context))
+        Shopping.name(entry, as: chicken, in: context)
 
         Shopping.finish(trip, in: context)
 
@@ -181,5 +188,60 @@ struct PriceHistoryTests {
         Shopping.finishIdleTrip(now: lastTouched.addingTimeInterval(6 * 60 * 60), in: context)
         #expect(Shopping.activeTrip(in: context) == nil)
         #expect(observations.map(\.reason) == [.bought])
+    }
+}
+
+@MainActor
+struct GoodPriceSuggestionTests {
+    private let context: ModelContext
+
+    init() throws {
+        let configuration = ModelConfiguration(
+            schema: AppSchema.schema, isStoredInMemoryOnly: true)
+        context = ModelContext(
+            try ModelContainer(for: AppSchema.schema, configurations: [configuration]))
+    }
+
+    private func mass(_ canonical: Double) -> NormalizedPrice {
+        NormalizedPrice(dimension: .mass, canonical: canonical)
+    }
+
+    @Test func anItemBoughtWithoutAGoodPriceIsOfferedTheLowestPaid() throws {
+        let bananas = GroceryItem(name: "Bananas")
+        context.insert(bananas)
+        Shopping.addToCart(price: 1.5, unitPrice: mass(0.33), item: bananas, in: context)
+        Shopping.addToCart(price: 1.2, unitPrice: mass(0.30), item: bananas, in: context)
+        let trip = try #require(Shopping.activeTrip(in: context))
+
+        let suggestions = Shopping.goodPriceSuggestions(for: trip)
+
+        #expect(suggestions.map(\.price) == [mass(0.30)])
+    }
+
+    @Test func anItemWithAGoodPriceInThatUnitIsNotOffered() throws {
+        let chicken = GroceryItem(name: "Chicken", goodPrice: mass(1.10))
+        let eggs = GroceryItem(name: "Eggs")
+        context.insert(chicken)
+        context.insert(eggs)
+        Shopping.addToCart(price: 5, unitPrice: mass(1.0), item: chicken, in: context)
+        Shopping.addToCart(price: 4, unitPrice: nil, item: eggs, in: context)
+        let trip = try #require(Shopping.activeTrip(in: context))
+
+        #expect(Shopping.goodPriceSuggestions(for: trip).isEmpty)
+    }
+
+    @Test func usingASuggestionSetsTheGoodPriceAndRecordsIt() throws {
+        let bananas = GroceryItem(name: "Bananas")
+        context.insert(bananas)
+        Shopping.addToCart(price: 1.2, unitPrice: mass(0.30), item: bananas, in: context)
+        let trip = try #require(Shopping.activeTrip(in: context))
+        let suggestion = try #require(Shopping.goodPriceSuggestions(for: trip).first)
+
+        Shopping.useAsGoodPrice(suggestion, in: context)
+
+        #expect(bananas.goodPricePerMass == 0.30)
+        #expect(Shopping.goodPriceSuggestions(for: trip).isEmpty)
+        let recorded = try context.fetch(FetchDescriptor<PriceObservation>())
+        #expect(recorded.map(\.reason) == [.goodPrice])
     }
 }

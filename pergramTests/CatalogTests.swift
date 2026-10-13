@@ -101,6 +101,15 @@ struct CatalogSearchTests {
         #expect(catalog.search("past").map(\.id) == ["tomato-paste"])
     }
 
+    @Test func freeTextWithAnUnknownWordStillFindsTheKnownOne() {
+        #expect(catalog.search("PC baby spinach").map(\.id) == ["spinach"])
+        #expect(catalog.search("no name tomato").first?.id == "tomatoes")
+    }
+
+    @Test func shortWordsAloneDoNotMatch() {
+        #expect(catalog.search("pc of").isEmpty)
+    }
+
     @Test func retiredEntriesAreNotSearchedButStillResolve() {
         #expect(catalog.search("old thing").isEmpty)
         #expect(catalog.entry(id: "old")?.name == "Old thing")
@@ -163,9 +172,44 @@ struct ItemSearchTests {
         let mine = GroceryItem(name: "Bananas", userModified: true)
         context.insert(mine)
 
-        let found = CatalogLibrary.exactItem(
-            named: "bananas", among: [mine], catalog: catalog, in: context)
+        let found = ItemIdentity.item(named: "bananas", catalog: catalog, in: context)
 
-        #expect(found?.persistentModelID == mine.persistentModelID)
+        #expect(found.persistentModelID == mine.persistentModelID)
+    }
+
+    @Test func anAliasOrAccentFindsTheSameItem() throws {
+        let context = try makeContext()
+        let mine = GroceryItem(name: "Sour cream", aliases: ["crème sure"], userModified: true)
+        context.insert(mine)
+
+        #expect(ItemIdentity.item(named: "CREME SURE", catalog: catalog, in: context) === mine)
+    }
+
+    @Test func aDictionaryNameBecomesThatEntrysItem() throws {
+        let context = try makeContext()
+
+        let item = ItemIdentity.item(named: "banana", catalog: catalog, in: context)
+
+        #expect(item.seedID == "bananas")
+        #expect(item.aisle == .produce)
+    }
+
+    @Test func unknownTextBecomesANewItemNamedAsTyped() throws {
+        let context = try makeContext()
+
+        let item = ItemIdentity.item(named: "  PC thighs ", catalog: catalog, in: context)
+
+        #expect(item.name == "PC thighs")
+        #expect(item.seedID.isEmpty)
+        #expect(try context.fetch(FetchDescriptor<GroceryItem>()).count == 1)
+    }
+
+    @Test func typingTheSameNameTwiceMakesOneItem() throws {
+        let context = try makeContext()
+
+        let first = ItemIdentity.item(named: "Paper towels", catalog: catalog, in: context)
+        let second = ItemIdentity.item(named: "paper towels", catalog: catalog, in: context)
+
+        #expect(first === second)
     }
 }

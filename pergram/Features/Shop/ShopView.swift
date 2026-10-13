@@ -12,7 +12,7 @@ struct ShopView: View {
     @Query(sort: \GroceryList.name) private var lists: [GroceryList]
     @State private var editingEntry: CartEntry?
     @State private var removingEntry: CartEntry?
-    @State private var matchingEntry: CartEntry?
+    @State private var namingEntry: CartEntry?
     @State private var isShowingSummary = false
     @State private var preparingList: GroceryList?
 
@@ -61,7 +61,7 @@ struct ShopView: View {
                     Button {
                         editingEntry = entry
                     } label: {
-                        CartRow(entry: entry, label: trip.label(for: entry))
+                        CartRow(entry: entry, label: entry.label)
                             .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
@@ -73,11 +73,11 @@ struct ShopView: View {
                         } label: {
                             Label("Remove", systemImage: "trash")
                         }
-                        if trip.list != nil, trip.listEntry(for: entry) == nil {
+                        if entry.item == nil {
                             Button {
-                                matchingEntry = entry
+                                namingEntry = entry
                             } label: {
-                                Label("Match to list", systemImage: "checklist")
+                                Label("What was this?", systemImage: "questionmark.circle")
                             }
                             .tint(.indigo)
                         }
@@ -121,12 +121,22 @@ struct ShopView: View {
         .scrollContentBackground(.hidden)
         .sensoryFeedback(.selection, trigger: trip.crossedEntryIDs)
         .sheet(item: $editingEntry, onDismiss: removePendingEntry) { entry in
-            QuantitySheet(entry: entry, label: trip.label(for: entry)) {
+            QuantitySheet(entry: entry, label: entry.label) {
                 removingEntry = entry
             }
         }
-        .sheet(item: $matchingEntry) { entry in
-            MatchToListSheet(entry: entry, trip: trip)
+        .sheet(item: $namingEntry) { entry in
+            ItemPickerSheet(
+                selectedItemID: Binding(
+                    get: { entry.item?.persistentModelID },
+                    set: { id in
+                        guard let item: GroceryItem = id.flatMap(modelContext.registeredModel)
+                        else { return }
+                        withAnimation { Shopping.name(entry, as: item, in: modelContext) }
+                    }
+                ),
+                listEntries: (trip.list?.orderedEntries ?? []).filter { !trip.isCrossed($0) }
+            )
         }
         .sheet(isPresented: $isShowingSummary) {
             TripSummarySheet(trip: trip)
@@ -176,25 +186,22 @@ struct ShopView: View {
         ShopListRow(
             entry: entry,
             isCrossed: trip.isCrossed(entry),
+            isInCart: trip.isInCart(entry),
             onToggle: { Shopping.setCrossed(!trip.isCrossed(entry), for: entry, in: trip) },
             onPrice: { onPrice(entry) }
         )
-        .contextMenu {
-            Button(
-                entry.isSkipped ? "Need it this time" : "Not this time",
-                systemImage: entry.isSkipped ? "arrow.uturn.backward" : "minus.circle"
-            ) {
-                entry.isSkipped.toggle()
+        // Leading, like the cart's: a swipe left on this page is the mode swipe back to Type. The
+        // row moves in or out of "Not this time", so the change is animated rather than a jump.
+        .swipeActions(edge: .leading) {
+            Button {
+                withAnimation { entry.isSkipped.toggle() }
                 try? modelContext.save()
+            } label: {
+                Label(
+                    entry.isSkipped ? "Need it" : "Not this time",
+                    systemImage: entry.isSkipped ? "arrow.uturn.backward" : "minus.circle")
             }
-            Menu("Move to aisle", systemImage: "arrow.up.arrow.down") {
-                ForEach(Aisle.allCases, id: \.self) { aisle in
-                    Button(aisle.title) {
-                        entry.aisle = aisle
-                        try? modelContext.save()
-                    }
-                }
-            }
+            .tint(entry.isSkipped ? .accentColor : .gray)
         }
     }
 
@@ -261,17 +268,24 @@ private struct CartRow: View {
 }
 
 /// Two targets: the circle crosses an entry off by hand, the rest of the row goes to price it, since
-/// pricing is the more useful thing to do with an item you are standing in front of.
+/// pricing is the more useful thing to do with an item you are standing in front of. An entry whose
+/// item is in the cart shows the cart instead, and stays crossed until it leaves the cart.
 private struct ShopListRow: View {
     let entry: ListEntry
     let isCrossed: Bool
+    let isInCart: Bool
     var onToggle: () -> Void
     var onPrice: () -> Void
+
+    private var symbol: String {
+        if isInCart { return "cart.circle.fill" }
+        return isCrossed ? "checkmark.circle.fill" : "circle"
+    }
 
     var body: some View {
         HStack(spacing: 10) {
             Button(action: onToggle) {
-                Image(systemName: isCrossed ? "checkmark.circle.fill" : "circle")
+                Image(systemName: symbol)
                     .font(.title3)
                     .foregroundStyle(isCrossed ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
                     .contentTransition(.symbolEffect(.replace))
@@ -279,13 +293,24 @@ private struct ShopListRow: View {
                     .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(isCrossed ? "Uncross \(entry.text)" : "Cross off \(entry.text)")
+            .disabled(isInCart)
+            .accessibilityLabel(
+                isInCart
+                    ? "\(entry.name), in the cart"
+                    : isCrossed ? "Uncross \(entry.name)" : "Cross off \(entry.name)")
 
             Button(action: onPrice) {
                 HStack(spacing: 8) {
-                    Text(entry.text)
-                        .strikethrough(isCrossed)
-                        .foregroundStyle(isCrossed ? .secondary : .primary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(entry.name)
+                            .strikethrough(isCrossed)
+                            .foregroundStyle(isCrossed ? .secondary : .primary)
+                        if let note = entry.note {
+                            Text(note)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                     Spacer(minLength: 8)
                     Image(systemName: "chevron.right")
                         .font(.caption.weight(.semibold))
@@ -295,7 +320,7 @@ private struct ShopListRow: View {
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Price \(entry.text)")
+            .accessibilityLabel("Price \(entry.name)")
             .accessibilityValue(isCrossed ? "Got it" : "")
         }
         .listRowInsets(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 16))

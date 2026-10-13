@@ -91,49 +91,15 @@ struct QuantitySheet: View {
     }
 }
 
-struct MatchToListSheet: View {
-    let entry: CartEntry
-    let trip: Trip
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
-
-    private var candidates: [ListEntry] {
-        (trip.list?.orderedEntries ?? []).filter { !trip.isCrossed($0) }
-    }
-
-    var body: some View {
-        NavigationStack {
-            List(candidates) { listEntry in
-                Button(listEntry.text) {
-                    Shopping.match(entry, to: listEntry, in: modelContext)
-                    dismiss()
-                }
-                .foregroundStyle(.primary)
-            }
-            .overlay {
-                if candidates.isEmpty {
-                    ContentUnavailableView("Everything is crossed off", systemImage: "checklist")
-                }
-            }
-            .navigationTitle("This was…")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
-    }
-}
-
 /// The end of a trip is a verdict, not a receipt: what you spent, how it rated, and the bad buys
 /// and forgotten items named while you can still do something about them.
 struct TripSummarySheet: View {
     let trip: Trip
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
 
+    private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
     private var badBuys: [CartEntry] { trip.orderedEntries.filter { $0.verdict == .bad } }
 
     private var stillNeeded: [ListEntry] {
@@ -161,7 +127,7 @@ struct TripSummarySheet: View {
                     Section("Bad buys") {
                         ForEach(badBuys) { entry in
                             Label {
-                                Text(trip.label(for: entry))
+                                Text(entry.label)
                             } icon: {
                                 Image(systemName: Verdict.bad.symbolName)
                                     .foregroundStyle(Verdict.bad.color)
@@ -170,10 +136,31 @@ struct TripSummarySheet: View {
                     }
                 }
 
+                let suggestions = Shopping.goodPriceSuggestions(for: trip)
+                if !suggestions.isEmpty {
+                    Section {
+                        ForEach(suggestions) { suggestion in
+                            LabeledContent(suggestion.item.name) {
+                                Button("Use \(format(suggestion.price))") {
+                                    withAnimation {
+                                        Shopping.useAsGoodPrice(suggestion, in: modelContext)
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                .monospacedDigit()
+                            }
+                        }
+                    } header: {
+                        Text("No good price yet")
+                    } footer: {
+                        Text("What you paid is a fair place to start. You can change it in Items.")
+                    }
+                }
+
                 if !stillNeeded.isEmpty {
                     Section("Still on your list") {
                         ForEach(stillNeeded) { entry in
-                            Label(entry.text, systemImage: "circle")
+                            Label(entry.name, systemImage: "circle")
                         }
                     }
                 }
@@ -194,6 +181,11 @@ struct TripSummarySheet: View {
             }
         }
         .presentationDetents([.medium, .large])
+    }
+
+    private func format(_ price: NormalizedPrice) -> String {
+        PriceDisplay.formatted(
+            price, in: PriceDisplay.displayUnit(for: price.dimension, preferred: storedUnit))
     }
 
     private func summaryLine(_ tally: CartTally) -> String {

@@ -25,6 +25,7 @@ struct AppTabView: View {
         .tabBarMinimizeBehavior(.onScrollDown)
         .task {
             LegacyGoodPriceMigration.run(in: modelContext)
+            StoreUpkeep.prune(in: modelContext)
             DemoGoodPrices.insertIfRequested(in: modelContext)
             Shopping.finishIdleTrip(in: modelContext)
         }

@@ -34,22 +34,22 @@ struct AddToCartTests {
         #expect(viewModel.canAddToCart)
         #expect(!viewModel.hasEnoughInput)
 
-        viewModel.addToCart(item: nil, listEntry: nil)
+        viewModel.addToCart(item: nil)
 
         #expect(cart.map(\.price) == [4])
         #expect(cart.first?.unitPrice == nil)
-        #expect(cart.first?.label(listEntry: nil) == "Item 1")
+        #expect(cart.first?.label == "Item 1")
     }
 
     @Test func nothingTypedAddsNothing() {
-        viewModel.addToCart(item: nil, listEntry: nil)
+        viewModel.addToCart(item: nil)
 
         #expect(Shopping.activeTrip(in: context) == nil)
     }
 
     @Test func theNextDigitStartsANewPrice() {
         type(price: "4", amount: "100")
-        viewModel.addToCart(item: nil, listEntry: nil)
+        viewModel.addToCart(item: nil)
 
         viewModel.inputDigit("7")
 
@@ -63,22 +63,22 @@ struct AddToCartTests {
         context.insert(item)
         type(price: "2", amount: "100")
 
-        viewModel.addToCart(item: item, listEntry: nil)
+        viewModel.addToCart(item: item)
 
         #expect(cart.first?.verdict == .bad)
     }
 
-    @Test func theChosenListEntryIsUsedOnce() {
+    @Test func addingAnItemOnTheShoppedListCrossesIt() {
+        let milk = GroceryItem(name: "Milk")
+        context.insert(milk)
         let list = GroceryList(name: "Weekly")
         context.insert(list)
-        let milk = list.append("Milk")
-        Shopping.startTrip(shopping: list, in: context)
-        viewModel.selectedListEntryID = milk.id
+        let entry = list.add(milk)
+        let trip = Shopping.startTrip(shopping: list, in: context)
         type(price: "3")
 
-        viewModel.addToCart(item: nil, listEntry: milk)
+        viewModel.addToCart(item: milk)
 
-        #expect(viewModel.selectedListEntryID == nil)
-        #expect(cart.first?.listEntryID == milk.id)
+        #expect(trip.isCrossed(entry))
     }
 }

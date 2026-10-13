@@ -1,8 +1,8 @@
 import Foundation
 import SwiftData
 
-/// One shop. Crossed-off list entries live here rather than on the list, which is what lets a list
-/// be reused: the next trip starts with nothing crossed.
+/// One shop. Cross-offs live here rather than on the list, which is what lets a list be reused: the
+/// next trip starts with nothing crossed.
 @Model
 final class Trip {
     var id: UUID = UUID()
@@ -14,6 +14,10 @@ final class Trip {
     /// Any change to the trip, prep and cross-offs included, so a list planned in the morning is not
     /// taken for an abandoned trip by the afternoon.
     var lastActivityAt: Date = Date.distantPast
+    /// Copied when the trip finishes, so a past trip still reads "Weekly" after the list is renamed
+    /// or deleted, and still knows what was missed after the list is edited.
+    var listName: String = ""
+    var missedItemNames: [String] = []
 
     @Relationship(deleteRule: .cascade, inverse: \CartEntry.trip)
     var entries: [CartEntry]? = []
@@ -30,33 +34,25 @@ final class Trip {
 
     var tally: CartTally { CartTally(orderedEntries.map(\.line)) }
 
+    /// Crossed when its item is in the cart, or when the shopper crossed it by hand. Following the
+    /// cart is what makes adding a price cross the list off without any bookkeeping between them.
     func isCrossed(_ entry: ListEntry) -> Bool {
-        crossedEntryIDs.contains(entry.id)
+        isInCart(entry) || crossedEntryIDs.contains(entry.id)
     }
 
+    func isInCart(_ entry: ListEntry) -> Bool {
+        guard let item = entry.item else { return false }
+        return (entries ?? []).contains { $0.item === item }
+    }
+
+    /// Only crossings made by hand are stored; an entry in the cart stays crossed until it leaves.
     func setCrossed(_ crossed: Bool, for entry: ListEntry) {
         if crossed {
-            guard !isCrossed(entry) else { return }
+            guard !crossedEntryIDs.contains(entry.id) else { return }
             crossedEntryIDs.append(entry.id)
         } else {
             crossedEntryIDs.removeAll { $0 == entry.id }
         }
-    }
-
-    /// The entry an add-to-cart should cross when the shopper named an item but not a list entry.
-    func uncrossedEntry(linkedTo item: GroceryItem) -> ListEntry? {
-        list?.orderedEntries.first { entry in
-            entry.item?.persistentModelID == item.persistentModelID && !isCrossed(entry)
-        }
-    }
-
-    func listEntry(for entry: CartEntry) -> ListEntry? {
-        guard let id = entry.listEntryID else { return nil }
-        return list?.entries?.first { $0.id == id }
-    }
-
-    func label(for entry: CartEntry) -> String {
-        entry.label(listEntry: listEntry(for: entry))
     }
 
     var nextUnnamedOrdinal: Int {
@@ -82,7 +78,6 @@ final class CartEntry {
     var dimensionRaw: String?
     /// The verdict when it was added. It does not follow later edits to the good price.
     var verdictRaw: String?
-    var listEntryID: UUID?
     var item: GroceryItem?
     var trip: Trip?
 
@@ -114,9 +109,8 @@ final class CartEntry {
 
     var line: CartLine { CartLine(price: price, quantity: quantity, verdict: verdict) }
 
-    func label(listEntry: ListEntry?) -> String {
+    var label: String {
         if let item { return item.name }
-        if let listEntry { return listEntry.text }
         return savedName.isEmpty ? "Item \(unnamedOrdinal)" : savedName
     }
 }

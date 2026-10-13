@@ -120,7 +120,8 @@ nonisolated enum SearchText {
     }
 
     /// Lower is better: 0 exact, 1 a term starts with the query, 2 every query word starts a word of
-    /// one term, 3 the query appears anywhere. `nil` when it matches no term.
+    /// one term, 3 the query appears anywhere, 4 some word of a longer query starts a word of a term
+    /// — so free text like "PC thighs" still finds the thighs. `nil` when it matches no term.
     static func score(query: String, terms: [String]) -> Int? {
         let queryWords = words(of: query)
         var best: Int?
@@ -134,12 +135,27 @@ nonisolated enum SearchText {
                 score = 2
             } else if term.contains(query) {
                 score = 3
+            } else if queryWords.count > 1,
+                anySignificantWord(of: queryWords, starts: words(of: term))
+            {
+                score = 4
             } else {
                 score = nil
             }
             if let score, score < (best ?? .max) { best = score }
         }
         return best
+    }
+
+    /// Three letters or more, so a brand initialism or "of" does not match half the dictionary.
+    private static func anySignificantWord(
+        of queryWords: [String], starts termWords: [String]
+    )
+        -> Bool
+    {
+        queryWords.contains { queryWord in
+            queryWord.count >= 3 && termWords.contains { $0.hasPrefix(queryWord) }
+        }
     }
 
     private static func wordsStart(_ termWords: [String], with queryWords: [String]) -> Bool {

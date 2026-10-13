@@ -7,13 +7,13 @@ enum ListSharing {
         ListPayload(
             id: list.id,
             name: list.name,
-            entries: list.orderedEntries.map { entry in
-                ListPayload.Entry(
-                    id: entry.id,
-                    text: entry.text,
-                    isSkipped: entry.isSkipped,
-                    item: entry.item.map { item in
-                        ListPayload.Item(
+            entries: list.orderedEntries.compactMap { entry in
+                entry.item.map { item in
+                    ListPayload.Entry(
+                        id: entry.id,
+                        isSkipped: entry.isSkipped,
+                        note: entry.note,
+                        item: ListPayload.Item(
                             seedID: item.seedID,
                             name: item.name,
                             aisle: item.category,
@@ -22,9 +22,8 @@ enum ListSharing {
                                     dimension: $0.dimension, canonical: $0.canonical)
                             }
                         )
-                    },
-                    aisle: entry.aisleRaw
-                )
+                    )
+                }
             }
         )
     }
@@ -70,14 +69,14 @@ enum ListSharing {
                 uniquingKeysWith: { first, _ in first })
             let theirs = Set(payload.entries.map(\.id))
             return ListChanges(
-                added: payload.entries.filter { mine[$0.id] == nil }.map(\.text),
-                removed: mine.values.filter { !theirs.contains($0.id) }.map(\.text).sorted(),
+                added: payload.entries.filter { mine[$0.id] == nil }.map(\.item.name),
+                removed: mine.values.filter { !theirs.contains($0.id) }.map(\.name).sorted(),
                 nowSkipped: payload.entries.filter { incoming in
                     incoming.isSkipped && mine[incoming.id].map { !$0.isSkipped } == true
-                }.map(\.text),
+                }.map(\.item.name),
                 nowNeeded: payload.entries.filter { incoming in
                     !incoming.isSkipped && mine[incoming.id]?.isSkipped == true
-                }.map(\.text)
+                }.map(\.item.name)
             )
         }
 
@@ -89,11 +88,10 @@ enum ListSharing {
     }
 
     static func plan(_ payload: ListPayload, in context: ModelContext) -> ImportPlan {
-        let catalog = (try? context.fetch(FetchDescriptor<GroceryItem>())) ?? []
         var offers: [PriceOffer] = []
         var newItemNames: [String] = []
         for incoming in uniqueItems(in: payload) {
-            guard let match = match(incoming, in: catalog) else {
+            guard let match = match(incoming, in: context) else {
                 newItemNames.append(incoming.name)
                 continue
             }
@@ -127,7 +125,6 @@ enum ListSharing {
             offer.item.updatedAt = .now
         }
 
-        var catalog = (try? context.fetch(FetchDescriptor<GroceryItem>())) ?? []
         let target = asCopy ? nil : plan.replacing
         let list = target ?? insertList(id: asCopy ? UUID() : plan.payload.id, in: context)
         list.name = asCopy ? "\(plan.payload.name) (copy)" : plan.payload.name
@@ -136,52 +133,62 @@ enum ListSharing {
         var existing = Dictionary(
             (list.entries ?? []).map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         for (position, incoming) in plan.payload.entries.enumerated() {
-            let entry =
-                existing.removeValue(forKey: incoming.id)
-                ?? insertEntry(asCopy ? UUID() : incoming.id, in: list)
-            entry.text = incoming.text
+            let item = resolve(incoming.item, in: context)
+            let entry: ListEntry
+            if let mine = existing.removeValue(forKey: incoming.id) {
+                mine.item = item
+                entry = mine
+            } else {
+                let wasOnList = (list.entries ?? []).contains { $0.item === item }
+                entry = list.add(item)
+                existing.removeValue(forKey: entry.id)
+                // A new entry takes the sender's id, so their next share updates it in place.
+                if !wasOnList, !asCopy { entry.id = incoming.id }
+            }
             entry.isSkipped = incoming.isSkipped
+            entry.note = incoming.note
             entry.position = position
-            entry.item = incoming.item.map { resolve($0, in: &catalog, context: context) }
-            entry.aisleRaw =
-                incoming.aisle ?? entry.item?.aisle?.rawValue
-                ?? CatalogLibrary.bundled.guessAisle(for: incoming.text)?.rawValue
         }
         for orphan in existing.values {
             context.delete(orphan)
         }
         try? context.save()
+        StoreUpkeep.prune(in: context)
         return list
     }
 
     private static func uniqueItems(in payload: ListPayload) -> [ListPayload.Item] {
         var seen = Set<String>()
-        return payload.entries.compactMap(\.item).filter { seen.insert(key(for: $0)).inserted }
+        return payload.entries.map(\.item).filter { seen.insert(key(for: $0)).inserted }
     }
 
     private static func key(for item: ListPayload.Item) -> String {
-        item.seedID.isEmpty ? "name:" + normalized(item.name) : "seed:" + item.seedID
+        item.seedID.isEmpty ? "name:" + SearchText.normalize(item.name) : "seed:" + item.seedID
     }
 
-    /// The seed slug is identity when both sides have one; otherwise the name is all there is.
+    /// The seed slug is identity when both sides have one; otherwise the name is all there is, matched
+    /// the way typed text is.
     private static func match(
-        _ incoming: ListPayload.Item, in catalog: [GroceryItem]
+        _ incoming: ListPayload.Item, in context: ModelContext
     )
         -> GroceryItem?
     {
-        if !incoming.seedID.isEmpty,
-            let bySeed = catalog.first(where: { $0.seedID == incoming.seedID })
-        {
-            return bySeed
+        if !incoming.seedID.isEmpty {
+            let seedID = incoming.seedID
+            var descriptor = FetchDescriptor<GroceryItem>(
+                predicate: #Predicate { $0.seedID == seedID })
+            descriptor.fetchLimit = 1
+            if let bySeed = try? context.fetch(descriptor).first { return bySeed }
         }
-        let name = normalized(incoming.name)
-        return catalog.first { normalized($0.name) == name }
+        return ItemIdentity.existing(named: incoming.name, in: context)
     }
 
     private static func resolve(
-        _ incoming: ListPayload.Item, in catalog: inout [GroceryItem], context: ModelContext
-    ) -> GroceryItem {
-        if let match = match(incoming, in: catalog) { return match }
+        _ incoming: ListPayload.Item, in context: ModelContext
+    )
+        -> GroceryItem
+    {
+        if let match = match(incoming, in: context) { return match }
         let created = GroceryItem(
             seedID: incoming.seedID,
             name: incoming.name,
@@ -193,7 +200,6 @@ enum ListSharing {
             created.setGoodPrice(price)
             context.insert(PriceObservation(price: price, reason: .goodPrice, item: created))
         }
-        catalog.append(created)
         return created
     }
 
@@ -210,10 +216,6 @@ enum ListSharing {
             .map { NormalizedPrice(dimension: $0.dimension, canonical: $0.canonical) }
     }
 
-    private static func normalized(_ name: String) -> String {
-        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-    }
-
     private static func list(withID id: UUID, in context: ModelContext) -> GroceryList? {
         var descriptor = FetchDescriptor<GroceryList>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
@@ -224,12 +226,5 @@ enum ListSharing {
         let list = GroceryList(id: id)
         context.insert(list)
         return list
-    }
-
-    private static func insertEntry(_ id: UUID, in list: GroceryList) -> ListEntry {
-        let entry = ListEntry(id: id)
-        list.modelContext?.insert(entry)
-        entry.list = list
-        return entry
     }
 }

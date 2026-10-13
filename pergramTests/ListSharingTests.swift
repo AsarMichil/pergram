@@ -17,17 +17,24 @@ struct ListSharingTests {
         try context.fetch(FetchDescriptor<GroceryItem>())
     }
 
+    private func item(
+        _ name: String, seedID: String = "", aisle: String = "",
+        prices: [ListPayload.GoodPrice] = []
+    ) -> ListPayload.Item {
+        .init(seedID: seedID, name: name, aisle: aisle, goodPrices: prices)
+    }
+
     private func samplePayload(chickenPrice: Double = 0.95) -> ListPayload {
         ListPayload(
             id: UUID(),
             name: "Weekly",
             entries: [
-                .init(id: UUID(), text: "Milk", isSkipped: false, item: nil),
+                .init(id: UUID(), isSkipped: false, note: "2 L", item: item("Milk")),
                 .init(
-                    id: UUID(), text: "Thighs", isSkipped: true,
-                    item: .init(
-                        seedID: "chicken-thigh-boneless", name: "Chicken thigh", aisle: "meat",
-                        goodPrices: [.init(dimension: .mass, canonical: chickenPrice)])),
+                    id: UUID(), isSkipped: true,
+                    item: item(
+                        "Chicken thigh", seedID: "chicken-thigh-boneless", aisle: "meat",
+                        prices: [.init(dimension: .mass, canonical: chickenPrice)])),
             ]
         )
     }
@@ -53,26 +60,30 @@ struct ListSharingTests {
         }
     }
 
-    @Test func plainTextMarksSkippedEntries() {
-        #expect(samplePayload().plainText == "Weekly\n☐ Milk\n– Thighs (not this time)")
+    @Test func plainTextShowsNotesAndSkippedEntries() {
+        #expect(
+            samplePayload().plainText == "Weekly\n☐ Milk — 2 L\n– Chicken thigh (not this time)")
     }
 
-    @Test func exportCarriesSkipFlagsAndGoodPrices() throws {
+    @Test func exportCarriesNotesSkipFlagsAndGoodPrices() throws {
         let context = try makeContext()
         let chicken = GroceryItem(
-            seedID: "chicken-thigh-boneless",
+            seedID: "chicken-thigh-boneless", name: "Chicken thigh",
             goodPrice: NormalizedPrice(dimension: .mass, canonical: 1.10))
         context.insert(chicken)
         let list = GroceryList(name: "Weekly")
         context.insert(list)
-        list.append("Thighs", item: chicken).isSkipped = true
+        let entry = list.add(chicken)
+        entry.isSkipped = true
+        entry.note = "family pack"
 
         let payload = ListSharing.payload(for: list)
 
         #expect(payload.id == list.id)
         #expect(payload.entries.first?.isSkipped == true)
+        #expect(payload.entries.first?.note == "family pack")
         #expect(
-            payload.entries.first?.item?.goodPrices == [.init(dimension: .mass, canonical: 1.10)])
+            payload.entries.first?.item.goodPrices == [.init(dimension: .mass, canonical: 1.10)])
     }
 
     @Test func aDifferentPriceIsOfferedNotApplied() throws {
@@ -87,7 +98,7 @@ struct ListSharingTests {
 
         #expect(plan.offers.count == 1)
         #expect(chicken.goodPricePerMass == 1.10)
-        #expect(list.orderedEntries.last?.item?.persistentModelID == chicken.persistentModelID)
+        #expect(list.orderedEntries.last?.item === chicken)
         #expect(list.orderedEntries.last?.isSkipped == true)
     }
 
@@ -115,37 +126,31 @@ struct ListSharingTests {
         #expect(ListSharing.plan(samplePayload(), in: context).offers.isEmpty)
     }
 
-    @Test func anItemYouLackIsCreatedWithTheirPrice() throws {
+    @Test func itemsYouLackAreCreatedWithTheirPrices() throws {
         let context = try makeContext()
 
         let plan = ListSharing.plan(samplePayload(), in: context)
-        ListSharing.apply(plan, accepting: [], in: context)
+        let list = ListSharing.apply(plan, accepting: [], in: context)
 
-        #expect(plan.newItemNames == ["Chicken thigh"])
-        #expect(try items(in: context).map(\.goodPricePerMass) == [0.95])
+        #expect(plan.newItemNames == ["Milk", "Chicken thigh"])
+        #expect(list.orderedEntries.map(\.name) == ["Milk", "Chicken thigh"])
+        #expect(list.orderedEntries.first?.note == "2 L")
+        #expect(list.orderedEntries.last?.item?.goodPricePerMass == 0.95)
     }
 
-    @Test func userMadeItemsMatchByName() throws {
+    @Test func namesMatchTheWayTypedTextDoes() throws {
         let context = try makeContext()
-        let mine = GroceryItem(
-            name: "Oat milk", goodPrice: NormalizedPrice(dimension: .mass, canonical: 0.4),
-            userModified: true)
+        let mine = GroceryItem(name: "Crème sure", userModified: true)
         context.insert(mine)
         let payload = ListPayload(
             id: UUID(), name: "L",
-            entries: [
-                .init(
-                    id: UUID(), text: "oat milk", isSkipped: false,
-                    item: .init(
-                        seedID: "", name: " oat MILK", aisle: "",
-                        goodPrices: [.init(dimension: .mass, canonical: 0.4)]))
-            ])
+            entries: [.init(id: UUID(), isSkipped: false, item: item(" creme SURE"))])
 
         let list = ListSharing.apply(
             ListSharing.plan(payload, in: context), accepting: [], in: context)
 
         #expect(try items(in: context).count == 1)
-        #expect(list.orderedEntries.first?.item?.persistentModelID == mine.persistentModelID)
+        #expect(list.orderedEntries.first?.item === mine)
     }
 
     @Test func reimportingUpdatesTheSameListInPlace() throws {
@@ -156,8 +161,8 @@ struct ListSharingTests {
         let revised = ListPayload(
             id: first.id, name: "Weekly shop",
             entries: [
-                .init(id: first.entries[1].id, text: "Thighs", isSkipped: false, item: nil),
-                .init(id: UUID(), text: "Eggs", isSkipped: false, item: nil),
+                .init(id: first.entries[1].id, isSkipped: false, item: first.entries[1].item),
+                .init(id: UUID(), isSkipped: false, item: item("Eggs")),
             ])
         let plan = ListSharing.plan(revised, in: context)
         let list = ListSharing.apply(plan, accepting: [], in: context)
@@ -165,9 +170,20 @@ struct ListSharingTests {
         #expect(plan.replacing != nil)
         #expect(try context.fetch(FetchDescriptor<GroceryList>()).count == 1)
         #expect(list.name == "Weekly shop")
-        #expect(list.orderedEntries.map(\.text) == ["Thighs", "Eggs"])
+        #expect(list.orderedEntries.map(\.name) == ["Chicken thigh", "Eggs"])
         #expect(list.orderedEntries.first?.id == first.entries[1].id)
         #expect(list.orderedEntries.first?.isSkipped == false)
+    }
+
+    @Test func anItemDroppedFromTheListLeavesNothingBehind() throws {
+        let context = try makeContext()
+        let first = samplePayload()
+        ListSharing.apply(ListSharing.plan(first, in: context), accepting: [], in: context)
+
+        let revised = ListPayload(id: first.id, name: "Weekly", entries: [first.entries[1]])
+        ListSharing.apply(ListSharing.plan(revised, in: context), accepting: [], in: context)
+
+        #expect(try items(in: context).map(\.name) == ["Chicken thigh"])
     }
 
     @Test func aPriceYouLackStartsAcceptedAndOneYouHaveDoesNot() throws {
@@ -180,10 +196,10 @@ struct ListSharingTests {
             id: UUID(), name: "L",
             entries: [
                 .init(
-                    id: UUID(), text: "Thighs", isSkipped: false,
-                    item: .init(
-                        seedID: "chicken-thigh-boneless", name: "Chicken thigh", aisle: "meat",
-                        goodPrices: [
+                    id: UUID(), isSkipped: false,
+                    item: item(
+                        "Chicken thigh", seedID: "chicken-thigh-boneless", aisle: "meat",
+                        prices: [
                             .init(dimension: .mass, canonical: 0.95),
                             .init(dimension: .count, canonical: 2.50),
                         ]))
@@ -197,11 +213,13 @@ struct ListSharingTests {
         #expect(chicken.goodPricePerEach == 2.50)
     }
 
-    @Test func anEntrysAisleTravelsWithTheList() throws {
+    @Test func anItemsAisleTravelsWithTheList() throws {
         let context = try makeContext()
+        let candles = GroceryItem(name: "Birthday candles", aisle: .bakery)
+        context.insert(candles)
         let list = GroceryList(name: "Weekly")
         context.insert(list)
-        list.append("Birthday candles", aisle: .bakery)
+        list.add(candles)
 
         let payload = ListSharing.payload(for: list)
         let receiver = try makeContext()
@@ -209,18 +227,6 @@ struct ListSharingTests {
             ListSharing.plan(payload, in: receiver), accepting: [], in: receiver)
 
         #expect(imported.orderedEntries.first?.aisle == .bakery)
-    }
-
-    @Test func anEntryWithNoAisleIsGuessedOnImport() throws {
-        let context = try makeContext()
-        let payload = ListPayload(
-            id: UUID(), name: "L",
-            entries: [.init(id: UUID(), text: "paper towels", isSkipped: false, item: nil)])
-
-        let list = ListSharing.apply(
-            ListSharing.plan(payload, in: context), accepting: [], in: context)
-
-        #expect(list.orderedEntries.first?.aisle == .household)
     }
 
     @Test func importedGoodPricesArePriceHistory() throws {

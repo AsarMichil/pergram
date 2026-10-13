@@ -22,6 +22,7 @@ struct ListsView: View {
                         Button(role: .destructive) {
                             modelContext.delete(list)
                             try? modelContext.save()
+                            StoreUpkeep.prune(in: modelContext)
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
@@ -76,9 +77,7 @@ struct ListDetailView: View {
     @Environment(AppRouter.self) private var router
     @Query private var items: [GroceryItem]
     @State private var newEntryText = ""
-    @State private var linkingEntry: ListEntry?
     @State private var editingEntry: ListEntry?
-    @State private var editText = ""
     @State private var isRenamingList = false
     @State private var listName = ""
     @State private var isPreparing = false
@@ -94,7 +93,7 @@ struct ListDetailView: View {
                     .accessibilityIdentifier("addListEntry")
                 ForEach(suggestions) { suggestion in
                     Button {
-                        add(suggestion)
+                        add(suggestion.item(in: modelContext))
                     } label: {
                         Label(suggestion.name, systemImage: "plus")
                             .foregroundStyle(.primary)
@@ -111,13 +110,6 @@ struct ListDetailView: View {
                     .onMove { source, destination in
                         move(group.elements, from: source, to: destination)
                     }
-                }
-            }
-
-            if !(list.entries ?? []).isEmpty {
-                Section {
-                } footer: {
-                    Text("Tap to link a good price. Swipe right to sit one out this time.")
                 }
             }
         }
@@ -158,26 +150,10 @@ struct ListDetailView: View {
         .sheet(isPresented: $isPreparing) {
             ShopPrepSheet(list: list) { router.shop() }
         }
-        .sheet(item: $linkingEntry) { entry in
-            ItemPickerSheet(
-                selectedItemID: Binding(
-                    get: { entry.item?.persistentModelID },
-                    set: { id in
-                        entry.item = id.flatMap { modelContext.registeredModel(for: $0) }
-                        if let aisle = entry.item?.aisle { entry.aisle = aisle }
-                        save()
-                    }
-                )
-            )
-        }
-        .alert(
-            "Rename item",
-            isPresented: Binding(
-                get: { editingEntry != nil }, set: { if !$0 { editingEntry = nil } })
-        ) {
-            TextField("Name", text: $editText)
-            Button("Save", action: commitEntryRename)
-            Button("Cancel", role: .cancel) {}
+        .sheet(item: $editingEntry, onDismiss: { StoreUpkeep.prune(in: modelContext) }) { entry in
+            if let item = entry.item {
+                ItemForm(item: item, entry: entry)
+            }
         }
         .alert("Rename list", isPresented: $isRenamingList) {
             TextField("Name", text: $listName)
@@ -192,73 +168,43 @@ struct ListDetailView: View {
 
     private func row(for entry: ListEntry) -> some View {
         Button {
-            linkingEntry = entry
+            editingEntry = entry
         } label: {
             ListEntryRow(entry: entry)
                 .contentShape(.rect)
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Links a good price")
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {
                 modelContext.delete(entry)
                 save()
+                StoreUpkeep.prune(in: modelContext)
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label("Remove", systemImage: "trash")
             }
-            Button {
-                editText = entry.text
-                editingEntry = entry
-            } label: {
-                Label("Rename", systemImage: "pencil")
-            }
-            .tint(.indigo)
         }
         .swipeActions(edge: .leading) {
             Button {
-                entry.isSkipped.toggle()
+                withAnimation { entry.isSkipped.toggle() }
                 save()
             } label: {
                 Label(
                     entry.isSkipped ? "Need it" : "Not this time",
-                    systemImage: entry.isSkipped
-                        ? "arrow.uturn.backward" : "minus.circle")
+                    systemImage: entry.isSkipped ? "arrow.uturn.backward" : "minus.circle")
             }
             .tint(entry.isSkipped ? .accentColor : .gray)
         }
-        .contextMenu {
-            Menu("Move to aisle", systemImage: "arrow.up.arrow.down") {
-                ForEach(Aisle.allCases, id: \.self) { aisle in
-                    Button(aisle.title) {
-                        entry.aisle = aisle
-                        save()
-                    }
-                }
-            }
-        }
     }
 
+    /// Return means "exactly what I typed"; a suggestion tap means "that item".
     private func addTypedEntry() {
         let text = newEntryText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        let item = CatalogLibrary.exactItem(named: text, among: items, in: modelContext)
-        append(text, item: item)
+        add(ItemIdentity.item(named: text, in: modelContext))
     }
 
-    private func add(_ suggestion: ItemSearchResult) {
-        switch suggestion {
-        case .item(let item): append(item.name, item: item)
-        case .entry(let entry):
-            append(entry.name, item: CatalogLibrary.item(for: entry, in: modelContext))
-        }
-    }
-
-    /// An exact name links itself, so "bananas" carries its good price without a trip to the picker,
-    /// and anything unlinked still lands in the aisle its words suggest.
-    private func append(_ text: String, item: GroceryItem?) {
-        let aisle = item?.aisle ?? CatalogLibrary.bundled.guessAisle(for: text)
-        let entry = list.append(text, item: item, aisle: aisle)
-        modelContext.insert(entry)
+    private func add(_ item: GroceryItem) {
+        withAnimation { _ = list.add(item) }
         save()
         newEntryText = ""
         isAddFieldFocused = true
@@ -273,15 +219,6 @@ struct ListDetailView: View {
             entry.position = position
         }
         save()
-    }
-
-    private func commitEntryRename() {
-        let trimmed = editText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let editingEntry, !trimmed.isEmpty {
-            editingEntry.text = trimmed
-            save()
-        }
-        editingEntry = nil
     }
 
     private func commitListRename() {
@@ -299,11 +236,21 @@ struct ListDetailView: View {
 
 private struct ListEntryRow: View {
     let entry: ListEntry
+    @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
+
+    private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
 
     var body: some View {
         HStack {
-            Text(entry.text)
-                .foregroundStyle(entry.isSkipped ? .secondary : .primary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.name)
+                    .foregroundStyle(entry.isSkipped ? .secondary : .primary)
+                if let note = entry.note {
+                    Text(note)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
             Spacer(minLength: 8)
             if entry.isSkipped {
                 Text("not this time")
@@ -317,7 +264,4 @@ private struct ListEntryRow: View {
             }
         }
     }
-
-    @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
-    private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
 }

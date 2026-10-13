@@ -6,7 +6,6 @@ import SwiftUI
 /// baseline here, not comparing against one — and needs no cross-tab navigation.
 struct AddEditItemSheet: View {
     let item: GroceryItem?
-    var initialName = ""
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -59,7 +58,6 @@ struct AddEditItemSheet: View {
         .onAppear {
             viewModel.attach(modelContext: modelContext)
             viewModel.recordsChecks = false
-            if name.isEmpty { name = initialName }
             switch item?.goodPrices.first?.dimension ?? usualDimension {
             case .count: viewModel.amountUnit = .each
             case .volume: viewModel.amountUnit = .millilitre
