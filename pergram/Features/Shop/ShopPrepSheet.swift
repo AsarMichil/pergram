@@ -23,7 +23,10 @@ struct ShopPrepSheet: View {
                 ForEach(groups, id: \.aisle) { group in
                     Section(group.aisle.title) {
                         ForEach(group.elements) { entry in
-                            Toggle(entry.text, isOn: binding(for: entry))
+                            Toggle(isOn: binding(for: entry)) {
+                                Text(entry.name)
+                                if let note = entry.note { Text(note) }
+                            }
                         }
                     }
                 }

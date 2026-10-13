@@ -62,7 +62,7 @@ struct PriceHistoryTests {
     @Test func addingToTheCartIsNotHistoryUntilTheTripIsFinished() {
         let viewModel = makeViewModel(selecting: chicken)
 
-        viewModel.addToCart(item: chicken, listEntry: nil)
+        viewModel.addToCart(item: chicken)
 
         #expect(observations.isEmpty)
     }
@@ -112,7 +112,7 @@ struct PriceHistoryTests {
         let viewModel = makeViewModel()
 
         viewModel.bookmarkCurrentPrice(for: nil)
-        viewModel.addToCart(item: nil, listEntry: nil)
+        viewModel.addToCart(item: nil)
 
         #expect(checks.count == 1)
     }
@@ -152,15 +152,12 @@ struct PriceHistoryTests {
         #expect(observations.first?.date == bought.addedAt)
     }
 
-    @Test func aPriceMatchedToAnItemBeforeFinishingIsRecorded() throws {
-        let list = GroceryList(name: "Weekly")
-        context.insert(list)
-        let thighs = list.append("Thighs", item: chicken)
-        let trip = Shopping.startTrip(shopping: list, in: context)
+    @Test func aPriceNamedBeforeFinishingIsRecorded() throws {
         let entry = Shopping.addToCart(
             price: 5, unitPrice: NormalizedPrice(dimension: .mass, canonical: 1.0), item: nil,
             in: context)
-        Shopping.match(entry, to: thighs, in: context)
+        let trip = try #require(Shopping.activeTrip(in: context))
+        Shopping.name(entry, as: chicken, in: context)
 
         Shopping.finish(trip, in: context)
 

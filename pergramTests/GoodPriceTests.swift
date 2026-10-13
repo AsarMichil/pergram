@@ -90,6 +90,7 @@ struct GoodPriceTests {
         context.insert(bananas)
 
         LegacyGoodPriceMigration.run(in: context)
+        StoreUpkeep.prune(in: context)
 
         #expect(try context.fetch(FetchDescriptor<GroceryItem>()).isEmpty)
     }
@@ -101,7 +102,7 @@ struct GoodPriceTests {
         context.insert(bananas)
         let list = GroceryList(name: "Weekly")
         context.insert(list)
-        list.append("Bananas", item: bananas)
+        list.add(bananas)
 
         LegacyGoodPriceMigration.run(in: context)
 

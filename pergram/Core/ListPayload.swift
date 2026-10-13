@@ -10,11 +10,9 @@ nonisolated struct ListPayload: Codable, Equatable, Sendable {
 
     struct Entry: Codable, Equatable, Sendable {
         let id: UUID
-        let text: String
         let isSkipped: Bool
-        let item: Item?
-        /// The entry's `Aisle` raw value, so a shopper's own grouping travels with the list.
-        var aisle: String? = nil
+        var note: String? = nil
+        let item: Item
     }
 
     /// The sender's catalog item, with their good prices, so the receiver can relink it or adopt it.
@@ -73,7 +71,8 @@ nonisolated struct ListPayload: Codable, Equatable, Sendable {
     /// For apps that cannot open the file: a checklist anyone can read.
     var plainText: String {
         let lines = entries.map { entry in
-            entry.isSkipped ? "– \(entry.text) (not this time)" : "☐ \(entry.text)"
+            let line = [entry.item.name, entry.note].compactMap { $0 }.joined(separator: " — ")
+            return entry.isSkipped ? "– \(line) (not this time)" : "☐ \(line)"
         }
         return ([name] + lines).joined(separator: "\n")
     }

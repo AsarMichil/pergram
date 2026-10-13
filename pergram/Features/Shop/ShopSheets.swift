@@ -91,42 +91,6 @@ struct QuantitySheet: View {
     }
 }
 
-struct MatchToListSheet: View {
-    let entry: CartEntry
-    let trip: Trip
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
-
-    private var candidates: [ListEntry] {
-        (trip.list?.orderedEntries ?? []).filter { !trip.isCrossed($0) }
-    }
-
-    var body: some View {
-        NavigationStack {
-            List(candidates) { listEntry in
-                Button(listEntry.text) {
-                    Shopping.match(entry, to: listEntry, in: modelContext)
-                    dismiss()
-                }
-                .foregroundStyle(.primary)
-            }
-            .overlay {
-                if candidates.isEmpty {
-                    ContentUnavailableView("Everything is crossed off", systemImage: "checklist")
-                }
-            }
-            .navigationTitle("This was…")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
-    }
-}
-
 /// The end of a trip is a verdict, not a receipt: what you spent, how it rated, and the bad buys
 /// and forgotten items named while you can still do something about them.
 struct TripSummarySheet: View {
@@ -161,7 +125,7 @@ struct TripSummarySheet: View {
                     Section("Bad buys") {
                         ForEach(badBuys) { entry in
                             Label {
-                                Text(trip.label(for: entry))
+                                Text(entry.label)
                             } icon: {
                                 Image(systemName: Verdict.bad.symbolName)
                                     .foregroundStyle(Verdict.bad.color)
@@ -173,7 +137,7 @@ struct TripSummarySheet: View {
                 if !stillNeeded.isEmpty {
                     Section("Still on your list") {
                         ForEach(stillNeeded) { entry in
-                            Label(entry.text, systemImage: "circle")
+                            Label(entry.name, systemImage: "circle")
                         }
                     }
                 }

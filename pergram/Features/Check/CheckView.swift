@@ -49,13 +49,8 @@ struct CheckView: View {
     private var mode: CheckInputMode { router.checkMode }
     private var activeTrip: Trip? { activeTrips.first }
 
-    /// Resolved from live queries, so a deleted row becomes `nil` reactively — the fix for a stale
-    /// selection is that the query, not a held reference, is the source of truth.
-    private var selectedListEntry: ListEntry? {
-        guard let id = viewModel.selectedListEntryID else { return nil }
-        return activeTrip?.list?.entries?.first { $0.id == id }
-    }
-
+    /// Resolved from the live `@Query`, so a deleted row becomes `nil` reactively — the fix for a
+    /// stale selection is that the query, not a held reference, is the source of truth.
     private var selectedItem: GroceryItem? {
         guard let id = viewModel.selectedItemID else { return nil }
         return items.first { $0.persistentModelID == id }
@@ -149,7 +144,6 @@ struct CheckView: View {
         .sheet(isPresented: $isShowingItemPicker) {
             ItemPickerSheet(
                 selectedItemID: $viewModel.selectedItemID,
-                selectedListEntryID: $viewModel.selectedListEntryID,
                 listEntries: pickableListEntries
             )
         }
@@ -203,7 +197,7 @@ struct CheckView: View {
             ScanModeView(
                 model: scanModel,
                 viewfinderHeight: viewfinderHeight,
-                selectionName: selectedItem?.name ?? selectedListEntry?.text,
+                selectionName: selectedItem?.name,
                 canBookmark: viewModel.hasEnoughInput,
                 canAddToCart: viewModel.canAddToCart,
                 onBookmark: bookmark,
@@ -219,14 +213,11 @@ struct CheckView: View {
         VStack(spacing: 0) {
             CheckFieldsView(
                 viewModel: viewModel,
-                selectedItemName: selectedItem?.name ?? selectedListEntry?.text,
+                selectedItemName: selectedItem?.name,
                 baseline: baseline,
                 onChooseItem: { isShowingItemPicker = true },
                 onSetGoodPrice: setGoodPrice,
-                onClearItem: {
-                    viewModel.selectedItemID = nil
-                    viewModel.selectedListEntryID = nil
-                },
+                onClearItem: { viewModel.selectedItemID = nil },
                 metrics: metrics
             )
 
@@ -244,7 +235,6 @@ struct CheckView: View {
 
     private func price(_ entry: ListEntry) {
         viewModel.selectedItemID = entry.item?.persistentModelID
-        viewModel.selectedListEntryID = entry.id
         withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
             router.checkMode = router.lastPriceMode
         }
@@ -255,11 +245,10 @@ struct CheckView: View {
     }
 
     private func addToCart() {
-        viewModel.addToCart(item: selectedItem, listEntry: selectedListEntry)
+        viewModel.addToCart(item: selectedItem)
     }
 
-    /// While a list is being shopped, its uncrossed entries lead the picker, so naming the item and
-    /// claiming the list entry are one tap.
+    /// While a list is being shopped, its uncrossed entries lead the picker.
     private var pickableListEntries: [ListEntry] {
         guard let trip = activeTrip, let list = trip.list else { return [] }
         return list.orderedEntries.filter { !trip.isCrossed($0) }
@@ -304,9 +293,10 @@ private func previewContainer() -> ModelContainer {
     container.mainContext.insert(chicken)
     let list = GroceryList(name: "Weekly")
     container.mainContext.insert(list)
-    list.append("Milk")
-    list.append("Thighs", item: chicken)
-    list.append("Paper towels").isSkipped = true
+    for name in ["Milk", "Paper towels"] {
+        list.add(GroceryItem(name: name))
+    }
+    list.add(chicken)
     return container
 }
 

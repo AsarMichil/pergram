@@ -1,8 +1,8 @@
 import Foundation
 import SwiftData
 
-/// Every change to a trip goes through here, so the rules tying the cart to the list's cross-offs
-/// live in one place rather than in whichever view the shopper happened to tap.
+/// Every change to a trip goes through here, so its rules live in one place rather than in whichever
+/// view the shopper happened to tap.
 @MainActor
 enum Shopping {
     static func activeTrip(in context: ModelContext) -> Trip? {
@@ -31,14 +31,9 @@ enum Shopping {
 
     @discardableResult
     static func addToCart(
-        price: Double,
-        unitPrice: NormalizedPrice?,
-        item: GroceryItem?,
-        listEntry: ListEntry? = nil,
-        in context: ModelContext
+        price: Double, unitPrice: NormalizedPrice?, item: GroceryItem?, in context: ModelContext
     ) -> CartEntry {
         let trip = startTrip(in: context)
-        let item = item ?? listEntry?.item
         let entry = CartEntry(
             price: price,
             unitPrice: unitPrice,
@@ -47,13 +42,9 @@ enum Shopping {
         context.insert(entry)
         entry.trip = trip
         entry.item = item
-        entry.savedName = item?.name ?? listEntry?.text ?? ""
-        if entry.savedName.isEmpty {
+        entry.savedName = item?.name ?? ""
+        if item == nil {
             entry.unnamedOrdinal = trip.nextUnnamedOrdinal
-        }
-        if let crossing = listEntry ?? item.flatMap(trip.uncrossedEntry(linkedTo:)) {
-            entry.listEntryID = crossing.id
-            trip.setCrossed(true, for: crossing)
         }
         touch(trip, in: context)
         return entry
@@ -61,31 +52,18 @@ enum Shopping {
 
     static func remove(_ entry: CartEntry, in context: ModelContext) {
         let trip = entry.trip
-        let listEntryID = entry.listEntryID
         entry.trip = nil
         context.delete(entry)
-        if let trip, let listEntryID {
-            uncrossIfUnclaimed(listEntryID, in: trip)
-        }
         if let trip { trip.lastActivityAt = .now }
         save(context)
     }
 
-    /// "This was the eggs": the entry takes the list entry's item, and the verdict that item gives.
-    static func match(_ entry: CartEntry, to listEntry: ListEntry, in context: ModelContext) {
-        guard let trip = entry.trip else { return }
-        let previous = entry.listEntryID
-        entry.listEntryID = listEntry.id
-        if let previous, previous != listEntry.id {
-            uncrossIfUnclaimed(previous, in: trip)
-        }
-        if entry.item == nil, let item = listEntry.item {
-            entry.item = item
-            entry.verdict = entry.unitPrice.flatMap(item.verdict(for:))
-        }
-        entry.savedName = entry.item?.name ?? listEntry.text
-        trip.setCrossed(true, for: listEntry)
-        touch(trip, in: context)
+    /// "That was the eggs": a price-only entry takes the item, and the verdict that item gives.
+    static func name(_ entry: CartEntry, as item: GroceryItem, in context: ModelContext) {
+        entry.item = item
+        entry.savedName = item.name
+        entry.verdict = entry.unitPrice.flatMap(item.verdict(for:))
+        if let trip = entry.trip { touch(trip, in: context) } else { save(context) }
     }
 
     static func setCrossed(_ crossed: Bool, for listEntry: ListEntry, in trip: Trip) {
@@ -100,7 +78,7 @@ enum Shopping {
     }
 
     /// Finishing is when the cart's prices become history: by now the shopper has fixed typos,
-    /// removed what they put back and matched what they had not named, so this is what they paid.
+    /// removed what they put back and named what they had not, so this is what they paid.
     static func finish(_ trip: Trip, at date: Date = .now, in context: ModelContext) {
         guard !trip.isFinished else { return }
         trip.isFinished = true
@@ -137,12 +115,6 @@ enum Shopping {
     private static func touch(_ trip: Trip, at date: Date = .now, in context: ModelContext) {
         trip.lastActivityAt = date
         save(context)
-    }
-
-    private static func uncrossIfUnclaimed(_ listEntryID: UUID, in trip: Trip) {
-        let stillClaimed = (trip.entries ?? []).contains { $0.listEntryID == listEntryID }
-        guard !stillClaimed else { return }
-        trip.crossedEntryIDs.removeAll { $0 == listEntryID }
     }
 
     private static func save(_ context: ModelContext) {

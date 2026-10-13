@@ -33,7 +33,8 @@ final class GroceryItem {
     @Relationship(deleteRule: .cascade, inverse: \PriceObservation.item)
     var observations: [PriceObservation]? = []
 
-    @Relationship(deleteRule: .nullify, inverse: \ListEntry.item)
+    /// Deleting an item takes it off every list: an entry is nothing without its item.
+    @Relationship(deleteRule: .cascade, inverse: \ListEntry.item)
     var listEntries: [ListEntry]? = []
 
     @Relationship(deleteRule: .nullify, inverse: \CartEntry.item)
@@ -80,6 +81,13 @@ final class GroceryItem {
 
     func clearGoodPrice(for dimension: PriceDimension) {
         setStoredGoodPrice(nil, for: dimension)
+    }
+
+    /// On no list, no good price, never in a cart, nothing bought or set: a typo or a passing search
+    /// that left nothing worth keeping. Bookmark-era observations do not count as history.
+    var isUnused: Bool {
+        (listEntries ?? []).isEmpty && !hasGoodPrice && (cartEntries ?? []).isEmpty
+            && !(observations ?? []).contains { $0.reason == .bought || $0.reason == .goodPrice }
     }
 
     /// `nil` when there is no good price in the price's dimension yet.

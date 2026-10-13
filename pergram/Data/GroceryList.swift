@@ -27,40 +27,43 @@ final class GroceryList {
         (entries ?? []).sorted { $0.position < $1.position }
     }
 
+    /// A list holds each item once: adding one already on it brings that entry back into this
+    /// shop rather than listing it twice.
     @discardableResult
-    func append(_ text: String, item: GroceryItem? = nil, aisle: Aisle? = nil) -> ListEntry {
-        let entry = ListEntry(text: text, position: (orderedEntries.last?.position ?? -1) + 1)
-        entry.item = item
-        entry.aisleRaw = (aisle ?? item?.aisle)?.rawValue
-        entry.list = self
+    func add(_ item: GroceryItem) -> ListEntry {
         updatedAt = .now
+        if let existing = entries?.first(where: { $0.item === item }) {
+            existing.isSkipped = false
+            return existing
+        }
+        let entry = ListEntry(position: (orderedEntries.last?.position ?? -1) + 1)
+        entry.item = item
+        entry.list = self
         return entry
     }
 }
 
+/// One of the shopper's items, on one list. What the item is — its name, aisle and good prices —
+/// lives on the item; only what is about this list lives here.
 @Model
 final class ListEntry {
     var id: UUID = UUID()
-    var text: String = ""
     var position: Int = 0
     /// "Not this time": kept across trips until cleared, so a reused list remembers what you are
     /// sitting out.
     var isSkipped: Bool = false
-    /// An `Aisle` raw value: guessed when the entry is added, replaced when an item is linked or the
-    /// shopper moves it. `nil` falls back to the linked item's aisle.
-    var aisleRaw: String?
+    /// Free text for how many or which: "6", "2 lb", "ripe ones". Not a number, because grocery
+    /// amounts mix units and nothing computes with them.
+    var note: String?
     var item: GroceryItem?
     var list: GroceryList?
 
-    init(id: UUID = UUID(), text: String = "", position: Int = 0, isSkipped: Bool = false) {
+    init(id: UUID = UUID(), position: Int = 0, isSkipped: Bool = false) {
         self.id = id
-        self.text = text
         self.position = position
         self.isSkipped = isSkipped
     }
 
-    var aisle: Aisle {
-        get { aisleRaw.flatMap(Aisle.init(rawValue:)) ?? item?.aisle ?? .other }
-        set { aisleRaw = newValue.rawValue }
-    }
+    var name: String { item?.name ?? "" }
+    var aisle: Aisle { item?.aisle ?? .other }
 }

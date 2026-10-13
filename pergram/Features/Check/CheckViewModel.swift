@@ -41,9 +41,6 @@ final class CheckViewModel {
 
     private(set) var lastBookmarked: NormalizedPrice?
 
-    /// The list entry the next add-to-cart crosses off, chosen from the picker while shopping a list.
-    /// Cleared once it is used, so a second add does not claim the same entry.
-    var selectedListEntryID: UUID?
     private(set) var cartTick = 0
 
     private var settleTask: Task<Void, Never>?
@@ -139,17 +136,11 @@ final class CheckViewModel {
 
     /// The entry stays on screen so its verdict does not vanish; the next digit starts a new price.
     /// Its price becomes history when the trip is finished, once the cart has been reviewed.
-    func addToCart(item: GroceryItem?, listEntry: ListEntry?) {
+    func addToCart(item: GroceryItem?) {
         guard let priceValue, priceValue > 0, let modelContext else { return }
         Shopping.addToCart(
-            price: priceValue,
-            unitPrice: normalizedPrice,
-            item: item,
-            listEntry: listEntry,
-            in: modelContext
-        )
+            price: priceValue, unitPrice: normalizedPrice, item: item, in: modelContext)
         commitCheck()
-        selectedListEntryID = nil
         focusedField = .price
         isEditingFresh = true
         cartTick &+= 1
