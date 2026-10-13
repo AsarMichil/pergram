@@ -100,7 +100,7 @@ struct ShoppingTests {
     @Test func removingOneOfTwoOfTheSameItemKeepsTheCross() {
         let trip = Shopping.startTrip(shopping: list, in: context)
         let first = Shopping.addToCart(price: 3.49, unitPrice: nil, item: milkItem, in: context)
-        Shopping.addToCart(price: 3.49, unitPrice: nil, item: milkItem, in: context)
+        Shopping.addToCart(price: 5.29, unitPrice: nil, item: milkItem, in: context)
 
         Shopping.remove(first, in: context)
 
@@ -167,6 +167,33 @@ struct ShoppingTests {
         try context.save()
 
         #expect(entry.label == "Chicken thigh")
+    }
+
+    @Test func theSameItemAtTheSamePriceCountsUp() {
+        let first = Shopping.addToCart(
+            price: 10, unitPrice: perHundredGrams, item: chicken, in: context)
+        let again = Shopping.addToCart(
+            price: 10, unitPrice: perHundredGrams, item: chicken, in: context)
+
+        #expect(again === first)
+        #expect(first.quantity == 2)
+        #expect(Shopping.activeTrip(in: context)?.tally.total == 20)
+    }
+
+    @Test func theSameItemAtAnotherPriceIsItsOwnLine() {
+        Shopping.addToCart(price: 10, unitPrice: perHundredGrams, item: chicken, in: context)
+        Shopping.addToCart(
+            price: 12, unitPrice: NormalizedPrice(dimension: .mass, canonical: 1.2), item: chicken,
+            in: context)
+
+        #expect(Shopping.activeTrip(in: context)?.entries?.count == 2)
+    }
+
+    @Test func priceOnlyEntriesNeverMerge() {
+        Shopping.addToCart(price: 4, unitPrice: nil, item: nil, in: context)
+        Shopping.addToCart(price: 4, unitPrice: nil, item: nil, in: context)
+
+        #expect(Shopping.activeTrip(in: context)?.entries?.count == 2)
     }
 
     @Test func aListHoldsAnItemOnce() {

@@ -29,11 +29,23 @@ enum Shopping {
         return trip
     }
 
+    /// Adding the same item at the same price again is one more of it, not another line. A different
+    /// price stays separate — another pack size is another purchase — and so does a price-only
+    /// entry, which has nothing to say it is the same thing.
     @discardableResult
     static func addToCart(
         price: Double, unitPrice: NormalizedPrice?, item: GroceryItem?, in context: ModelContext
     ) -> CartEntry {
         let trip = startTrip(in: context)
+        if let item,
+            let same = (trip.entries ?? []).first(where: {
+                $0.item === item && $0.price == price && $0.unitPrice == unitPrice
+            })
+        {
+            same.quantity += 1
+            touch(trip, in: context)
+            return same
+        }
         let entry = CartEntry(
             price: price,
             unitPrice: unitPrice,
