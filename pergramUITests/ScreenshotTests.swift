@@ -13,7 +13,7 @@ final class ScreenshotTests: XCTestCase {
     func testCaptureStoreScreenshots() {
         let app = launch()
         app.buttons["Items"].firstMatch.tap()
-        XCTAssertTrue(app.navigationBars["Items"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Your items"].waitForExistence(timeout: 5))
         capture("04-items")
 
         captureVerdict(item: "Bananas", price: "1", named: "01-good")
