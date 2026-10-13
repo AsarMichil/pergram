@@ -93,6 +93,38 @@ enum Shopping {
         save(context)
     }
 
+    struct GoodPriceSuggestion: Identifiable {
+        let item: GroceryItem
+        let price: NormalizedPrice
+
+        var id: String { "\(item.persistentModelID)-\(price.dimension.rawValue)" }
+    }
+
+    /// Items bought on this trip with no good price in the way they were bought, each offered the
+    /// lowest price paid — a first shop is how a fresh install gets its good prices.
+    static func goodPriceSuggestions(for trip: Trip) -> [GoodPriceSuggestion] {
+        var lowest: [String: GoodPriceSuggestion] = [:]
+        for entry in trip.orderedEntries {
+            guard let item = entry.item, let price = entry.unitPrice,
+                item.goodPrice(for: price.dimension) == nil
+            else { continue }
+            let suggestion = GoodPriceSuggestion(item: item, price: price)
+            if price.canonical < lowest[suggestion.id]?.price.canonical ?? .infinity {
+                lowest[suggestion.id] = suggestion
+            }
+        }
+        return lowest.values.sorted { $0.item.name < $1.item.name }
+    }
+
+    static func useAsGoodPrice(_ suggestion: GoodPriceSuggestion, in context: ModelContext) {
+        suggestion.item.setGoodPrice(suggestion.price)
+        suggestion.item.userModified = true
+        suggestion.item.updatedAt = .now
+        context.insert(
+            PriceObservation(price: suggestion.price, reason: .goodPrice, item: suggestion.item))
+        save(context)
+    }
+
     /// A trip nobody has touched in this long was finished without saying so: it is closed out, so
     /// its prices are kept and the next shop starts with an empty cart. One that never got anything
     /// in its cart has nothing to keep and is discarded instead.

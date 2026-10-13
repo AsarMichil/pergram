@@ -97,7 +97,9 @@ struct TripSummarySheet: View {
     let trip: Trip
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
 
+    private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
     private var badBuys: [CartEntry] { trip.orderedEntries.filter { $0.verdict == .bad } }
 
     private var stillNeeded: [ListEntry] {
@@ -134,6 +136,27 @@ struct TripSummarySheet: View {
                     }
                 }
 
+                let suggestions = Shopping.goodPriceSuggestions(for: trip)
+                if !suggestions.isEmpty {
+                    Section {
+                        ForEach(suggestions) { suggestion in
+                            LabeledContent(suggestion.item.name) {
+                                Button("Use \(format(suggestion.price))") {
+                                    withAnimation {
+                                        Shopping.useAsGoodPrice(suggestion, in: modelContext)
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                .monospacedDigit()
+                            }
+                        }
+                    } header: {
+                        Text("No good price yet")
+                    } footer: {
+                        Text("What you paid is a fair place to start. You can change it in Items.")
+                    }
+                }
+
                 if !stillNeeded.isEmpty {
                     Section("Still on your list") {
                         ForEach(stillNeeded) { entry in
@@ -158,6 +181,11 @@ struct TripSummarySheet: View {
             }
         }
         .presentationDetents([.medium, .large])
+    }
+
+    private func format(_ price: NormalizedPrice) -> String {
+        PriceDisplay.formatted(
+            price, in: PriceDisplay.displayUnit(for: price.dimension, preferred: storedUnit))
     }
 
     private func summaryLine(_ tally: CartTally) -> String {
