@@ -264,3 +264,80 @@ struct PruneTests {
         #expect(names.isEmpty)
     }
 }
+
+/// A finished trip has to stand on its own: the list it came from and the items in it can change or
+/// go after the shop, and a history of past trips must not change with them.
+@MainActor
+struct PastTripTests {
+    private let context: ModelContext
+    private let bananas: GroceryItem
+    private let eggs: GroceryItem
+    private let list: GroceryList
+
+    init() throws {
+        let configuration = ModelConfiguration(
+            schema: AppSchema.schema, isStoredInMemoryOnly: true)
+        context = ModelContext(
+            try ModelContainer(for: AppSchema.schema, configurations: [configuration]))
+        bananas = GroceryItem(name: "Bananas")
+        eggs = GroceryItem(name: "Eggs")
+        context.insert(bananas)
+        context.insert(eggs)
+        list = GroceryList(name: "Weekly")
+        context.insert(list)
+        list.add(bananas)
+        list.add(eggs)
+        try context.save()
+    }
+
+    private func finishedTrip() throws -> Trip {
+        let trip = Shopping.startTrip(shopping: list, in: context)
+        Shopping.addToCart(
+            price: 1.2, unitPrice: NormalizedPrice(dimension: .mass, canonical: 0.3),
+            item: bananas, in: context)
+        Shopping.finish(trip, in: context)
+        return trip
+    }
+
+    @Test func aFinishedTripKeepsItsListNameAndWhatWasMissed() throws {
+        let trip = try finishedTrip()
+
+        #expect(trip.listName == "Weekly")
+        #expect(trip.missedItemNames == ["Eggs"])
+    }
+
+    @Test func aPastTripOutlivesItsListAndItsItems() throws {
+        let trip = try finishedTrip()
+
+        context.delete(list)
+        context.delete(bananas)
+        try context.save()
+        StoreUpkeep.prune(in: context)
+
+        let kept = try context.fetch(FetchDescriptor<Trip>(predicate: #Predicate { $0.isFinished }))
+        #expect(kept.count == 1)
+        #expect(trip.listName == "Weekly")
+        #expect(trip.orderedEntries.map(\.label) == ["Bananas"])
+        #expect(trip.tally.total == 1.2)
+    }
+
+    @Test func boughtItemsAreNotPrunedWhileATripRemembersThem() throws {
+        _ = try finishedTrip()
+        context.delete(list)
+        try context.save()
+
+        StoreUpkeep.prune(in: context)
+
+        let names = try context.fetch(FetchDescriptor<GroceryItem>()).map(\.name)
+        #expect(names == ["Bananas"])
+    }
+
+    @Test func editingTheListLaterDoesNotRewriteWhatWasMissed() throws {
+        let trip = try finishedTrip()
+
+        list.add(GroceryItem(name: "Milk"))
+        try context.save()
+
+        #expect(trip.missedItemNames == ["Eggs"])
+    }
+}

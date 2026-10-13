@@ -14,6 +14,10 @@ final class Trip {
     /// Any change to the trip, prep and cross-offs included, so a list planned in the morning is not
     /// taken for an abandoned trip by the afternoon.
     var lastActivityAt: Date = Date.distantPast
+    /// Copied when the trip finishes, so a past trip still reads "Weekly" after the list is renamed
+    /// or deleted, and still knows what was missed after the list is edited.
+    var listName: String = ""
+    var missedItemNames: [String] = []
 
     @Relationship(deleteRule: .cascade, inverse: \CartEntry.trip)
     var entries: [CartEntry]? = []

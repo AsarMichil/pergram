@@ -83,6 +83,10 @@ enum Shopping {
         guard !trip.isFinished else { return }
         trip.isFinished = true
         trip.endedAt = date
+        trip.listName = trip.list?.name ?? ""
+        trip.missedItemNames = (trip.list?.orderedEntries ?? [])
+            .filter { !$0.isSkipped && !trip.isCrossed($0) }
+            .map(\.name)
         for entry in trip.orderedEntries {
             guard let item = entry.item, let unitPrice = entry.unitPrice else { continue }
             context.insert(
