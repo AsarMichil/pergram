@@ -47,8 +47,7 @@ struct SettingsView: View {
                 } footer: {
                     // Open Government Licence – Canada asks for attribution of anything derived.
                     Text(
-                        "Item names checked against the Canadian Nutrient File, Health Canada, under the Open Government Licence – Canada."
-                    )
+                        "Contains information licensed under the Open Government Licence – Canada.")
                 }
 
                 Section {
