@@ -149,9 +149,11 @@ struct CheckView: View {
         }
         .sheet(isPresented: $isShowingSaveSheet) {
             if let normalizedPrice = viewModel.normalizedPrice {
-                SetGoodPriceSheet(price: normalizedPrice) { name in
-                    viewModel.saveAsGoodPrice(named: name)
-                }
+                ItemPickerSheet(
+                    selectedItemID: goodPriceItemID,
+                    listEntries: pickableListEntries,
+                    goodPrice: normalizedPrice
+                )
             }
         }
     }
@@ -253,6 +255,18 @@ struct CheckView: View {
     private var pickableListEntries: [ListEntry] {
         guard let trip = activeTrip, let list = trip.list else { return [] }
         return list.orderedEntries.filter { !trip.isCrossed($0) }
+    }
+
+    /// Picking an item here saves the price on screen as its good price, which also selects it.
+    private var goodPriceItemID: Binding<PersistentIdentifier?> {
+        Binding(
+            get: { nil },
+            set: { id in
+                guard let id, let item: GroceryItem = modelContext.registeredModel(for: id)
+                else { return }
+                viewModel.saveAsGoodPrice(for: item)
+            }
+        )
     }
 
     private func setGoodPrice() {

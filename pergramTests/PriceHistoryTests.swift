@@ -95,6 +95,18 @@ struct PriceHistoryTests {
         #expect(chicken.goodPricePerMass == 2)
     }
 
+    @Test func savingAPickedItemsGoodPriceSelectsItAndJudgesTheSavedPrice() {
+        let viewModel = makeViewModel()
+
+        viewModel.saveAsGoodPrice(for: chicken)
+
+        #expect(viewModel.selectedItemID == chicken.persistentModelID)
+        #expect(chicken.goodPricePerMass == 2)
+        #expect(observations.map(\.reason) == [.goodPrice])
+        #expect(viewModel.isSettled)
+        #expect(viewModel.settledPrice.flatMap(chicken.verdict(for:)) == .good)
+    }
+
     @Test func typingOnePriceIsOneCheckOnceTheShopperMovesOn() {
         let viewModel = makeViewModel(selecting: chicken)
         #expect(checks.isEmpty)
