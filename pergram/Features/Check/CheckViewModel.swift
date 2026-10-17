@@ -176,11 +176,6 @@ final class CheckViewModel {
         settle()
     }
 
-    func saveAsGoodPrice(named name: String) {
-        guard let modelContext else { return }
-        saveAsGoodPrice(for: ItemIdentity.item(named: name, in: modelContext))
-    }
-
     /// Sets the price on screen as the item's good price and selects it, so the verdict that
     /// follows is judged against what was just saved.
     func saveAsGoodPrice(for item: GroceryItem) {

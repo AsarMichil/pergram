@@ -103,13 +103,20 @@ final class ShortScreenTests: XCTestCase {
         XCTAssertTrue(app.buttons["0"].firstMatch.isHittable, "keypad broke after the picker")
     }
 
-    func testAddItemSheetFitsWithoutClipping() {
+    func testGoodPriceSheetFitsWithoutClipping() {
         let app = launch()
 
         app.buttons["Items"].firstMatch.tap()
-        let add = app.buttons["addItem"].firstMatch
-        XCTAssertTrue(add.waitForExistence(timeout: 5), "no add button")
-        add.tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5), "Items has no search")
+        search.tap()
+        search.typeText("Eggs")
+        let eggs = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Eggs'")).firstMatch
+        XCTAssertTrue(eggs.waitForExistence(timeout: 5), "search found no eggs to add")
+        eggs.tap()
+        let setGoodPrice = app.buttons["Set good price"].firstMatch
+        XCTAssertTrue(setGoodPrice.waitForExistence(timeout: 5), "item form has no Set good price")
+        setGoodPrice.tap()
 
         let zeroKey = app.buttons["0"].firstMatch
         XCTAssertTrue(zeroKey.waitForExistence(timeout: 5), "sheet keypad never appeared")

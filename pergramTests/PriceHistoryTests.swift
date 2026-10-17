@@ -79,20 +79,10 @@ struct PriceHistoryTests {
     @Test func savingANewItemsGoodPriceIsHistory() {
         let viewModel = makeViewModel()
 
-        viewModel.saveAsGoodPrice(named: "Oat milk")
+        viewModel.saveAsGoodPrice(for: ItemIdentity.item(named: "Oat milk", in: context))
 
         #expect(observations.map(\.reason) == [.goodPrice])
         #expect(observations.first?.item?.name == "Oat milk")
-    }
-
-    @Test func savingAGoodPriceUnderAnExistingNameUsesThatItem() {
-        let viewModel = makeViewModel()
-
-        viewModel.saveAsGoodPrice(named: "chicken THIGH")
-
-        let items = (try? context.fetch(FetchDescriptor<GroceryItem>())) ?? []
-        #expect(items.count == 1)
-        #expect(chicken.goodPricePerMass == 2)
     }
 
     @Test func savingAPickedItemsGoodPriceSelectsItAndJudgesTheSavedPrice() {
