@@ -12,6 +12,8 @@ struct AddEditItemSheet: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel = CheckViewModel()
     @State private var name = ""
+    @FocusState private var isNameFocused: Bool
+    @State private var canvasHeight: CGFloat?
 
     private var isEditing: Bool { item != nil }
 
@@ -34,27 +36,31 @@ struct AddEditItemSheet: View {
 
     var body: some View {
         NavigationStack {
-            // Listed rather than looped: ViewThatFits treats a ForEach as one child, which would
-            // leave it with a single candidate and no fallback at all.
-            ViewThatFits(in: .vertical) {
-                content(metrics: .spacious)
-                content(metrics: .roomy)
-                content(metrics: .compact)
-            }
-            .dynamicTypeSize(...DynamicTypeSize.accessibility1)
-            .navigationTitle(isEditing ? (item?.name ?? "Edit price") : "New item")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+            // The column hangs in an overlay at the height the sheet had before the name took
+            // focus. An overlay cannot resize or re-centre what it sits on, so the keyboard covers
+            // the keypad instead of shrinking the calculator and lifting it under the title bar.
+            Color.clear
+                .onGeometryChange(for: CGFloat.self, of: \.size.height) { height in
+                    if !isNameFocused { canvasHeight = height }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: save)
-                        .fontWeight(.semibold)
-                        .disabled(!canSave)
+                .overlay(alignment: .top) {
+                    form.frame(height: canvasHeight, alignment: .top)
                 }
-            }
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
+                .navigationTitle(isEditing ? (item?.name ?? "Edit price") : "New item")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel", action: close)
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save", action: save)
+                            .fontWeight(.semibold)
+                            .disabled(!canSave)
+                    }
+                }
         }
+        .presentationBackground(Color.canvas)
         .onAppear {
             viewModel.attach(modelContext: modelContext)
             viewModel.recordsChecks = false
@@ -66,15 +72,30 @@ struct AddEditItemSheet: View {
         }
     }
 
+    private var form: some View {
+        VStack(spacing: 0) {
+            if !isEditing {
+                nameField
+                    .padding(.top, 8)
+            }
+            // Listed rather than looped: ViewThatFits treats a ForEach as one child, which would
+            // leave it with a single candidate and no fallback at all.
+            ViewThatFits(in: .vertical) {
+                calculator(metrics: .spacious)
+                calculator(metrics: .roomy)
+                calculator(metrics: .compact)
+            }
+            .contentShape(Rectangle())
+            .simultaneousGesture(TapGesture().onEnded { isNameFocused = false })
+        }
+        .padding(.horizontal)
+    }
+
     /// The sheet carries the same calculator as the Check screen, so it settles the same way: a
     /// fixed column with a keypad at the bottom, on the most generous layout that fits. Safe to
     /// measure by candidate here — nothing in this one holds a system resource.
-    private func content(metrics: CheckMetrics) -> some View {
+    private func calculator(metrics: CheckMetrics) -> some View {
         VStack(spacing: 0) {
-            if !isEditing {
-                nameField(metrics: metrics)
-                    .padding(.bottom, metrics.stackSpacing * 2)
-            }
             hero(metrics: metrics)
 
             // The card belongs with the keypad you type into it with, so the slack goes above them
@@ -88,15 +109,17 @@ struct AddEditItemSheet: View {
 
             KeypadView(viewModel: viewModel, onBookmark: nil, metrics: metrics)
         }
-        .padding(metrics.contentPadding)
+        .padding(.vertical, metrics.contentPadding)
     }
 
-    private func nameField(metrics: CheckMetrics) -> some View {
+    private var nameField: some View {
         TextField("Item name (e.g. Eggs)", text: $name)
+            .focused($isNameFocused)
+            .submitLabel(.done)
             .textFieldStyle(.plain)
             .font(.title3.weight(.medium))
             .padding(.horizontal, 14)
-            .padding(.vertical, metrics.fieldPadding + 2)
+            .padding(.vertical, 12)
             .background {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(.quaternary.opacity(0.25))
@@ -139,6 +162,11 @@ struct AddEditItemSheet: View {
         } else {
             viewModel.saveAsGoodPrice(named: name)
         }
+        close()
+    }
+
+    private func close() {
+        isNameFocused = false
         dismiss()
     }
 }
