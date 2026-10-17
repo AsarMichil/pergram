@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import TipKit
 import UIKit
 
 @main
@@ -14,6 +15,13 @@ struct PergramApp: App {
         }
     }()
     @State private var router = AppRouter()
+
+    init() {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-hideTips") { Tips.hideAllTipsForTesting() }
+        #endif
+        try? Tips.configure()
+    }
 
     var body: some Scene {
         WindowGroup {

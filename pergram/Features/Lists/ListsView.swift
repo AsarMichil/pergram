@@ -114,6 +114,13 @@ struct ListDetailView: View {
             }
         }
         .navigationTitle(list.name)
+        // After the push settles: focus asked for mid-transition, straight after the naming alert,
+        // is dropped.
+        .task {
+            guard list.orderedEntries.isEmpty else { return }
+            try? await Task.sleep(for: .milliseconds(500))
+            isAddFieldFocused = true
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Share", systemImage: "square.and.arrow.up") {

@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 
 struct VerdictPanelView: View {
     let entered: NormalizedPrice?
@@ -10,12 +11,13 @@ struct VerdictPanelView: View {
     let settleTick: Int
     var metrics: CheckMetrics = .roomy
     var onClearBookmark: () -> Void = {}
-    /// Set when an item is selected: where there is no verdict to give, the row offers to make this
-    /// price the good price — the empty state doing a job instead of reporting one.
+    /// Where there is no verdict to give, the row offers to make this price the good price — the
+    /// empty state doing a job instead of reporting one.
     var onSetGoodPrice: (() -> Void)?
 
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    private let unitCycleTip = UnitCycleTip()
 
     private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
     private var enteredDimension: PriceDimension { entered?.dimension ?? .mass }
@@ -54,6 +56,9 @@ struct VerdictPanelView: View {
             guard isSettled, hasEnoughInput else { return nil }
             return .impact(weight: .light)
         }
+        .onChange(of: settleTick) {
+            if isSettled, hasEnoughInput, canCycleUnit { UnitCycleTip.hasPricedSomething = true }
+        }
     }
 
     /// Empty rather than instructional before the first digit — but the row still holds its height,
@@ -85,7 +90,7 @@ struct VerdictPanelView: View {
             .accessibilityHint(
                 dimensionMismatch
                     ? "This item has a good price in another unit"
-                    : "This item has no good price yet"
+                    : "Nothing to compare this price against yet"
             )
             .accessibilityIdentifier("setAsGoodPrice")
             .transition(.opacity)
@@ -95,7 +100,7 @@ struct VerdictPanelView: View {
             )
             .transition(.opacity)
         } else {
-            verdictLabel("NO BASELINE", systemImage: "questionmark.circle", color: .secondary)
+            verdictLabel("NO GOOD PRICE", systemImage: "questionmark.circle", color: .secondary)
                 .transition(.opacity)
         }
     }
@@ -126,6 +131,7 @@ struct VerdictPanelView: View {
 
     private var unitCycleButton: some View {
         Button {
+            unitCycleTip.invalidate(reason: .actionPerformed)
             withAnimation(settleAnimation) {
                 displayUnitRaw =
                     PriceDisplay.next(after: displayUnit, in: enteredDimension)
@@ -154,6 +160,9 @@ struct VerdictPanelView: View {
     private var comparisonRow: some View {
         if let bookmarked {
             LastPriceChip(price: bookmarked, current: entered, onDelete: onClearBookmark)
+        } else {
+            TipView(unitCycleTip)
+                .tipViewStyle(ChipTipStyle())
         }
     }
 }
@@ -182,7 +191,7 @@ private func verdictPreview(
 #Preview("Meh") { verdictPreview(1.30, verdict: .meh) }
 #Preview("Bad") { verdictPreview(2.40, verdict: .bad) }
 #Preview("Checking") { verdictPreview(1.05, verdict: .good, isSettled: false) }
-#Preview("No baseline") { verdictPreview(1.05, baseline: nil) }
+#Preview("No good price") { verdictPreview(1.05, baseline: nil) }
 
 /// The entered price is a count, the baseline a mass — nothing comparable between them.
 #Preview("Different unit") {

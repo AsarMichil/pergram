@@ -14,9 +14,6 @@ struct ItemsView: View {
     @State private var deletingItem: GroceryItem?
 
     private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
-    private var massUnit: MeasureUnit {
-        PriceDisplay.displayUnit(for: .mass, preferred: storedUnit)
-    }
 
     private var query: String { searchText.trimmingCharacters(in: .whitespacesAndNewlines) }
     private var results: [ItemSearchResult] { ItemSearch.results(for: query, items: items) }
@@ -65,16 +62,6 @@ struct ItemsView: View {
             .searchable(text: $searchText, prompt: "Search items")
             .navigationTitle("Your items")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        displayUnitRaw = PriceDisplay.next(after: massUnit, in: .mass).rawValue
-                    } label: {
-                        Text(PriceDisplay.suffix(for: massUnit))
-                            .monospacedDigit()
-                            .contentTransition(.numericText())
-                    }
-                    .sensoryFeedback(.selection, trigger: displayUnitRaw)
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         isAdding = true

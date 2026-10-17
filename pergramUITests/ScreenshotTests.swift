@@ -28,9 +28,6 @@ final class ScreenshotTests: XCTestCase {
         let app = launch()
 
         app.buttons["itemRow"].firstMatch.tap()
-        let chooseItem = app.buttons["chooseItem"].firstMatch
-        XCTAssertTrue(chooseItem.waitForExistence(timeout: 5), "item row menu did not open")
-        chooseItem.tap()
         let row = app.staticTexts["Bananas"].firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5), "no picker row for Bananas")
         row.tap()
@@ -53,6 +50,7 @@ final class ScreenshotTests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = [
             "-checkDisplayUnit", "kilogram", "-checkAmountUnit", "kilogram", "-demoGoodPrices",
+            "-hideTips",
         ]
         app.launch()
         return app
@@ -62,9 +60,6 @@ final class ScreenshotTests: XCTestCase {
         let app = launch()
 
         app.buttons["itemRow"].firstMatch.tap()
-        let chooseItem = app.buttons["chooseItem"].firstMatch
-        XCTAssertTrue(chooseItem.waitForExistence(timeout: 5), "item row menu did not open")
-        chooseItem.tap()
 
         let row = app.staticTexts[item].firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5), "no picker row for \(item)")

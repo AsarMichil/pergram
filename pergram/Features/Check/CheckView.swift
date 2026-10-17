@@ -176,7 +176,7 @@ struct CheckView: View {
                         viewModel.clearBookmark()
                     }
                 },
-                onSetGoodPrice: setGoodPriceFromPanel
+                onSetGoodPrice: setGoodPrice
             )
 
             Spacer(minLength: 0)
@@ -253,12 +253,6 @@ struct CheckView: View {
     private var pickableListEntries: [ListEntry] {
         guard let trip = activeTrip, let list = trip.list else { return [] }
         return list.orderedEntries.filter { !trip.isCrossed($0) }
-    }
-
-    /// Only with an item selected: without one there is nothing to give the good price to.
-    private var setGoodPriceFromPanel: (() -> Void)? {
-        guard selectedItem != nil else { return nil }
-        return { setGoodPrice() }
     }
 
     private func setGoodPrice() {

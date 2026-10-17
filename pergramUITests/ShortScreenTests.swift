@@ -13,6 +13,7 @@ final class ShortScreenTests: XCTestCase {
 
     private func launch() -> XCUIApplication {
         let app = XCUIApplication()
+        app.launchArguments = ["-hideTips"]
         app.launch()
         return app
     }
@@ -88,9 +89,6 @@ final class ShortScreenTests: XCTestCase {
         let app = launch()
 
         app.buttons["itemRow"].firstMatch.tap()
-        let chooseItem = app.buttons["chooseItem"].firstMatch
-        XCTAssertTrue(chooseItem.waitForExistence(timeout: 5), "item menu did not open")
-        chooseItem.tap()
 
         let search = app.searchFields.firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5), "picker has no search")
