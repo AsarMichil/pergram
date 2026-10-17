@@ -70,7 +70,7 @@ enum Shopping {
         save(context)
     }
 
-    /// "That was the eggs": a price-only entry takes the item, and the verdict that item gives.
+    /// "That was the eggs": the entry takes the item, and the verdict that item gives.
     static func name(_ entry: CartEntry, as item: GroceryItem, in context: ModelContext) {
         entry.item = item
         entry.savedName = item.name

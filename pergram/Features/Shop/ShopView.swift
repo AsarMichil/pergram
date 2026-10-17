@@ -12,7 +12,6 @@ struct ShopView: View {
     @Query(sort: \GroceryList.name) private var lists: [GroceryList]
     @State private var editingEntry: CartEntry?
     @State private var removingEntry: CartEntry?
-    @State private var namingEntry: CartEntry?
     @State private var isShowingSummary = false
     @State private var preparingList: GroceryList?
 
@@ -52,11 +51,10 @@ struct ShopView: View {
             }
             .listRowBackground(Color.clear)
 
-            Section("Cart") {
-                if trip.orderedEntries.isEmpty {
-                    Text("Nothing yet. Add a price from Type or Scan.")
-                        .foregroundStyle(.secondary)
-                }
+            // Always present and never a placeholder row: swapping the last entry for one made the
+            // rows below overshoot, and dropping the section faded the row out beneath them. Empty,
+            // it loses its title and the hint rides in the header's subtitle.
+            Section {
                 ForEach(trip.orderedEntries) { entry in
                     Button {
                         editingEntry = entry
@@ -65,24 +63,20 @@ struct ShopView: View {
                             .contentShape(.rect)
                     }
                     .buttonStyle(.plain)
-                    // Leading only: Shop is the leftmost mode, so a swipe left anywhere on
-                    // this page belongs to the mode swipe, back to Type.
+                    // Leading only: a swipe left on this page is the mode swipe back to Type.
+                    // Tinted, not `.destructive`: that role drops the row ahead of the data,
+                    // and the second update made the rows below jump.
                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            Shopping.remove(entry, in: modelContext)
+                        Button {
+                            withAnimation { Shopping.remove(entry, in: modelContext) }
                         } label: {
                             Label("Remove", systemImage: "trash")
                         }
-                        if entry.item == nil {
-                            Button {
-                                namingEntry = entry
-                            } label: {
-                                Label("What was this?", systemImage: "questionmark.circle")
-                            }
-                            .tint(.indigo)
-                        }
+                        .tint(.red)
                     }
                 }
+            } header: {
+                if !trip.orderedEntries.isEmpty { Text("Cart") }
             }
 
             if let list = trip.list {
@@ -121,22 +115,9 @@ struct ShopView: View {
         .scrollContentBackground(.hidden)
         .sensoryFeedback(.selection, trigger: trip.crossedEntryIDs)
         .sheet(item: $editingEntry, onDismiss: removePendingEntry) { entry in
-            QuantitySheet(entry: entry, label: entry.label) {
+            QuantitySheet(entry: entry) {
                 removingEntry = entry
             }
-        }
-        .sheet(item: $namingEntry) { entry in
-            ItemPickerSheet(
-                selectedItemID: Binding(
-                    get: { entry.item?.persistentModelID },
-                    set: { id in
-                        guard let item: GroceryItem = id.flatMap(modelContext.registeredModel)
-                        else { return }
-                        withAnimation { Shopping.name(entry, as: item, in: modelContext) }
-                    }
-                ),
-                listEntries: (trip.list?.orderedEntries ?? []).filter { !trip.isCrossed($0) }
-            )
         }
         .sheet(isPresented: $isShowingSummary) {
             TripSummarySheet(trip: trip)
@@ -206,6 +187,7 @@ struct ShopView: View {
     }
 
     private func subtitle(_ trip: Trip, tally: CartTally) -> String {
+        if tally.count == 0 && trip.list == nil { return "Add a price from Type or Scan" }
         let count = tally.count == 1 ? "1 item" : "\(tally.count) items"
         guard let list = trip.list else { return count }
         return "\(count) · \(list.name)"
