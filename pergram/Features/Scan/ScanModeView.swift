@@ -31,17 +31,25 @@ struct ScanModeView: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 28))
             // The caption row already reserves a full target (`CheckMetrics.captionAllowance`), so
-            // the actions flank it without costing the viewfinder any height.
-            HStack(spacing: 8) {
-                actionButton(
-                    "Park this price to compare against", systemImage: "bookmark",
-                    identifier: "scanBookmark", isEnabled: canBookmark, action: onBookmark)
+            // the actions sit beside it without costing the viewfinder any height. They pair at the
+            // trailing edge in the keypad's order, cart outermost, so both modes keep them under the
+            // same thumb.
+            HStack(spacing: 12) {
                 caption
-                    .frame(maxWidth: .infinity)
-                actionButton(
-                    "Add to cart", systemImage: "cart.badge.plus",
-                    identifier: "scanAddToCart", isEnabled: canAddToCart, action: onAddToCart)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                GlassEffectContainer(spacing: 8) {
+                    HStack(spacing: 8) {
+                        actionButton(
+                            "Park this price to compare against", systemImage: "bookmark",
+                            identifier: "scanBookmark", isEnabled: canBookmark, action: onBookmark)
+                        actionButton(
+                            "Add to cart", systemImage: "cart.badge.plus",
+                            identifier: "scanAddToCart", isEnabled: canAddToCart,
+                            action: onAddToCart)
+                    }
+                }
             }
+            .padding(.leading, 4)
             .frame(height: CheckMetrics.captionAllowance)
         }
         .sensoryFeedback(.impact(weight: .light), trigger: model.filledTick)
@@ -109,7 +117,7 @@ struct ScanModeView: View {
     private var caption: some View {
         Text(Self.adjustCaption)
             .hidden()
-            .overlay {
+            .overlay(alignment: .leading) {
                 captionLine
                     .contentTransition(.opacity)
                     .animation(.easeInOut(duration: 0.2), value: captionText)
