@@ -6,12 +6,15 @@ struct ModeBubble: View {
     /// visible from Type and Scan without a row of its own.
     var cartTotal: Double?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Namespace private var glass
 
-    private var switchAnimation: Animation { .spring(response: 0.4, dampingFraction: 0.82) }
+    private var switchAnimation: Animation { .spring(response: 0.35, dampingFraction: 0.8) }
 
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(CheckInputMode.allCases, id: \.self, content: element)
+        GlassEffectContainer(spacing: 12) {
+            HStack(spacing: 0) {
+                ForEach(CheckInputMode.allCases, id: \.self, content: element)
+            }
         }
         .animation(reduceMotion ? nil : switchAnimation, value: mode)
         .animation(reduceMotion ? nil : switchAnimation, value: cartTotal)
@@ -23,66 +26,50 @@ struct ModeBubble: View {
         return PriceDisplay.money(cartTotal)
     }
 
-    @ViewBuilder
+    /// One view per mode whatever its state, so a switch morphs one shape rather than fading a
+    /// capsule out in one place and a circle in at another. Every element takes the same 8pt either
+    /// side, which evens the visible gaps and keeps a 44pt target around the 28pt circles.
     private func element(for target: CheckInputMode) -> some View {
-        if mode == target {
-            Button {
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: target.symbolName)
+        let isSelected = mode == target
+        let total = totalText(for: target)
+        let isCircle = !isSelected && total == nil
+        return Button {
+            mode = target
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: target.symbolName)
+                // With a trip running the total names the Shop mode, so the word would only crowd it.
+                if isSelected && total == nil {
                     Text(target.title)
-                    if let total = totalText(for: target) {
-                        Text(total)
-                            .monospacedDigit()
-                            .contentTransition(.numericText())
-                            .foregroundStyle(.secondary)
-                    }
                 }
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 6)
-                .frame(height: 20)
-            }
-            .buttonStyle(.glass)
-            .allowsHitTesting(false)
-        } else if let total = totalText(for: target) {
-            Button {
-                select(target)
-            } label: {
-                HStack(spacing: 4) {
+                if let total {
                     Text(total)
                         .monospacedDigit()
                         .contentTransition(.numericText())
-                    Image(systemName: target.symbolName)
                 }
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .frame(height: 26)
-                .glassEffect(.regular.interactive(), in: .capsule)
-                .frame(height: 44)
-                .contentShape(.capsule)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Switch to \(target.title), cart \(total)")
-        } else {
-            // The 44pt minimum governs the touch target, not the artwork, so the hit region is
-            // widened past the glass rather than inflating it — the collapsed glyph is the design.
-            Button {
-                select(target)
-            } label: {
-                Image(systemName: target.symbolName)
-                    .font(.caption.weight(.semibold))
-                    .frame(width: 26, height: 26)
-                    .glassEffect(.regular.interactive(), in: .circle)
-                    .frame(width: 44, height: 44)
-                    .contentShape(.circle)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Switch to \(target.title)")
+            .font(isSelected ? .subheadline.weight(.semibold) : .footnote.weight(.semibold))
+            .padding(.horizontal, isCircle ? 0 : isSelected ? 14 : 10)
+            .frame(width: isCircle ? 28 : nil, height: isSelected ? 34 : 28)
+            // Words leaving a shrinking capsule are wiped by its edge rather than fading out over
+            // the element beside it.
+            .clipShape(.capsule)
+            .glassEffect(.regular.interactive(), in: .capsule)
+            .glassEffectID(target, in: glass)
+            .padding(.horizontal, 8)
+            .frame(minHeight: 44)
+            .contentShape(.rect)
         }
+        .buttonStyle(.plain)
+        .allowsHitTesting(!isSelected)
+        .accessibilityLabel(accessibilityLabel(for: target, total: total))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
-    private func select(_ target: CheckInputMode) {
-        withAnimation(reduceMotion ? nil : switchAnimation) { mode = target }
+    private func accessibilityLabel(for target: CheckInputMode, total: String?) -> String {
+        let name = mode == target ? target.title : "Switch to \(target.title)"
+        guard let total else { return name }
+        return "\(name), cart \(total)"
     }
 }
 

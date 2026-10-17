@@ -30,8 +30,14 @@ final class CheckViewModel {
     /// Held by identity rather than as a live object: SwiftData object references do not react to
     /// deletion, so the view resolves the item from its `@Query` and a deleted row resolves to `nil`.
     var selectedItemID: PersistentIdentifier? {
-        didSet { scheduleSettle() }
+        didSet {
+            itemLeavesWithThisPrice = false
+            scheduleSettle()
+        }
     }
+    /// Set once the price is in the cart: the item stays while its verdict is on screen and lets go
+    /// when the next price starts, so that price is not judged against the last thing bought.
+    private var itemLeavesWithThisPrice = false
     private(set) var focusedField: Field = .price
     private(set) var isEditingFresh = true
 
@@ -86,6 +92,7 @@ final class CheckViewModel {
 
     func inputDigit(_ digit: String) {
         setFocusedText(Self.appending(digit, to: consumeFreshBase()))
+        if focusedField == .price && Self.hasCents(priceText) { focus(.amount) }
     }
 
     func inputDecimalPoint() {
@@ -102,7 +109,10 @@ final class CheckViewModel {
     /// Starting a new price is the moment the last one was checked and moved on from.
     private func consumeFreshBase() -> String {
         guard isEditingFresh else { return focusedText }
-        if focusedField == .price { commitCheck() }
+        if focusedField == .price {
+            commitCheck()
+            releaseCartedItem()
+        }
         isEditingFresh = false
         inputSource = .keypad
         return ""
@@ -143,7 +153,12 @@ final class CheckViewModel {
         commitCheck()
         focusedField = .price
         isEditingFresh = true
+        itemLeavesWithThisPrice = true
         cartTick &+= 1
+    }
+
+    private func releaseCartedItem() {
+        if itemLeavesWithThisPrice { selectedItemID = nil }
     }
 
     func clearBookmark() {
@@ -178,6 +193,7 @@ final class CheckViewModel {
     /// path as a typed price. A tag that yielded only a price leaves the amount and unit alone.
     func applyScannedEntry(_ candidate: ScanCandidate) {
         commitCheck()
+        releaseCartedItem()
         inputSource = .scan
         priceText = Self.priceText(candidate.price)
         if let amount = candidate.amount, let unit = candidate.unit {
@@ -218,6 +234,12 @@ final class CheckViewModel {
         case .amount: amountText = text
         }
         scheduleSettle()
+    }
+
+    /// A shelf price never runs past cents, so the second one finishes it.
+    private static func hasCents(_ text: String) -> Bool {
+        guard let point = text.firstIndex(of: ".") else { return false }
+        return text[text.index(after: point)...].count == 2
     }
 
     private static func appending(_ token: String, to text: String) -> String {

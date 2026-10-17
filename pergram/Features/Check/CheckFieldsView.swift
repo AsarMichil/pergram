@@ -24,12 +24,10 @@ struct CheckFieldsView: View {
         }
     }
 
-    /// The item and the baseline it carries are one fact, so they are one row and one control —
-    /// the actions that used to sit beside them as loose links live in its menu.
+    /// The item and the good price it carries are one fact, so they are one row and one control.
+    /// A tap chooses the item, the common case; the rest wait in the long-press menu.
     private var itemRow: some View {
         Menu {
-            Button("Choose item…", systemImage: "list.bullet", action: onChooseItem)
-                .accessibilityIdentifier("chooseItem")
             if let goodPriceTitle {
                 Button(goodPriceTitle, systemImage: "target", action: onSetGoodPrice)
             }
@@ -53,6 +51,8 @@ struct CheckFieldsView: View {
                     .foregroundStyle(.tertiary)
             }
             .frame(maxWidth: .infinity, minHeight: metrics.itemRowHeight)
+        } primaryAction: {
+            onChooseItem()
         }
         .buttonStyle(.glass)
         // Unlike the keypad there is no gap here to borrow — the card above and the keys below sit

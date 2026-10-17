@@ -17,7 +17,7 @@ struct SettingsView: View {
                         "Type or scan a shelf price. PerGram Go normalizes it to a price per 100g and "
                             + "compares it against the good prices you set."
                     )
-                    Text("Prices are your own baselines, not live store data.")
+                    Text("Good prices are your own, not live store data.")
                         .foregroundStyle(.secondary)
                 }
 

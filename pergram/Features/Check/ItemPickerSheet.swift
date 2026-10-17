@@ -7,6 +7,7 @@ import SwiftUI
 struct ItemPickerSheet: View {
     @Binding var selectedItemID: PersistentIdentifier?
     var listEntries: [ListEntry] = []
+    var canClear = true
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \GroceryItem.name) private var items: [GroceryItem]
@@ -33,7 +34,7 @@ struct ItemPickerSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                if selectedItemID != nil && query.isEmpty {
+                if canClear && selectedItemID != nil && query.isEmpty {
                     Button("Clear selection", role: .destructive) {
                         selectedItemID = nil
                         dismiss()

@@ -2,16 +2,17 @@ import SwiftData
 import SwiftUI
 
 /// Quantity lives here and not on Check: deciding *how many* happens once, at the cart, while the
-/// aisle screen stays about one price.
+/// aisle screen stays about one price. So does what the entry was, since a price added in a hurry is
+/// often only named afterwards.
 struct QuantitySheet: View {
     let entry: CartEntry
-    let label: String
     /// Asks the presenter to remove the entry once the sheet is gone: deleting it here would leave
     /// the dismissing sheet reading a deleted model.
     var onRemove: () -> Void = {}
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var text = ""
+    @State private var isChoosingItem = false
     @FocusState private var isFieldFocused: Bool
 
     private var quantity: Double? {
@@ -21,6 +22,7 @@ struct QuantitySheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
+                itemRow
                 HStack(spacing: 16) {
                     stepButton("minus", delta: -1)
                     TextField("Quantity", text: $text)
@@ -43,7 +45,6 @@ struct QuantitySheet: View {
                 .accessibilityIdentifier("removeFromCart")
             }
             .padding()
-            .navigationTitle(label)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -55,8 +56,51 @@ struct QuantitySheet: View {
                 }
             }
         }
-        .presentationDetents([.height(280)])
+        .presentationDetents([.height(340)])
         .onAppear { text = Self.format(entry.quantity) }
+        .sheet(isPresented: $isChoosingItem) {
+            ItemPickerSheet(
+                selectedItemID: chosenItem, listEntries: uncrossedListEntries, canClear: false)
+        }
+    }
+
+    private var itemRow: some View {
+        Button {
+            isChoosingItem = true
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "tag")
+                Text(entry.label)
+                    .lineLimit(1)
+                    .foregroundStyle(entry.item == nil ? .secondary : .primary)
+                Spacer(minLength: 4)
+                Image(systemName: "chevron.down")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .frame(maxWidth: .infinity, minHeight: 32)
+        }
+        .buttonStyle(.glass)
+        .accessibilityLabel("Item, \(entry.label)")
+        .accessibilityHint("Choose what this was")
+        .accessibilityIdentifier("cartEntryItem")
+    }
+
+    private var chosenItem: Binding<PersistentIdentifier?> {
+        Binding(
+            get: { entry.item?.persistentModelID },
+            set: { id in
+                guard let item: GroceryItem = id.flatMap(modelContext.registeredModel) else {
+                    return
+                }
+                withAnimation { Shopping.name(entry, as: item, in: modelContext) }
+            }
+        )
+    }
+
+    private var uncrossedListEntries: [ListEntry] {
+        guard let trip = entry.trip else { return [] }
+        return (trip.list?.orderedEntries ?? []).filter { !trip.isCrossed($0) }
     }
 
     private var totalLine: String {

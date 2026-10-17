@@ -81,4 +81,36 @@ struct AddToCartTests {
 
         #expect(trip.isCrossed(entry))
     }
+
+    @Test func theItemStaysWithItsVerdictAndLeavesWithTheNextPrice() throws {
+        let milk = GroceryItem(name: "Milk")
+        context.insert(milk)
+        try context.save()
+        viewModel.selectedItemID = milk.persistentModelID
+        type(price: "3")
+
+        viewModel.addToCart(item: milk)
+
+        #expect(viewModel.selectedItemID == milk.persistentModelID)
+
+        viewModel.inputDigit("4")
+
+        #expect(viewModel.selectedItemID == nil)
+    }
+
+    @Test func anItemPickedAfterAddingIsKeptForTheNextPrice() throws {
+        let milk = GroceryItem(name: "Milk")
+        let eggs = GroceryItem(name: "Eggs")
+        context.insert(milk)
+        context.insert(eggs)
+        try context.save()
+        viewModel.selectedItemID = milk.persistentModelID
+        type(price: "3")
+        viewModel.addToCart(item: milk)
+
+        viewModel.selectedItemID = eggs.persistentModelID
+        viewModel.inputDigit("5")
+
+        #expect(viewModel.selectedItemID == eggs.persistentModelID)
+    }
 }

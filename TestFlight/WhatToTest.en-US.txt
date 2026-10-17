@@ -5,13 +5,14 @@ New in 1.2.0: grocery lists, shopping trips with a running cart, and Your items.
 Before you start: if you installed an earlier 1.2.0 test build, delete the app and reinstall. Lists made with that build will not carry over.
 
 What to try:
+• First run — on a fresh install, check a price with no item picked. Does it make sense what to do next?
 • Lists — make a list and add things by typing. Pick a suggestion, or type anything ("PC thighs" is fine). Each lands in its aisle.
 • Tap something on a list to add a note ("6", "2 lb", "ripe ones"), rename it or move it to another aisle.
 • Shop this list — switch off what you are skipping this week, then Start. Skips stay on the list for next time.
 • On the Shop page, tap an item to price it. You land in Type or Scan with it already selected. Add it to the cart and it crosses itself off.
 • Tap the circle to cross something off without pricing it. Swipe right on a row for "Not this time".
 • Add the same item at the same price twice. It should count up to × 2, not add a second row.
-• Add a price with no item picked, then swipe right on it in the cart and choose "What was this?".
+• Add a price with no item picked, then tap it in the cart and choose what it was.
 • Pick an item with no good price on Check. Where the verdict would be, tap "Set as good price".
 • Finish a trip. The summary names bad buys and offers "Use $X" for anything you bought without a good price.
 • Your items (the Items tab) — everything you buy, by aisle. Tap one to set or remove good prices; an item can have one per weight, per volume and each.

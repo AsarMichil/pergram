@@ -137,6 +137,19 @@ struct ShoppingTests {
         #expect(trip.isCrossed(thighs))
     }
 
+    @Test func renamingAnEntryMovesItsCrossToTheNewItem() {
+        let trip = Shopping.startTrip(shopping: list, in: context)
+        let entry = Shopping.addToCart(
+            price: 5, unitPrice: perHundredGrams, item: milkItem, in: context)
+
+        Shopping.name(entry, as: chicken, in: context)
+
+        #expect(entry.label == "Chicken thigh")
+        #expect(entry.verdict == .good)
+        #expect(trip.isCrossed(thighs))
+        #expect(!trip.isCrossed(milk))
+    }
+
     @Test func aNewTripStartsWithNothingCrossed() {
         let first = Shopping.startTrip(shopping: list, in: context)
         Shopping.setCrossed(true, for: milk, in: first)
