@@ -176,17 +176,12 @@ final class CheckViewModel {
         settle()
     }
 
-    func saveAsGoodPrice(named name: String) {
-        guard let normalizedPrice, let modelContext else { return }
-        let item = ItemIdentity.item(named: name, in: modelContext)
-        item.setGoodPrice(normalizedPrice)
-        item.userModified = true
-        item.updatedAt = .now
-        modelContext.insert(
-            PriceObservation(price: normalizedPrice, reason: .goodPrice, item: item))
-        try? modelContext.save()
+    /// Sets the price on screen as the item's good price and selects it, so the verdict that
+    /// follows is judged against what was just saved.
+    func saveAsGoodPrice(for item: GroceryItem) {
+        guard normalizedPrice != nil, modelContext != nil else { return }
         selectedItemID = item.persistentModelID
-        settle()
+        updateGoodPrice(for: item)
     }
 
     /// Fills the fields and lets the normal settle run, so a scan reaches the verdict by the same

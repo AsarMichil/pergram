@@ -80,7 +80,7 @@ struct ItemForm: View {
             }
         }
         .sheet(isPresented: $isSettingGoodPrice) {
-            AddEditItemSheet(item: item)
+            GoodPriceSheet(item: item)
         }
         .onAppear {
             name = item.name

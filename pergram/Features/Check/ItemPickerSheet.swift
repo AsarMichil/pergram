@@ -8,6 +8,9 @@ struct ItemPickerSheet: View {
     @Binding var selectedItemID: PersistentIdentifier?
     var listEntries: [ListEntry] = []
     var canClear = true
+    /// Set when the pick is for saving this price as the item's good price rather than checking
+    /// against one.
+    var goodPrice: NormalizedPrice?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \GroceryItem.name) private var items: [GroceryItem]
@@ -15,6 +18,13 @@ struct ItemPickerSheet: View {
     @State private var searchText = ""
 
     private var storedUnit: MeasureUnit { MeasureUnit(rawValue: displayUnitRaw) ?? .per100Grams }
+    private var showsClear: Bool { canClear && goodPrice == nil && selectedItemID != nil }
+
+    private var goodPriceSubtitle: String {
+        guard let goodPrice else { return "" }
+        let unit = PriceDisplay.displayUnit(for: goodPrice.dimension, preferred: storedUnit)
+        return PriceDisplay.formatted(goodPrice, in: unit)
+    }
     private var query: String { searchText.trimmingCharacters(in: .whitespacesAndNewlines) }
 
     private var results: [ItemSearchResult] { ItemSearch.results(for: query, items: items) }
@@ -34,7 +44,7 @@ struct ItemPickerSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                if canClear && selectedItemID != nil && query.isEmpty {
+                if showsClear && query.isEmpty {
                     Button("Clear selection", role: .destructive) {
                         selectedItemID = nil
                         dismiss()
@@ -85,7 +95,8 @@ struct ItemPickerSheet: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: "Search items"
             )
-            .navigationTitle("Choose item")
+            .navigationTitle(goodPrice == nil ? "Choose item" : "Save good price")
+            .navigationSubtitle(goodPriceSubtitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

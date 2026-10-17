@@ -9,7 +9,6 @@ struct ItemsView: View {
     @Query(sort: \GroceryItem.name) private var items: [GroceryItem]
     @AppStorage("checkDisplayUnit") private var displayUnitRaw = MeasureUnit.per100Grams.rawValue
     @State private var searchText = ""
-    @State private var isAdding = false
     @State private var editingItem: GroceryItem?
     @State private var deletingItem: GroceryItem?
 
@@ -42,8 +41,10 @@ struct ItemsView: View {
                                 Button {
                                     edit(result.item(in: modelContext))
                                 } label: {
-                                    LabeledContent(entry.name) {
+                                    LabeledContent {
                                         Text(entry.aisle.title)
+                                    } label: {
+                                        Label(entry.name, systemImage: "plus")
                                     }
                                 }
                                 .foregroundStyle(.primary)
@@ -59,23 +60,9 @@ struct ItemsView: View {
                     }
                 }
             }
-            .searchable(text: $searchText, prompt: "Search items")
+            .searchable(text: $searchText, prompt: "Search or add an item")
             .navigationTitle("Your items")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        isAdding = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                    .accessibilityLabel("Add a good price")
-                    .accessibilityIdentifier("addItem")
-                }
-            }
             .overlay { emptyState }
-        }
-        .sheet(isPresented: $isAdding) {
-            AddEditItemSheet(item: nil)
         }
         .sheet(item: $editingItem, onDismiss: { StoreUpkeep.prune(in: modelContext) }) { item in
             ItemForm(item: item)
@@ -131,7 +118,7 @@ struct ItemsView: View {
                 "Nothing here yet",
                 systemImage: "tag",
                 description: Text(
-                    "What you add to a list or give a good price shows up here. Search to add anything."
+                    "Search to add one. What you put on a list or give a good price lands here too."
                 )
             )
         } else if !query.isEmpty && results.isEmpty && !canAddQuery {

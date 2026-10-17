@@ -15,7 +15,7 @@ What to try:
 • Add a price with no item picked, then tap it in the cart and choose what it was.
 • Pick an item with no good price on Check. Where the verdict would be, tap "Set as good price".
 • Finish a trip. The summary names bad buys and offers "Use $X" for anything you bought without a good price.
-• Your items (the Items tab) — everything you buy, by aisle. Tap one to set or remove good prices; an item can have one per weight, per volume and each.
+• Your items (the Items tab) — everything you buy, by aisle. Search to add anything. Tap one to set or remove good prices; an item can have one per weight, per volume and each.
 • Share a list with another tester (AirDrop or Messages). Change it, share it again, and check the import screen: what changed, then Update or Save as copy.
 
 Most useful feedback: anything that felt confusing, an item the search did not know, an item that landed in the wrong aisle, or a tag the scanner read wrong (with a photo).
