@@ -15,7 +15,8 @@ struct ShopPrepSheet: View {
         AisleOrder.standard.sorted(list.orderedEntries, by: \.aisle)
     }
 
-    private var neededCount: Int { (list.entries?.count ?? 0) - skipped.count }
+    private var totalCount: Int { list.entries?.count ?? 0 }
+    private var neededCount: Int { totalCount - skipped.count }
 
     var body: some View {
         NavigationStack {
@@ -23,9 +24,8 @@ struct ShopPrepSheet: View {
                 ForEach(groups, id: \.aisle) { group in
                     Section(group.aisle.title) {
                         ForEach(group.elements) { entry in
-                            Toggle(isOn: binding(for: entry)) {
-                                Text(entry.name)
-                                if let note = entry.note { Text(note) }
+                            PrepRow(entry: entry, isNeeded: !skipped.contains(entry.id)) {
+                                toggle(entry)
                             }
                         }
                     }
@@ -39,6 +39,7 @@ struct ShopPrepSheet: View {
                 }
             }
             .navigationTitle(list.name)
+            .navigationSubtitle(totalCount > 0 ? "Uncheck what to skip" : "")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -50,12 +51,25 @@ struct ShopPrepSheet: View {
                         .accessibilityIdentifier("startShopping")
                 }
             }
-            .safeAreaInset(edge: .bottom) {
-                Text(neededCount == 1 ? "1 item to get" : "\(neededCount) items to get")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                    .padding(.bottom, 8)
+            .toolbar {
+                if totalCount > 0 {
+                    ToolbarItem(placement: .bottomBar) {
+                        Text("\(neededCount) of \(totalCount) to get")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                            .fixedSize()
+                    }
+                    .sharedBackgroundVisibility(.hidden)
+                    ToolbarSpacer(.flexible, placement: .bottomBar)
+                    ToolbarItem(placement: .bottomBar) {
+                        if skipped.isEmpty {
+                            Button("Skip All") { withAnimation { skipAll() } }
+                        } else {
+                            Button("Get All") { withAnimation { skipped.removeAll() } }
+                        }
+                    }
+                }
             }
         }
         .onAppear {
@@ -63,13 +77,12 @@ struct ShopPrepSheet: View {
         }
     }
 
-    private func binding(for entry: ListEntry) -> Binding<Bool> {
-        Binding(
-            get: { !skipped.contains(entry.id) },
-            set: { needed in
-                if needed { skipped.remove(entry.id) } else { skipped.insert(entry.id) }
-            }
-        )
+    private func toggle(_ entry: ListEntry) {
+        if skipped.contains(entry.id) { skipped.remove(entry.id) } else { skipped.insert(entry.id) }
+    }
+
+    private func skipAll() {
+        skipped = Set(list.orderedEntries.map(\.id))
     }
 
     private func start() {
@@ -79,5 +92,37 @@ struct ShopPrepSheet: View {
         Shopping.startTrip(shopping: list, in: modelContext)
         dismiss()
         onStart()
+    }
+}
+
+private struct PrepRow: View {
+    let entry: ListEntry
+    let isNeeded: Bool
+    var onToggle: () -> Void
+
+    var body: some View {
+        Button(action: onToggle) {
+            HStack(spacing: 12) {
+                Image(systemName: isNeeded ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundStyle(isNeeded ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+                    .contentTransition(.symbolEffect(.replace))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(entry.name)
+                        .foregroundStyle(isNeeded ? .primary : .secondary)
+                    if let note = entry.note {
+                        Text(note)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(entry.name)
+        .accessibilityValue(isNeeded ? "Getting" : "Skipping this time")
+        .accessibilityAddTraits(isNeeded ? .isSelected : [])
     }
 }
