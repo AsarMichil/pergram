@@ -51,9 +51,9 @@ struct ShopView: View {
             }
             .listRowBackground(Color.clear)
 
-            // Always present and never a placeholder row: swapping the last entry for one made the
-            // rows below overshoot, and dropping the section faded the row out beneath them. Empty,
-            // it loses its title and the hint rides in the header's subtitle.
+            // Header and section stay put when the cart empties, so removing the last row only
+            // collapses it: losing the header reloaded the section, and a placeholder row made the
+            // rows below overshoot.
             Section {
                 ForEach(trip.orderedEntries) { entry in
                     Button {
@@ -64,19 +64,24 @@ struct ShopView: View {
                     }
                     .buttonStyle(.plain)
                     // Leading only: a swipe left on this page is the mode swipe back to Type.
-                    // Tinted, not `.destructive`: that role drops the row ahead of the data,
-                    // and the second update made the rows below jump.
+                    // `.destructive` collapses the row in place; any other role leaves it drawn
+                    // until rows below in its section cover it, and the last row has none.
                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                        Button {
+                        Button(role: .destructive) {
                             withAnimation { Shopping.remove(entry, in: modelContext) }
                         } label: {
                             Label("Remove", systemImage: "trash")
                         }
-                        .tint(.red)
                     }
                 }
             } header: {
-                if !trip.orderedEntries.isEmpty { Text("Cart") }
+                HStack {
+                    Text("Cart")
+                    Spacer()
+                    if trip.orderedEntries.isEmpty {
+                        Text("Empty").foregroundStyle(.tertiary)
+                    }
+                }
             }
 
             if let list = trip.list {
