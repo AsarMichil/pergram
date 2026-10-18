@@ -24,7 +24,6 @@ final class ScanModel {
 
     private(set) var status: Status = .idle
     private(set) var filledTick = 0
-    private(set) var hasFilled = false
 
     var onCandidate: ((ScanCandidate) -> Void)?
 
@@ -69,7 +68,6 @@ final class ScanModel {
         capture?.stop()
         recent.removeAll()
         filled = nil
-        hasFilled = false
         if status == .scanning || status == .starting { status = .idle }
     }
 
@@ -123,7 +121,6 @@ final class ScanModel {
         }
         guard winner != filled, !Self.isDowngrade(winner, from: filled) else { return }
         filled = winner
-        hasFilled = true
         filledTick += 1
         Log.scan.info("filled from tag: \(String(describing: winner), privacy: .public)")
         onCandidate?(winner)

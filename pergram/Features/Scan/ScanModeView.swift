@@ -30,8 +30,8 @@ struct ScanModeView: View {
                     maxWidth: .infinity, minHeight: viewfinderHeight, maxHeight: viewfinderHeight
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 28))
-            // The caption row already reserves a full target (`CheckMetrics.captionAllowance`), so
-            // the actions sit beside it without costing the viewfinder any height. They pair at the
+            // The caption row reserves a full target (`CheckMetrics.captionAllowance`), so the
+            // actions sit beside it without costing the viewfinder any height. They pair at the
             // trailing edge in the keypad's order, cart outermost, so both modes keep them under the
             // same thumb.
             HStack(spacing: 12) {
@@ -112,18 +112,9 @@ struct ScanModeView: View {
         }
     }
 
-    /// The slot is held open by the longer of the two captions whether or not there is anything to
-    /// say, so neither the session starting nor a change of wording can move the viewfinder.
     private var caption: some View {
-        Text(Self.adjustCaption)
-            .hidden()
-            .overlay(alignment: .leading) {
-                captionLine
-                    .contentTransition(.opacity)
-                    .animation(.easeInOut(duration: 0.2), value: captionText)
-            }
-            .font(.footnote)
-            .foregroundStyle(.secondary)
+        Text(selectionName ?? "")
+            .font(.footnote.weight(.semibold))
             .lineLimit(1)
     }
 
@@ -148,20 +139,6 @@ struct ScanModeView: View {
             .accessibilityLabel(label)
             .accessibilityIdentifier(identifier)
         }
-    }
-
-    private static let aimCaption = "Aim at the shelf tag"
-    private static let adjustCaption = "Swipe to Type to adjust"
-
-    private var captionLine: Text {
-        guard let selectionName else { return Text(captionText) }
-        let name = Text(selectionName).fontWeight(.semibold).foregroundStyle(.primary)
-        return captionText.isEmpty ? name : Text("\(name) · \(captionText)")
-    }
-
-    private var captionText: String {
-        guard model.status == .scanning else { return "" }
-        return model.hasFilled ? Self.adjustCaption : Self.aimCaption
     }
 
     private func unavailablePanel<Action: View>(
