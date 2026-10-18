@@ -201,6 +201,35 @@ final class ShortScreenTests: XCTestCase {
         app.buttons["confirmFinishTrip"].firstMatch.tap()
     }
 
+    func testRemovingTheLastCartRowKeepsTheCartHeader() {
+        let app = launch()
+
+        app.buttons["4"].firstMatch.tap()
+        app.buttons["addToCartKey"].firstMatch.tap()
+        app.buttons
+            .matching(NSPredicate(format: "label BEGINSWITH 'Switch to Shop'"))
+            .firstMatch.tap()
+        let row = app.staticTexts
+            .matching(NSPredicate(format: "label BEGINSWITH 'Item '"))
+            .firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "no cart row")
+        XCTAssertFalse(app.staticTexts["Empty"].exists, "a full cart is marked empty")
+
+        drag(row, from: 0.1, to: 0.6)
+        let remove = app.buttons["Remove"].firstMatch
+        XCTAssertTrue(remove.waitForExistence(timeout: 5), "no row actions")
+        remove.tap()
+
+        XCTAssertTrue(app.staticTexts["Empty"].waitForExistence(timeout: 5), "no empty marker")
+        XCTAssertTrue(app.staticTexts["Cart"].exists, "the cart header left with its last row")
+        XCTAssertFalse(row.exists, "the row was not removed")
+
+        let finish = app.buttons["finishTrip"].firstMatch
+        if !finish.isHittable { app.swipeUp() }
+        finish.tap()
+        app.buttons["confirmFinishTrip"].firstMatch.tap()
+    }
+
     /// Across the screen rather than across the element: a short element's own `swipeRight()` covers
     /// too little distance and lands as a tap.
     private func drag(_ element: XCUIElement, from start: CGFloat, to end: CGFloat) {
