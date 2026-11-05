@@ -1,111 +1,56 @@
 # App Review notes
 
-Paste the numbered answers below into **App Review Information → Notes** for each submission. They
-were first written as the Guideline 2.1 reply and are kept current with the app (last: 1.2.0).
+Paste the block below into **App Review Information → Notes** for each submission (4000 characters
+max; this is about 3950). Kept current with the app (last: 1.2.0).
 
----
+```text
+The app has no account registration, no login, no account deletion, no user-generated content, and no paid content or in-app purchases, so none of those flows appear.
 
-## 1. Screen recording
+1. Purpose and target audience
 
-Recorded on a physical iPhone running the current iOS. See the shot list at the end of this file.
+PerGram Go answers two questions a grocery shopper has: what do I need from the store, and what is a good price for what I need?
 
-The app has no account registration, no login, no account deletion, no user-generated content, and
-no paid content or in-app purchases, so none of those flows appear.
+Shelf prices are not comparable as printed: a 680 g pack at $8.99 and a 1.4 kg pack at $16.49 are different prices per kilogram, and working that out in an aisle is tedious enough that most people skip it. The app converts any price to a common unit — $/100 g, or $/each for things sold by count — and compares it against a good price the user sets themselves. Grocery lists and a running cart carry that check through a shopping trip.
 
-## 2. Purpose and target audience
+The audience is ordinary grocery shoppers in Canada. There is no professional or business use case.
 
-PerGram Go answers one question a grocery shopper cannot answer in their head: is this price
-actually good?
+2. Setup and access to the main features
 
-Shelf prices are not comparable as printed. A 680 g pack at $8.99 and a 1.4 kg pack at $16.49 are
-different prices per kilogram, and working that out in an aisle is tedious enough that most people
-skip it. The app converts any price to a common unit — $/100 g, or $/each for things sold by count —
-and compares it against a good price the user sets themselves.
+No account, credentials or sample files are required. The app is fully functional offline from first launch.
 
-The audience is ordinary grocery shoppers in Canada, particularly anyone comparing package sizes,
-brands or stores. There is no professional or business use case.
+- Type: Opens on this tab. Enter a price, tap the amount field, enter an amount, and choose a unit. The verdict appears above.
+  - Tap the item row above the keypad to choose an item. A fresh install has no good prices; with an item selected, tap "Set as good price" where the verdict would be.
+  - Tap the unit beside the large price to change the display unit.
+- Scan: Tap "Scan" at the top of the Check screen, or swipe left. iOS asks for camera permission the first time. Point the camera at any printed price tag and the fields fill on their own. A photograph of a tag shown on another screen also works.
+- Lists: Create a list with +, add items by typing, then "Shop this list" and "Start". The share button sends a copy of the list as a file.
+- Shop: The leftmost mode on the Check screen. It shows the running cart and the list by aisle. "Finish trip" shows a summary.
+- Items: Everything the user has added or priced, searchable. Tap one to set its good prices.
+- Settings: How it works, feedback email, support page, privacy policy.
 
-Since 1.2.0 it also keeps grocery lists and a running cart for a shopping trip, so the same check
-happens while shopping a list, and a trip ends with a summary of what was spent and how it rated.
+3. External services, tools and platforms
 
-The verdict is deliberately measured against the user's own saved good price rather than a market
-average, so it reflects what that person considers acceptable.
+None. The app makes no network requests of any kind. No third-party SDKs, analytics, advertising, payments or backend.
 
-## 3. Setup and access to the main features
+Camera frames are processed in memory, on device, with Apple's Vision framework, and are never written to disk, saved to the photo library, or transmitted. The privacy manifest declares no collected data and no tracking. Sharing a list uses the system share sheet; the app itself never connects to anything.
 
-No account, no login, no credentials, and no sample files are required. The app is fully functional
-offline from first launch.
+The built-in grocery list is names and aisles only, no prices, written by the developer. Its French names were checked against Health Canada's Canadian Nutrient File (Open Government Licence – Canada), credited in Settings. Nothing comes from any retailer or data provider.
 
-- **Check (Type).** Opens on this tab. Enter a price on the keypad, tap the amount field, enter an
-  amount, and choose a unit. The verdict appears above.
-- **Selecting an item.** Tap the item row between the price card and the keypad to open its menu.
-  "Choose item…" searches the user's items and a built-in list of common groceries. A fresh install
-  has no good prices: the user sets them. With an item selected, "Set as good price" appears where
-  the verdict would be, and "Set good price to …" in the item menu does the same.
-- **Display unit.** Tap the unit beside the large price (for example `/kg`) to cycle it.
-- **Comparing two products.** The bookmark key parks the price on screen; check a second product and
-  the chip under the price shows the difference between them.
-- **Check (Scan).** Tap "Scan" at the top of the Check screen, or swipe left. iOS asks for camera
-  permission the first time. Point the camera at any printed price tag and the fields fill on their
-  own; there is no button to press. Pinch to zoom and tap to focus for small print.
-  A printed grocery shelf tag works, and so does a photograph of one shown on another screen.
-- **Shop.** The leftmost mode on the Check screen ("Shop", or swipe right from Type). It shows the
-  running cart and, when shopping a list, that list by aisle. The add-to-cart key sits under the
-  bookmark key; "Finish trip" shows the trip summary.
-- **Lists.** Create a list with +, add items by typing, tap an item to add a note or change its
-  aisle, and "Shop this list" to start a trip. The share button sends a copy of the list as a
-  `.pergram` file, which PerGram Go opens on another device to import or update it.
-- **Items.** Everything the user has added or priced, by aisle, searchable; tap one to set or remove
-  its good prices.
-- **Settings.** How the app works, a feedback email, links to the support page and privacy policy,
-  and the version number.
+4. Regional differences
 
-## 4. External services, tools and platforms
+The app behaves identically in every region. There is no region detection, no geolocation, and no region-conditional code or content. This may change in a future update, but the app is based in Canada and designed for Canada.
 
-None. The app makes no network requests of any kind. It has no third-party SDKs, analytics,
-advertising, authentication, payment processing, or backend of any sort, and no Swift Package or
-CocoaPods dependencies.
+Prices display in Canadian dollars, and the tag reader understands the bilingual English and French wording Canadian shelf tags are required to carry. Those are fixed properties of the app, not switched by region. This is why the app is only available in Canada.
 
-Everything is Apple's own on-device frameworks:
-
-- **Vision** — text recognition on camera frames, entirely on device. This is Apple's local
-  framework, not a hosted or third-party AI service. No image or frame is uploaded anywhere.
-- **AVFoundation** — the camera capture session.
-- **SwiftUI, SwiftData, Foundation** — interface and local storage.
-
-Camera frames are processed in memory in real time and are never written to disk, saved to the photo
-library, or transmitted. The app's privacy manifest declares no collected data and no tracking.
-
-Sharing a list uses the system share sheet: the app writes a small file and iOS sends it by whatever
-the user picks (AirDrop, Messages, Files). The app itself never connects to anything.
-
-The built-in list of common groceries is names, aliases and aisles only — no prices. It was written
-by the developer and its French names were checked against Health Canada's Canadian Nutrient File,
-published under the Open Government Licence – Canada, which the app credits in Settings. Nothing
-comes from any retailer.
-
-## 5. Regional differences
-
-The app behaves identically in every region. There is no region detection, no geolocation, and no
-region-conditional code or content.
-
-It is designed for Canadian shopping: prices display in Canadian dollars everywhere, and the tag
-reader understands the bilingual English and French wording Canadian shelf tags are required to
-carry. Those are fixed properties of the app, not switched by the user's region — someone running it
-elsewhere sees exactly the same app.
-
-## 6. Regulated industry and third-party material
+5. Regulated industry and third-party material
 
 Neither applies.
 
-The app is a unit-price calculator. It is not in a regulated industry, and it makes no health,
-financial, or safety claims. A verdict is arithmetic against a number the user chose.
+The app is a unit-price calculator. It makes no health, financial, or safety claims. A verdict is arithmetic against a number the user chose.
 
-It contains no third-party protected material. There is no retailer branding and no price data
-from anyone but the user. The only outside material is a cross-check of grocery names against an
-open Government of Canada dataset, credited in Settings as its licence requires. Scanning reads the price printed on a tag the user is
-standing in front of, using the camera, in the same way a person reads it — nothing is retained and
-no retailer system is accessed.
+There is no retailer branding and no price data from anyone but the user. The only outside material is the open Government of Canada dataset above, credited as its licence requires. Scanning reads the price on a tag the user is standing in front of, the way a person reads it; nothing is retained and no retailer system is accessed.
+
+See ScreenRecording_10-20-2026 03-10-14_1.mov attached for a usual user flow.
+```
 
 ---
 
@@ -123,7 +68,7 @@ One continuous take, on a physical device, roughly 60–90 seconds. Start with t
 6. Point at a printed price tag until the fields fill on their own. Pinch to zoom once.
 7. Swipe to "Type" to show the scanned values can be corrected by hand.
 8. Open Lists, create a list, add two items, and tap one to add a note.
-9. Tap "Shop this list", then Start. Tap an item to price it and add it to the cart with the cart
+9. Tap "Shop this list", uncheck one item to skip it, then Start. Tap an item to price it and add it to the cart with the cart
    key; show it cross off.
 10. Open the Shop page and tap "Finish trip" to show the summary.
 11. Open Items, scroll, use the search field.
