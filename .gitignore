@@ -11,3 +11,4 @@ xcuserdata/
 
 # Local agent handover notes (not tracked)
 agent-docs/
+.claude/
