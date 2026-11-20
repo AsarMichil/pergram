@@ -7,6 +7,7 @@ into the other would distort or crop.
 |---|---|---|
 | `screenshots/6.3-inch/` | 1206 × 2622 | iPhone 6.3" |
 | `screenshots/6.5-inch/` | 1284 × 2778 | iPhone 6.5" |
+| `screenshots/1.2.0/` | 1206 × 2622 | — (1.2.0 capture, all five states) |
 
 Both sets show the same four states, in upload order:
 
@@ -44,6 +45,15 @@ Device types: `iPhone-16-Pro` for 6.3", `iPhone-13-Pro-Max` for 6.5". Neither sh
 ready-made simulator any more — create them against the current runtime with `simctl create`
 first. Restore the scheme's `skipped` flag from git rather than from a copy afterwards; a
 backup taken mid-session can capture the already-flipped value.
+
+## Portfolio and social images
+
+`Scripts/composite.py` puts screenshots on the purple gradient the portfolio uses, at 2400 × 1350.
+Feed it the 6.3" captures; the phone size is fixed to the portfolio layout.
+
+```sh
+uv run Scripts/composite.py <out-dir> AppStore/screenshots/1.2.0/*.png
+```
 
 ## Scan
 
